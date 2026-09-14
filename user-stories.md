@@ -72,3 +72,45 @@ to my preferences.
 8. **Given**: I am viewing the list of hotels with applied filters \
    **When**: I refresh the page or navigate to another one and return to the list \
    **Then**: Previously applied filters should be preserved
+
+   US-003:
+
+As a client, I want to open a hotel's page from the search results list, so I can see more details about it before booking.
+
+AC:
+  Given: I am viewing the list of hotels
+  When: I click on a hotel card
+  Then: I should be redirected to that hotel's page
+  
+  Given: I am on a hotel's page
+  When: The page loads
+  Then: I should see the hotel's name, photos, price per night, rating and address
+  
+  Given: I am on a hotel's page
+  When: I click the back button or navigate back to the list
+  Then: I should return to the list of hotels I was previously viewing
+  
+  Given: I clicked on a hotel card
+  When: The hotel's page is loading
+  Then: I should see a loading indicator until the page is ready
+  
+  US-004:
+
+As a client, I want the filters I applied to stay active when I refresh the page or come back to the results, so I don't have to set them again.
+
+AC:
+  Given: I have applied one or more filters to the list of hotels
+  When: I refresh the page
+  Then: The same filters should still be applied and the filtered list should be shown
+  
+  Given: I have applied one or more filters
+  When: I open a hotel's page and then go back to the list
+  Then: The filters I applied before should still be active
+  
+  Given: I have applied filters during my current session
+  When: I close the browser and open the site again later
+  Then: The filters should be reset to default (not saved beyond the session)
+  
+  Given: I have filters applied
+  When: I click "Clear filters"
+  Then: All filters should be reset and the full list of hotels should be shown
