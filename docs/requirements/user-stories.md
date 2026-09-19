@@ -50,7 +50,7 @@ to my preferences.
    ***Then***: only hotels within that rating range should be displayed
 
 3. ***Given***: I am viewing the list of hotels \
-   ***When***: I select one or more amenities (e.g., Wi-Fi, AC, parking, pet-friendly)
+   ***When***: I select one or more amenities (e.g., Wi-Fi, AC, parking, pet-friendly) \
    ***Then***: only hotels offering all selected amenities should be displayed (AND logic)
 
 4. ***Given***: I am viewing the list of hotels \
@@ -134,7 +134,7 @@ so I can choose one.
 
 2. ***Given***: I am searching for rooms of a selected hotel in selected dates \
    ***When***: no rooms are available \
-   ***Then***: I should see a message that no rooms are available\
+   ***Then***: I should see a message that no rooms are available
 
 3. ***Given***: I am authenticated as a client \
    ***When***: I am viewing the room list \
