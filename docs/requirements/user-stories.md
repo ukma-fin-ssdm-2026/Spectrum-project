@@ -1,4 +1,5 @@
-Booking system
+# User stories
+Go back to the [Main README](../../README.md).
 
 ### US-001:
 
@@ -245,6 +246,11 @@ As a hotel worker, I want to view room details, so I can manage them.
 5. ***Given***: I am viewing a room's details as a hotel worker \
    ***When***: I click the "Delete" button \
    ***Then***: The room deletion dialog should appear
+
+6. ***Given***: I am viewing a room's calendar of availability as a hotel worker \
+   ***When***: I select a booked date and click the "Cancel" button \
+   ***Then***: I should be prompted with a confirmation dialog before the cancellation is
+   finalized
 
 ### US-009:
 
