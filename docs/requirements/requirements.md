@@ -46,11 +46,11 @@ Out of scope: payments, in-app communication between hotel workers and clients
 - FR-011: The system shall allow a client to filter search results by amenities
 - FR-012: The system shall allow a client to view a hotel's rooms
 - FR-013: The system shall allow a client to book a room
-- FR-013: The system shall allow a client to rate a hotel after a stay
-- FR-014: The system shall notify a client about a booking
-- FR-014: The system shall notify a client about a booking cancellation
-- FR-015: The system shall allow a hotel worker to view a hotel's rooms
-- FR-016: The system shall allow a hotel administrator to manage workers' permissions
+- FR-014: The system shall allow a client to rate a hotel after a stay
+- FR-015: The system shall notify a client about a booking
+- FR-016: The system shall notify a client about a booking cancellation
+- FR-017: The system shall allow a hotel worker to view a hotel's rooms
+- FR-018: The system shall allow a hotel administrator to manage workers' permissions
 
 ## Assumptions and limitations
 

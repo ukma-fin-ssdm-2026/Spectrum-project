@@ -1,0 +1,36 @@
+@startuml
+title Deployment Diagram
+
+skinparam shadowing false
+
+node "Client cluster" as clientNode {
+  artifact "Client App" as client
+}
+
+node "Gateway" as gatewayNode {
+  artifact "Nginx\n(reverse proxy)" as nginx
+}
+
+node "Application cluster" as appNode {
+  artifact "Server App" as server
+}
+
+node "Database cluster" as dbNode {
+  database "Postgres" as postgres
+}
+
+node "Cache" as cacheNode {
+  database "Valkey" as valkey
+}
+
+cloud "Email Service" as email
+cloud "S3 File Storage" as s3
+
+client --> nginx : HTTPS
+nginx --> server : HTTP
+nginx --> s3 : REST
+
+server --> postgres : SQL
+server --> valkey : RESP
+server --> email : REST
+@enduml
