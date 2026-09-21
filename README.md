@@ -5,3 +5,6 @@
 ## Requirements artefacts:
 - [Requirements](docs/requirements/requirements.md)
 - [User stories](docs/requirements/user-stories.md)
+
+## Architecture:
+- [Deployment diagram](docs/architecture/uml/deployment_diagram.puml)
