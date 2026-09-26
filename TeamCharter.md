@@ -1,4 +1,5 @@
 # Team charter
+Go back to the [Main README](README.md).
 
 ## 1. Main info
 - Team name: Spectrum team
@@ -7,6 +8,7 @@
     - Вероніка (GitHub: @VeronikaGovorischeva, ukma email: vhovoryshcheva@ukma.edu.ua)
     - Павло (GitHub: @FalsePromisee, ukma email: p.halkovskyi@ukma.edu.ua)
     - Роман (GitHub: @Roman19122006, ukma email: r.butko@ukma.edu.ua)
+- Requirements documentation: [Requirements](docs/requirements/requirements.md)
 
 ## 2. Roles and responsibilities
 - Repo Maintainer: @VeronikaGovorischeva
@@ -14,6 +16,11 @@
 - Documentation Lead: @Roman19122006
 - Issue Tracker Lead: @FalsePromisee
 - Project Brief Lead: @Roman19122006
+- Requirements Lead: @Demon4ort
+- Quality Lead: ???
+- Traceability Lead: ???
+- Documentation Lead: ???
+- FR Lead: @Demon4ort
 
 ## 3. Communication plan
 - Main channel: telegram chat
@@ -25,6 +32,9 @@
 - Commit practice: conventional commits
 - Code review rules: all commits require pull request, successful ci run and at least 1 approve(ideally)
 - Task working process: open → assign → work → pr → close
+- Requirements review: reviewing pull requests or issue in repo
+- NFR checks: benchmarks and their results with explanations and instructions how to reproduce
+- Loom videos: member will show what commits, comments on review or issues he made
 
 ## 5. Conflict resolution
 - Conflict resolution plan: discussion, then escalation if unresolved
