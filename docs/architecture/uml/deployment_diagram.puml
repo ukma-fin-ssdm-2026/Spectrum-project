@@ -33,4 +33,6 @@ nginx --> s3 : REST
 server --> postgres : SQL
 server --> valkey : RESP
 server --> email : REST
+
+caption **AI usage**: skeleton was generated with LLM
 @enduml

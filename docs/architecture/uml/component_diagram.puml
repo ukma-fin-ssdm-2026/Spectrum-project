@@ -1,0 +1,51 @@
+plantuml
+@startuml Booking_System_Components
+
+skinparam componentStyle rectangle
+
+package "Client Layer" {
+  [Client App] as Client
+}
+
+package "Backend" {
+  [API Gateway] as Gateway
+
+  [Auth Service] as Auth
+  [Hotel and Room Service] as HotelRoom
+  [Booking Service] as Booking
+  [Notification Service] as Notify
+  [Scheduler] as Scheduler
+}
+
+database "Database" as DB
+cloud "Email Provider" as EmailProvider
+cloud "Storage Provider" as s3
+
+Client --> Gateway : HTTPS/REST
+
+' Gateway -> internal services
+Gateway --> Auth : authenticate / authorize
+Gateway --> HotelRoom : browse hotels / manage rooms
+Gateway --> Booking : search / book / approve / cancel
+
+Gateway --> s3 : fetch images
+
+' Permission checks
+HotelRoom --> Auth : check permissions
+Booking --> Auth : check permissions
+
+' Data access
+Auth --> DB
+HotelRoom --> DB
+HotelRoom --> s3 : save images
+Booking --> DB
+Scheduler --> DB : query upcoming bookings
+
+' Events -> notifications
+Scheduler --> Notify : send remainder
+Booking --> Notify: send notification about approve/cancel
+Notify --> EmailProvider : send email
+
+caption **AI usage**: skeleton was generated with LLM
+
+@enduml
