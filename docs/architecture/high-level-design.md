@@ -1,6 +1,6 @@
 # High-Level Design (HLD)
 
-Go back to the [Main README](README.md).
+Go back to the [Main README](../../README.md).
 
 ## 1. Introduction
 
