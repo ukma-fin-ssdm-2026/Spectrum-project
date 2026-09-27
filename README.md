@@ -9,6 +9,7 @@
 ## Requirements artefacts:
 - [Requirements](docs/requirements/requirements.md)
 - [User stories](docs/requirements/user-stories.md)
+- [Requirements traceability matrix](docs/requirements/rtm.md)
 
 ## Architecture:
 - [High-Level Design](docs/architecture/high-level-design.md)
