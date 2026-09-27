@@ -57,6 +57,6 @@ Go back to the [Main README](README.md).
 
 ## 9. Signatures
 - [x] Данило (GitHub: @Demon4ort)
-- [ ] Вероніка (GitHub: @VeronikaGovorischeva)
+- [x] Вероніка (GitHub: @VeronikaGovorischeva)
 - [ ] Павло (GitHub: @FalsePromisee)
 - [ ] Роман (GitHub: @Roman19122006)
