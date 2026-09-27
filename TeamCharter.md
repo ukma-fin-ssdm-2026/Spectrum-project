@@ -154,4 +154,4 @@ merging.*
 - [x] Данило (GitHub: @Demon4ort)
 - [x] Вероніка (GitHub: @VeronikaGovorischeva)
 - [ ] Павло (GitHub: @FalsePromisee)
-- [ ] Роман (GitHub: @Roman19122006)
+- [x] Роман (GitHub: @Roman19122006)
