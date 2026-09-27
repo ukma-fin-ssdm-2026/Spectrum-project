@@ -59,4 +59,4 @@ Go back to the [Main README](README.md).
 - [x] Данило (GitHub: @Demon4ort)
 - [ ] Вероніка (GitHub: @VeronikaGovorischeva)
 - [ ] Павло (GitHub: @FalsePromisee)
-- [ ] Роман (GitHub: @Roman19122006)
+- [x] Роман (GitHub: @Roman19122006)
