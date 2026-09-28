@@ -13,6 +13,7 @@
 ## Architecture:
 - [High-Level Design](docs/architecture/high-level-design.md)
 - [Data model](docs/architecture/data-model.md)
+- [Threat model (STRIDE)](docs/architecture/threat-model.md)
 
 ### Diagrams:
 - [Deployment diagram](docs/architecture/uml/deployment_diagram.puml)
