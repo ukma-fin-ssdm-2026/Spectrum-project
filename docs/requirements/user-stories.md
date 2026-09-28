@@ -372,29 +372,6 @@ make other plans in time.
    ***When***: I open my bookings list \
    ***Then***: I should see only my own bookings
 
-## INVEST check
-
-I – Independent, N – Negotiable, V – Valuable, E – Estimable, S – Small, T – Testable.
-✅ – satisfied, ⚠️ – partially satisfied (explain in Note), ❌ – not satisfied (explain in
-Note).
-
-I – Independent, N – Negotiable, V – Valuable, E – Estimable, S – Small, T – Testable.
-✅ – satisfied, ⚠️ – partially satisfied (see note).
-
-| Story  | I  | N  | V  | E  | S  | T  | Note                                                                                  |
-|--------|----|----|----|----|----|----|---------------------------------------------------------------------------------------|
-| US-001 | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |                                                                                    |
-| US-002 | ⚠️ | ✅ | ✅ | ✅ | ✅ | ✅ | AC 8 duplicates US-004                                                             |
-| US-003 | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |                                                                                    |
-| US-004 | ⚠️ | ✅ | ✅ | ✅ | ✅ | ✅ | Depends on US-002                                                                  |
-| US-005 | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |                                                                                    |
-| US-006 | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |                                                                                    |
-| US-007 | ✅ | ✅ | ✅ | ✅ | ⚠️ | ✅ | Search and three filters in one story; filters could become a separate story       |
-| US-008 | ✅ | ✅ | ✅ | ⚠️ | ⚠️ | ✅ | Combines view, edit, activate/deactivate, delete and cancel                        |
-| US-009 | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |                                                                                    |
-| US-010 | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |                                                                                    |
-| US-011 | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |                                                                                    |
-| US-012 | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |                                                                                    |
 
 ### AI usage note:
 
