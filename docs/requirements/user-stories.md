@@ -77,49 +77,35 @@ to my preferences.
 
 ### US-003:
 
-As a client, I want to open a hotel's page from the search results list, so I can see more
-details about it before booking.
+As a client, I want to view detailed information about a specific hotel (policies, reviews, exact location), so I can make an informed booking decision.
 
-#### AC:
+### AC:
 
-***Given***: I am viewing the list of hotels \
-***When***: I click on a hotel card \
-***Then***: I should be redirected to that hotel's page
-
-***Given***: I am on a hotel's page \
-***When***: The page loads \
-***Then***: I should see the hotel's name, photos, price per night, rating and address
-
-***Given***: I am on a hotel's page \
-***When***: I click the back button or navigate back to the list \
-***Then***: I should return to the list of hotels I was previously viewing
-
-***Given***: I clicked on a hotel card \
-***When***: The hotel's page is loading \
-***Then***: I should see a loading indicator until the page is ready
+1. ***Given***: I am on a hotel's page \
+   ***When***: The page loads \
+   ***Then***: I should see the hotel's check-in/check-out policies, available amenities, and description
+2. ***Given***: I am on a hotel's page \
+   ***When***: I scroll to the reviews section \
+   ***Then***: I should see previous clients' ratings and text reviews
+3. ***Given***: I am on a hotel's page \
+   ***When***: I view the location section \
+   ***Then***: I should see the hotel's exact address and a map preview
 
 ### US-004:
 
-As a client, I want the filters I applied to stay active when I refresh the page or come
-back to the results, so I don't have to set them again.
+As a client, I want to sort the search results by different criteria (price, rating), so I can quickly find the best or cheapest options.
 
-#### AC:
+### AC:
 
-***Given***: I have applied one or more filters to the list of hotels \
-***When***: I refresh the page \
-***Then***: The same filters should still be applied and the filtered list should be shown
-
-***Given***: I have applied one or more filters \
-***When***: I open a hotel's page and then go back to the list \
-***Then***: The filters I applied before should still be active
-
-***Given***: I have applied filters during my current session \
-***When***: I close the browser and open the site again later \
-***Then***: The filters should be reset to default (not saved beyond the session)
-
-***Given***: I have filters applied \
-***When***: I click "Clear filters" \
-***Then***: All filters should be reset and the full list of hotels should be shown
+1. ***Given***: I am viewing the list of hotels \
+   ***When***: I select "Sort by Price: Low to High" \
+   ***Then***: The hotels should be reordered so that the cheapest options appear first
+2. ***Given***: I am viewing the list of hotels \
+   ***When***: I select "Sort by Rating: High to Low" \
+   ***Then***: The hotels should be reordered so that the highest-rated options appear first
+3. ***Given***: I am viewing a sorted list of hotels \
+   ***When***: I apply a filter (e.g., specific amenities) \
+   ***Then***: The remaining filtered hotels should retain the previously selected sorting order
 
 ### US-005:
 
