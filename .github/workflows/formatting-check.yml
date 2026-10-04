@@ -16,7 +16,8 @@ jobs:
           distribution: temurin
           java-version: 21
           cache: maven
-
+      - name: Permissions for mvnw
+        run: chmod +x mvnw
       - name: Check formatting
         working-directory: spectrum-app
         run: ./mvnw -B spotless:check
