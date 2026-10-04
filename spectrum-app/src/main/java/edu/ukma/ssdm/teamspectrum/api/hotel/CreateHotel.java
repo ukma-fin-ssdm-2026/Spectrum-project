@@ -8,7 +8,8 @@ import jakarta.validation.constraints.Size;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 
 public record CreateHotel(
-    @NotBlank @Size(min = nameMinSize, max = nameMaxSize) @Schema(examples = {Hotel.nameExample}) String name,
+    @NotBlank @Size(min = nameMinSize, max = nameMaxSize) @Schema(examples = {Hotel.nameExample})
+        String name,
     @NotNull @Valid Address address) {
   static final int nameMinSize = 3;
   static final int nameMaxSize = 40;

@@ -1,9 +1,9 @@
 /* (C)2026 */
 package edu.ukma.ssdm.teamspectrum.api.hotel;
 
+import edu.ukma.ssdm.teamspectrum.api.common.error.ValidationError;
 import edu.ukma.ssdm.teamspectrum.api.common.page.PageResponse;
 import edu.ukma.ssdm.teamspectrum.api.common.page.PaginationParams;
-import edu.ukma.ssdm.teamspectrum.api.common.error.ValidationError;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import jakarta.ws.rs.BeanParam;
@@ -52,13 +52,18 @@ public class HotelController {
   @APIResponse(
       responseCode = "200",
       description = "Successful retrieval",
-      content = @Content(schema = @Schema(implementation = PageResponse.class)))
-  public Response fetch(@BeanParam PaginationParams params) {
+      content = @Content(schema = @Schema(implementation = HotelPageResponse.class)))
+  @APIResponse(
+      responseCode = "400",
+      description = "Validation failed",
+      content = @Content(schema = @Schema(implementation = ValidationError.class)))
+  public Response getHotels(@BeanParam @Valid PaginationParams params) {
     long total = hotels.size();
-    List<Hotel> items = hotels.values().stream()
-        .skip((long) params.page() * params.limit())
-        .limit(params.limit())
-        .toList();
+    List<Hotel> items =
+        hotels.values().stream()
+            .skip((long) params.page() * params.limit())
+            .limit(params.limit())
+            .toList();
 
     return Response.ok(new PageResponse<>(items, total, params)).build();
   }
