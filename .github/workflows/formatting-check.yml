@@ -17,6 +17,7 @@ jobs:
           java-version: 21
           cache: maven
       - name: Permissions for mvnw
+        working-directory: spectrum-app
         run: chmod +x mvnw
       - name: Check formatting
         working-directory: spectrum-app
