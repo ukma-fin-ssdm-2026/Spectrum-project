@@ -19,3 +19,31 @@
 - [Deployment diagram](docs/architecture/uml/deployment_diagram.puml)
 - [Component diagram](docs/architecture/uml/component_diagram.puml)
 - [Sequence diagram](docs/architecture/uml/sequence_diagram.puml)
+
+
+### How to run locally:
+#### Prerequisites:
+- **JDK 21+** (check with `java -version`)
+
+**Linux / macOS**
+
+```shell
+cd spectrum-app
+./mvnw quarkus:dev
+```
+
+> If you get `Permission denied`, make the wrapper executable first: `chmod +x mvnw`
+
+**Windows (Command Prompt)**
+
+```bat
+cd spectrum-app
+mvnw quarkus:dev
+```
+
+**Windows (PowerShell)**
+
+```powershell
+cd spectrum-app
+.\mvnw quarkus:dev
+```
