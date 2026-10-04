@@ -1,5 +1,5 @@
 /* (C)2026 */
-package edu.ukma.ssdm.teamspectrum.api;
+package edu.ukma.ssdm.teamspectrum.api.common.error;
 
 import jakarta.validation.ConstraintViolationException;
 import jakarta.validation.Path;

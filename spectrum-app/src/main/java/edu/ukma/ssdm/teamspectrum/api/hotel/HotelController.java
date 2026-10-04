@@ -1,15 +1,20 @@
 /* (C)2026 */
 package edu.ukma.ssdm.teamspectrum.api.hotel;
 
-import edu.ukma.ssdm.teamspectrum.api.ValidationError;
+import edu.ukma.ssdm.teamspectrum.api.common.page.PageResponse;
+import edu.ukma.ssdm.teamspectrum.api.common.page.PaginationParams;
+import edu.ukma.ssdm.teamspectrum.api.common.error.ValidationError;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
+import jakarta.ws.rs.BeanParam;
 import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -40,5 +45,21 @@ public class HotelController {
     Hotel created = new Hotel(UUID.randomUUID(), request.name(), request.address());
     hotels.put(created.hotelId(), created);
     return Response.status(Response.Status.CREATED).entity(created).build();
+  }
+
+  @GET
+  @Operation(summary = "Fetch all hotels", description = "Returns a paginated list of all hotels")
+  @APIResponse(
+      responseCode = "200",
+      description = "Successful retrieval",
+      content = @Content(schema = @Schema(implementation = PageResponse.class)))
+  public Response fetch(@BeanParam PaginationParams params) {
+    long total = hotels.size();
+    List<Hotel> items = hotels.values().stream()
+        .skip((long) params.page() * params.limit())
+        .limit(params.limit())
+        .toList();
+
+    return Response.ok(new PageResponse<>(items, total, params)).build();
   }
 }

@@ -1,5 +1,5 @@
 /* (C)2026 */
-package edu.ukma.ssdm.teamspectrum.api;
+package edu.ukma.ssdm.teamspectrum.api.common.error;
 
 import java.util.List;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
