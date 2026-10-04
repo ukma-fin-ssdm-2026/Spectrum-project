@@ -1,10 +1,7 @@
 /* (C)2026 */
 package edu.ukma.ssdm.teamspectrum.api.hotel;
 
-import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.*;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 
 public record Address(
@@ -20,8 +17,11 @@ public record Address(
         @Size(min = streetMinSize, max = streetMaxSize)
         @Schema(examples = {streetExample})
         String street,
-    @Min(buildingNumberMin) @Max(buildingNumberMax) @Schema(examples = {buildingNumberExample})
-        int buildingNumber) {
+    @NotNull
+        @Min(buildingNumberMin)
+        @Max(buildingNumberMax)
+        @Schema(examples = {buildingNumberExample})
+        Integer buildingNumber) {
   static final int cityMinSize = 3;
   static final int cityMaxSize = 30;
   static final String cityExample = "Kyiv";

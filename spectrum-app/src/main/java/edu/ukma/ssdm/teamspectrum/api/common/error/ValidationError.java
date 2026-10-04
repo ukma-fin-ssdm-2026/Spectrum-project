@@ -12,7 +12,7 @@ public class ValidationError {
     this.fields = fields;
   }
 
-  public List<FieldError> fields() {
+  public List<FieldError> getFields() {
     return fields;
   }
 
