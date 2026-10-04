@@ -4,7 +4,7 @@ on:
   pull_request:
     types: [ opened, synchronize ]
     branches:
-      - master
+      - main
 
 jobs:
   generate-and-commit:
@@ -27,6 +27,10 @@ jobs:
           distribution: 'temurin'
           cache: 'maven'
 
+      - name: Permissions for mvnw
+        working-directory: spectrum-app
+        run: chmod +x mvnw
+        
       - name: Build and Generate OpenAPI
         run: ./spectrum-app/mvnw -f spectrum-app/pom.xml clean package -DskipTests
 
