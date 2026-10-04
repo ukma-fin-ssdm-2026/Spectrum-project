@@ -11,6 +11,7 @@ import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
+import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
@@ -66,5 +67,27 @@ public class HotelController {
             .toList();
 
     return Response.ok(new PageResponse<>(items, total, params)).build();
+  }
+
+  @GET
+  @Path("/{hotelId}")
+  @Operation(
+      summary = "Fetch a hotel by ID",
+      description = "Returns a single hotel by its unique identifier")
+  @APIResponse(
+      responseCode = "200",
+      description = "Successful retrieval",
+      content = @Content(schema = @Schema(implementation = Hotel.class)))
+  @APIResponse(responseCode = "404", description = "Hotel not found")
+  @APIResponse(
+      responseCode = "400",
+      description = "Validation failed",
+      content = @Content(schema = @Schema(implementation = ValidationError.class)))
+  public Response getHotel(@PathParam("hotelId") UUID hotelId) {
+    Hotel hotel = hotels.get(hotelId);
+    if (hotel == null) {
+      return Response.status(Response.Status.NOT_FOUND).build();
+    }
+    return Response.ok(hotel).build();
   }
 }
