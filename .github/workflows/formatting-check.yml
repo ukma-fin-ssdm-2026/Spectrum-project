@@ -1,0 +1,22 @@
+name: Spotless check
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  spotless:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+          cache: maven
+
+      - name: Check formatting
+        working-directory: spectrum-app
+        run: ./spectrum-app/mvnw -f spectrum-app/pom.xml -B spotless:check
