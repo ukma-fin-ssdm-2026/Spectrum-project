@@ -30,7 +30,7 @@ jobs:
       - name: Permissions for mvnw
         working-directory: spectrum-app
         run: chmod +x mvnw
-        
+
       - name: Build and Generate OpenAPI
         run: ./spectrum-app/mvnw -f spectrum-app/pom.xml clean package -DskipTests
 
@@ -39,7 +39,7 @@ jobs:
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@://github.com"
           
-          git add docs/api/openapi.json
+          git add docs/api/openapi.yaml
           
           if git diff --staged --quiet; then
             echo "No changes to OpenAPI specification files."
