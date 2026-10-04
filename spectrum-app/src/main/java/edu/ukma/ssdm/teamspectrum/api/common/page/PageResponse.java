@@ -19,23 +19,23 @@ public class PageResponse<T> {
     this.limit = params.limit();
   }
 
-  public List<T> items() {
+  public List<T> getItems() {
     return items;
   }
 
-  public long totalItems() {
+  public long getTotalItems() {
     return totalItems;
   }
 
-  public int totalPages() {
+  public int getTotalPages() {
     return totalPages;
   }
 
-  public int currentPage() {
+  public int getCurrentPage() {
     return currentPage;
   }
 
-  public int limit() {
+  public int getLimit() {
     return limit;
   }
 
