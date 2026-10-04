@@ -19,4 +19,4 @@ jobs:
 
       - name: Check formatting
         working-directory: spectrum-app
-        run: ./spectrum-app/mvnw -f spectrum-app/pom.xml -B spotless:check
+        run: ./mvnw -B spotless:check
