@@ -2,7 +2,7 @@ name: Generate OpenAPI Spec on PR
 
 on:
   pull_request:
-    types: [opened, synchronize]
+    types: [ opened, synchronize ]
     branches:
       - master
 
@@ -28,14 +28,14 @@ jobs:
           cache: 'maven'
 
       - name: Build and Generate OpenAPI
-        run: mvn clean compile
+        run: ./spectrum-app/mvnw -f spectrum-app/pom.xml clean package -DskipTests
 
       - name: Commit and Push OpenAPI Changes
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@://github.com"
           
-          git add openapi-spec/
+          git add docs/api/openapi.json
           
           if git diff --staged --quiet; then
             echo "No changes to OpenAPI specification files."
