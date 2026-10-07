@@ -3,36 +3,55 @@ title Deployment Diagram
 
 skinparam shadowing false
 
-node "Client cluster" as clientNode {
-  artifact "Client App" as client
+rectangle "Internet (untrusted)" as zoneInternet #line.dashed {
+  node "Client cluster" as clientNode {
+    artifact "Client App" as client
+  }
 }
 
-node "Gateway" as gatewayNode {
-  artifact "Nginx\n(reverse proxy)" as nginx
+rectangle "DMZ" as zoneDmz #line.dashed {
+  node "Gateway" as gatewayNode {
+    artifact "Nginx\n(reverse proxy)" as nginx
+  }
 }
 
-node "Application cluster" as appNode {
-  artifact "Server App" as server
+rectangle "Application zone (private network)" as zoneApp #line.dashed {
+  node "Application cluster" as appNode {
+    artifact "Server App" as server
+  }
 }
 
-node "Database cluster" as dbNode {
-  database "Postgres" as postgres
+rectangle "Data zone (private network)" as zoneData #line.dashed {
+  node "Database cluster" as dbNode {
+    database "Postgres" as postgres
+  }
+
+  node "Cache" as cacheNode {
+    database "Valkey" as valkey
+  }
 }
 
-node "Cache" as cacheNode {
-  database "Valkey" as valkey
+rectangle "External providers (third party)" as zoneExternal #line.dashed {
+  cloud "Email Service" as email
+  cloud "S3 File Storage" as s3
 }
 
-cloud "Email Service" as email
-cloud "S3 File Storage" as s3
+client --> nginx : HTTPS\n[TB-1]
+nginx --> server : HTTP\n[TB-2]
+nginx --> s3 : REST\n[TB-4]
 
-client --> nginx : HTTPS
-nginx --> server : HTTP
-nginx --> s3 : REST
+server --> postgres : SQL\n[TB-3]
+server --> valkey : RESP\n[TB-3]
+server --> email : REST\n[TB-4]
 
-server --> postgres : SQL
-server --> valkey : RESP
-server --> email : REST
+legend right
+  Dashed rectangles are trust zones.
+  [TB-n] marks a connection that crosses a trust boundary:
+  TB-1: Internet <-> DMZ
+  TB-2: DMZ <-> Application zone
+  TB-3: Application zone <-> Data zone
+  TB-4: System <-> External providers
+endlegend
 
-caption **AI usage**: skeleton was generated with LLM
+caption **AI usage**: formatted and visualized with LLM
 @enduml
