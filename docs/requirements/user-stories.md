@@ -375,6 +375,6 @@ make other plans in time.
 
 ### AI usage note:
 
-US-011 and US-012 were drefated and formatted with an LLM (Claude) from the functional requirements
+US-011 and US-012 were drafted and formatted with an LLM (Claude) from the functional requirements
 (FR-007, FR-013, FR-015, FR-016) and own ideas; the acceptance criteria were reviewed by the author
 before committing.
