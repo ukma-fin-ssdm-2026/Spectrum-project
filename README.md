@@ -10,6 +10,7 @@
 
 - [Requirements](docs/requirements/requirements.md)
 - [User stories](docs/requirements/user-stories.md)
+- [Requirements traceability matrix](docs/requirements/rtm.md)
 
 ## Architecture:
 

@@ -52,5 +52,72 @@ Out of scope: payments, in-app communication between hotel workers and clients
 - FR-017: The system shall allow a hotel worker to view a hotel's rooms
 - FR-018: The system shall allow a hotel administrator to manage workers' permissions
 
+## Non-Functional Requirements(NFR)
+
+Categories follow ISO/IEC 25010. Every requirement is measurable and names how it is
+verified.
+
+### Reliability
+
+- REL-001: The system shall never hold two active bookings with overlapping dates for the
+  same room. This is enforced by a database constraint, so 0 double bookings occur even
+  when 100 concurrent requests target the same room and dates. \
+  *Verification:* concurrency integration test.
+
+### Performance efficiency
+
+- PERF-001: Hotel search by location and dates shall return results in ≤ 2 s with 20
+  concurrent users. \
+  *Verification:* load test on the search endpoint.
+
+### Security
+
+- SEC-001: A client's personal data (name, email, bookings) shall be visible only to that
+  client and to workers of the hotel the booking belongs to. Any other user receives
+  `403`. \
+  *Verification:* automated access-control tests.
+- SEC-002: User passwords shall be stored only as salted hashes (e.g. bcrypt), never as
+  plain text. \
+  *Verification:* code review and a check that the password column contains no plain
+  text.
+- SEC-003: A hotel worker shall be able to create, edit, delete, activate or deactivate
+  only rooms, and cancel only bookings, that their `PermissionGrant` covers (hotel, room
+  scope, access level). 100% of room- and booking-management endpoints return `403` to a
+  worker without the required permission. \
+  *Verification:* automated authorization tests for every protected endpoint.
+
 ## Assumptions and limitations
+
+- A-001: Payments are made outside the system (e.g. at the hotel).
+- A-002: Hotels and hotel workers are added by an administrator; hotels do not register
+  themselves.
+- A-003: Every user has a valid email address, used for login and notifications.
+- C-001: The team has 4 members and one semester to deliver the system.
+- C-002: Email delivery depends on an external email provider, and room pictures are
+  stored in an external S3-compatible storage.
+- C-003: The system is a web application only; there is no mobile app.
+
+## Risks and open questions
+
+- R-001: Two clients may book the same room for the same dates at the same moment. \
+  *Mitigation:* database constraint (REL-001).
+- R-002: The email provider may be unavailable, so clients miss booking notifications. \
+  *Mitigation:* retry sending later; the booking itself does not depend on the email.
+- R-003: Worker permissions (per hotel, per room) can be configured incorrectly and give
+  too much access. \
+  *Mitigation:* deny access by default and cover it with tests (SEC-001).
+- R-004: The scope may not fit into one semester. \
+  *Mitigation:* rating (FR-014) and permission management (FR-018) are implemented last
+  and can be cut.
+- OQ-001: Does a booking need worker approval (`PENDING → APPROVED` in the data model),
+  or is it confirmed immediately? No FR covers approval yet.
+- OQ-002: Can a client cancel their own booking, and until when?
+- OQ-003: Who may rate a hotel — only clients with a completed stay there?
+
+### AI usage note:
+
+The NFR wording, assumptions, risks and open questions were drafted with an LLM (Claude)
+from the NFRs agreed by the team and the existing requirements and architecture
+documents. SEC-003 was proposed by the LLM to cover the worker stories (US-006 – US-010)
+and agreed by the team. Verification: reviewed by the team in the pull request before merging.
 
