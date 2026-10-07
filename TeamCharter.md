@@ -35,6 +35,12 @@ Go back to the [Main README](README.md).
 - Requirements review: reviewing pull requests or issue in repo
 - NFR checks: benchmarks and their results with explanations and instructions how to reproduce
 - Loom videos: member will show what commits, comments on review or issues he made
+- Requirements artifacts: all requirements documents are stored in `docs/requirements/`
+- README maintenance: a pull request that adds, renames or moves an artifact also updates the
+  links in `README.md`
+- Contribution evidence: each member commits the link to their Loom video as
+  `LabNN/video_<name>.txt` before the deadline; the team checks at the weekly meeting that every
+  member's link is present and matches their commits and reviews
 
 ## 5. Conflict resolution
 - Conflict resolution plan: discussion, then escalation if unresolved
