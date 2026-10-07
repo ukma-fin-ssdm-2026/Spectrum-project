@@ -22,6 +22,7 @@
 
 - [Deployment diagram](docs/architecture/uml/deployment_diagram.puml)
 - [Component diagram](docs/architecture/uml/component_diagram.puml)
+- [Data model diagram](docs/architecture/uml/data_model.puml)
 - [Sequence diagram](docs/architecture/uml/sequence_diagram.puml)
 
 ### How to run locally:
