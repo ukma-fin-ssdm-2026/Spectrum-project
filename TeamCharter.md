@@ -17,8 +17,8 @@ Go back to the [Main README](README.md).
 - Issue Tracker Lead: @FalsePromisee
 - Project Brief Lead: @Roman19122006
 - Requirements Lead: @Demon4ort
-- Quality Lead: ???
-- Traceability Lead: ???
+- Quality Lead: @VeronikaGovorischeva
+- Traceability Lead: @VeronikaGovorischeva
 - Documentation Lead: ???
 - FR Lead: @Demon4ort
 
