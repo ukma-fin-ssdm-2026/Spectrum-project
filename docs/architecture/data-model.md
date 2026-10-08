@@ -41,13 +41,13 @@ Go back to the [Main README](../../README.md).
 
 - Entity: `User`
     - `UserId` (identity)
-    - `Name`
-    - `Email`
-    - `PasswordHash`
+    - `Name` — **personal data**
+    - `Email` — **personal data**
+    - `PasswordHash` — **sensitive** (credential)
     - `Role` (value object, enum: `CLIENT` | `WORKER` | `ADMIN`) \
     - *Invariants:*
         - no two `User`'s should have the same email
-- Entity: `PermissionGrant`
+- Entity: `PermissionGrant` — **sensitive** (controls access)
     - `PermissionGrantId`
     - `WorkerId` (reference to `User`)
     - `HotelId` (reference to `Hotel`)
@@ -87,7 +87,7 @@ Go back to the [Main README](../../README.md).
 
 **Aggregate Root: `Booking`**
 
-- Entity: `Booking`
+- Entity: `Booking` — **personal data** (who stays where and when)
     - `BookingId`(identity)
     - `RoomId`
     - `ClientId` (reference to `User`)
@@ -106,6 +106,44 @@ Go back to the [Main README](../../README.md).
 
 ---
 
+## 4. Personal and sensitive data
+
+Marked fields are the starting point of the [Threat model](threat-model.md).
+
+| Data                                        | Classification | Why                                                    |
+|---------------------------------------------|----------------|--------------------------------------------------------|
+| `User.Name`, `User.Email`                   | Personal       | Identify a person                                      |
+| `User.PasswordHash`                         | Sensitive      | Credential; stored only as a salted hash (SEC-002)     |
+| `PermissionGrant` (all fields)              | Sensitive      | Controls what a worker may do (SEC-003)                |
+| `Booking` (`ClientId`, `RoomId`, `DateRange`) | Personal     | Shows who stays where and when (SEC-001)               |
+| `Hotel`, `Room`                             | Public         | Shown to every visitor in search results               |
+
+---
+
+## 5. Diagram
+
+See [Data model diagram](uml/data_model.puml)
+
+---
+
+## 6. Key feature coverage
+
+Key features are taken from the project description.
+
+| # | Key feature                                   | Model elements                                   | Covered                                                  |
+|---|-----------------------------------------------|--------------------------------------------------|----------------------------------------------------------|
+| 1 | Hotel and room search with filters            | `Hotel`, `Room`, `Booking.DateRange`             | Partly: rating and amenities are not modelled yet        |
+| 2 | Room details with availability for dates      | `Room`, `Booking`                                | Yes                                                      |
+| 3 | Room booking and cancellation                 | `Booking`, `User`                                | Yes                                                      |
+| 4 | Room inventory management by hotel workers    | `Hotel`, `Room`, `PermissionGrant`               | Yes                                                      |
+| 5 | Booking and cancellation notifications        | `Booking`, `User.Email`                          | Yes: notifications are derived, not stored               |
+| 6 | Hotel ratings after a stay                    | —                                                | No: a rating entity is not modelled yet                  |
+| 7 | Worker permission management by administrator | `User.Role`, `PermissionGrant`                   | Yes                                                      |
+
+---
+
 ### AI usage note:
 
-Initial skeleton was generated with LLM.
+Initial skeleton was generated with LLM. Sections 4–6 and the sensitive data marks were
+drafted with LLM from the threat model and the project description. Verification: reviewed
+in the pull request before merging.
