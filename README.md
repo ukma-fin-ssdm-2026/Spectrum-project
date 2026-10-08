@@ -25,6 +25,16 @@
 - [Data model diagram](docs/architecture/uml/data_model.puml)
 - [Sequence diagram](docs/architecture/uml/sequence_diagram.puml)
 
+## API:
+
+- [API design](docs/api/api-design.md)
+- [API quality attributes](docs/api/quality-attributes.md)
+- [OpenAPI specification](docs/api/openapi.yaml) (generated from the code)
+- [API documentation on GitHub Pages](https://ukma-fin-ssdm-2026.github.io/Spectrum-project/)
+  (Swagger UI)
+- API source code: [`spectrum-app/src/main/java/edu/ukma/ssdm/teamspectrum/api`](spectrum-app/src/main/java/edu/ukma/ssdm/teamspectrum/api)
+- Swagger UI when running locally: `http://localhost:8080/api-docs`
+
 ### How to run locally:
 
 #### Prerequisites:
