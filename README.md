@@ -73,4 +73,46 @@ to keep the code consistently formatted. Run it before committing.
 |------------------------------------|-------------------------|---------------------------|-------------------------|
 | Format the code (fix in place)     | `./mvnw spotless:apply` | `mvnw.cmd spotless:apply` | `.\mvnw spotless:apply` |
 | Check formatting only (no changes) | `./mvnw spotless:check` | `mvnw.cmd spotless:check` | `.\mvnw spotless:check` |
- 
+
+### Static analysis
+
+The project uses [SpotBugs](https://spotbugs.github.io/)
+with [Find Security Bugs](https://find-sec-bugs.github.io/).
+
+| Linux / macOS           | Windows (CMD)             | Windows (PowerShell)    |
+|-------------------------|---------------------------|-------------------------|
+| `./mvnw spotbugs:check` | `mvnw.cmd spotbugs:check` | `.\mvnw spotbugs:check` |
+
+### Pre-commit
+
+Pre-commit runs Spotless, SpotBugs, and Gitleaks before each commit. Install Python 3, then install the `pre-commit` package and Git hook once after cloning the repository.
+
+**Linux / macOS**
+
+```shell
+python3 -m pip install --user pre-commit
+python3 -m pre_commit install
+```
+
+**Windows (PowerShell)**
+
+```powershell
+py -m pip install --user pre-commit
+py -m pre_commit install
+```
+
+Run all hooks against every tracked file (for example, after installing or updating the hooks):
+
+**Linux / macOS**
+
+```shell
+python3 -m pre_commit run --all-files
+```
+
+**Windows (PowerShell)**
+
+```powershell
+py -m pre_commit run --all-files
+```
+
+After `pre-commit install` has been run in a clone, the hooks run automatically on each `git commit`.

@@ -12,7 +12,7 @@ public class PageResponse<T> {
   private final int limit;
 
   public PageResponse(List<T> items, long totalItems, PaginationParams params) {
-    this.items = items;
+    this.items = List.copyOf(items);
     this.totalItems = totalItems;
     this.totalPages = (int) Math.max(1, Math.ceil((double) totalItems / params.limit()));
     this.currentPage = params.page();
