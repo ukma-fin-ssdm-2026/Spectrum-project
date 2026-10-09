@@ -30,10 +30,12 @@ public class AuthServiceImpl implements AuthService {
   public IssuedToken register(RegisterRequest request) {
     String email = normalizeEmail(request.email());
     User user = userFactory.create(email, request.password());
-    if (!userRepository.add(user)) {
+    if (userRepository.findByEmail(user.email()).isPresent()) {
       throw new EmailAlreadyRegisteredException();
+    } else {
+      userRepository.add(user);
+      return tokenFactory.create(user);
     }
-    return tokenFactory.create(user);
   }
 
   public IssuedToken login(LoginRequest request) {
