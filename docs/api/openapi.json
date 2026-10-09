@@ -185,89 +185,7 @@
     }
   },
   "paths" : {
-    "/v1/auth/login" : {
-      "post" : {
-        "summary" : "Log in and receive an access token",
-        "tags" : [ "Authentication" ],
-        "requestBody" : {
-          "content" : {
-            "application/json" : {
-              "schema" : {
-                "$ref" : "#/components/schemas/LoginRequest"
-              }
-            }
-          },
-          "required" : true
-        },
-        "responses" : {
-          "200" : {
-            "description" : "Login successful",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/AuthResponse"
-                }
-              }
-            }
-          },
-          "401" : {
-            "description" : "Invalid email or password"
-          },
-          "400" : {
-            "description" : "Validation failed",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/ValidationError"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/v1/auth/register" : {
-      "post" : {
-        "summary" : "Register an account",
-        "tags" : [ "Authentication" ],
-        "requestBody" : {
-          "content" : {
-            "application/json" : {
-              "schema" : {
-                "$ref" : "#/components/schemas/RegisterRequest"
-              }
-            }
-          },
-          "required" : true
-        },
-        "responses" : {
-          "201" : {
-            "description" : "Account registered",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/AuthResponse"
-                }
-              }
-            }
-          },
-          "409" : {
-            "description" : "Email is already registered"
-          },
-          "400" : {
-            "description" : "Validation failed",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/ValidationError"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/v1/hotels" : {
+    "/v1/api/hotels" : {
       "get" : {
         "summary" : "Fetch all hotels",
         "description" : "Returns a paginated list of all hotels",
@@ -353,7 +271,7 @@
         }
       }
     },
-    "/v1/hotels/{hotelId}" : {
+    "/v1/api/hotels/{hotelId}" : {
       "get" : {
         "summary" : "Fetch a hotel by ID",
         "description" : "Returns a single hotel by its unique identifier",
@@ -379,6 +297,88 @@
           },
           "404" : {
             "description" : "Hotel not found"
+          },
+          "400" : {
+            "description" : "Validation failed",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/auth/login" : {
+      "post" : {
+        "summary" : "Log in and receive an access token",
+        "tags" : [ "Authentication" ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/LoginRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "Login successful",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/AuthResponse"
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "Invalid email or password"
+          },
+          "400" : {
+            "description" : "Validation failed",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/auth/register" : {
+      "post" : {
+        "summary" : "Register an account",
+        "tags" : [ "Authentication" ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/RegisterRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "201" : {
+            "description" : "Account registered",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/AuthResponse"
+                }
+              }
+            }
+          },
+          "409" : {
+            "description" : "Email is already registered"
           },
           "400" : {
             "description" : "Validation failed",

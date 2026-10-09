@@ -73,7 +73,7 @@ public class AuthController {
     NewCookie cookie =
         new NewCookie.Builder("access_token")
             .value(token.value())
-            .path("/")
+            .path("/v1/api")
             .maxAge(Math.toIntExact(token.expiresIn()))
             .secure(true)
             .httpOnly(true)
