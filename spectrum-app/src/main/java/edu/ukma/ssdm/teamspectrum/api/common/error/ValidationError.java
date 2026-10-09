@@ -9,7 +9,7 @@ public class ValidationError {
   private final List<FieldError> fields;
 
   public ValidationError(List<FieldError> fields) {
-    this.fields = fields;
+    this.fields = List.copyOf(fields);
   }
 
   public List<FieldError> getFields() {
