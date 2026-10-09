@@ -25,7 +25,6 @@ cd spectrum-app
 .\mvnw spotbugs:check
 ```
 
-
 Findings can be reviewed in the Maven output and generated `SpotBugs`
 XML report under `spectrum-app/target`.
 
@@ -63,16 +62,57 @@ threshold.
 
 ### Pre-commit
 
-Nothing was found by pre-commit:
+2 false positives were found by pre-commit when making commit for auth functionality and
+suppressed:
 
 ```terminaloutput
-PS C:\Users\Demon4ort\IdeaProjects\Spectrum-project> git commit                     
 Spotless format..........................................................Passed
-SpotBugs static analysis.................................................Passed
-Detect hardcoded secrets.................................................Passed
-[feat/static-analysis 243ba2c] attempt
- 1 file changed, 1 insertion(+)
+SpotBugs static analysis.................................................Failed
+- hook id: spotbugs
+- exit code: 1
+[INFO] Scanning for projects...
+[INFO] 
+[INFO] --------------< edu.ukma.ssdm.teamspectrum:spectrum-app >---------------
+...
+[INFO] Done SpotBugs Analysis....
+[INFO] Skipping com.github.spotbugs:spotbugs-maven-plugin:4.10.4.1:spotbugs report goal
+[INFO] 
+[INFO] <<< spotbugs:4.10.4.1:check (default-cli) < :spotbugs @ spectrum-app <<<
+[INFO] 
+[INFO] 
+[INFO] --- spotbugs:4.10.4.1:check (default-cli) @ spectrum-app ---
+[INFO] BugInstance size is 1
+[INFO] Error size is 0
+[INFO] Total bugs: 1
+[ERROR] Medium: new edu.ukma.ssdm.teamspectrum.logic.auth.AuthServiceImpl(UserRepository, String) may expose internal representation by storing an externally mutable object into AuthServiceImpl.userRepository [edu.ukma.ssdm.teamspectrum.logic.auth.AuthServiceImpl] At AuthServiceImpl.java:[line 28] EI_EXPOSE_REP2
+[INFO] 
+To see bug detail using the Spotbugs GUI, use the following command "mvn spotbugs:gui"
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD FAILURE
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  7.235 s
+[INFO] Finished at: 2026-10-09T20:30:14+03:00
+[INFO] ------------------------------------------------------------------------
+Detect hardcoded secrets.................................................Failed
+- hook id: gitleaks
+- exit code: 1
+○
+    │╲
+    │ ○
+    ○ ░
+    ░    gitleaks
+Finding:     ...static final String passwordExample = "REDACTED"
+Secret:      REDACTED
+RuleID:      generic-api-key
+Entropy:     3.700440
+File:        spectrum-app/src/main/java/edu/ukma/ssdm/teamspectrum/api/auth/RegisterRequest.java
+Line:        13
+Fingerprint: spectrum-app/src/main/java/edu/ukma/ssdm/teamspectrum/api/auth/RegisterRequest.java:generic-api-key:13
 ```
+
+1. First one was about valid dependency for repository by `SpotBugs`
+2. Second one was about secret leak, but was just an example for openapi specification,
+   found by `gitleaks`
 
 #### AI usage:
 
