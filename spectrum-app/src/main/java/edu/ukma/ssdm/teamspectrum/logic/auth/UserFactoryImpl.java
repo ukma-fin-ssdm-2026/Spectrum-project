@@ -9,6 +9,11 @@ import java.util.UUID;
 public class UserFactoryImpl implements UserFactory {
 
   @Override
+  public String normalizeEmail(String email) {
+    return email.trim().toLowerCase(java.util.Locale.ROOT);
+  }
+
+  @Override
   public User create(String email, String password) {
     return new User(UUID.randomUUID(), email, BcryptUtil.bcryptHash(password), Role.CLIENT);
   }

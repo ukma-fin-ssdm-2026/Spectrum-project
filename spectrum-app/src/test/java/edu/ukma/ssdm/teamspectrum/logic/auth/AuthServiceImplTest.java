@@ -22,19 +22,21 @@ class AuthServiceImplTest {
       new AuthServiceImpl(userRepository, userFactory, tokenFactory);
 
   @Test
-  void registerNormalizesEmailSavesUserAndReturnsIssuedToken() {
+  void registerSavesUserAndReturnsIssuedToken() {
     User user = new User(UUID.randomUUID(), "person@example.com", "hash", Role.CLIENT);
     IssuedToken token = new IssuedToken("issued", 900);
     var password = "password123456";
+    when(userFactory.normalizeEmail(user.email())).thenReturn(user.email());
     when(userFactory.create(user.email(), password)).thenReturn(user);
     when(userRepository.findByEmail(user.email())).thenReturn(Optional.empty());
     when(userRepository.add(user)).thenReturn(true);
     when(tokenFactory.create(user)).thenReturn(token);
 
-    IssuedToken result = service.register(new RegisterRequest("  PERSON@Example.COM ", password));
+    IssuedToken result = service.register(new RegisterRequest(user.email(), password));
 
     assertSame(token, result);
     verify(userFactory).create(user.email(), password);
+    verify(userFactory).normalizeEmail(user.email());
     verify(userRepository).add(user);
     verify(tokenFactory).create(user);
   }
@@ -43,6 +45,7 @@ class AuthServiceImplTest {
   void registerThrowsWhenEmailAlreadyExists() {
     var user = new User(UUID.randomUUID(), "person@example.com", "hash", Role.CLIENT);
     var password = "password123456";
+    when(userFactory.normalizeEmail(user.email())).thenReturn(user.email());
     when(userFactory.create(user.email(), password)).thenReturn(user);
     when(userRepository.findByEmail(user.email())).thenReturn(Optional.of(user));
 
@@ -53,24 +56,27 @@ class AuthServiceImplTest {
   }
 
   @Test
-  void loginFindsNormalizedEmailAndReturnsTokenForMatchingPassword() {
+  void loginReturnsTokenForMatchingPassword() {
     User user =
         new User(
             UUID.randomUUID(), "person@example.com", BcryptUtil.bcryptHash("correct"), Role.CLIENT);
     IssuedToken token = new IssuedToken("issued", 900);
     when(userRepository.findByEmail(user.email())).thenReturn(Optional.of(user));
     when(tokenFactory.create(user)).thenReturn(token);
+    when(userFactory.normalizeEmail(user.email())).thenReturn(user.email());
 
-    IssuedToken result = service.login(new LoginRequest(" PERSON@EXAMPLE.COM ", "correct"));
+    IssuedToken result = service.login(new LoginRequest(user.email(), "correct"));
 
     assertSame(token, result);
     verify(userRepository).findByEmail(user.email());
+    verify(userFactory).normalizeEmail(user.email());
     verify(tokenFactory).create(user);
   }
 
   @Test
   void loginRejectsMissingUser() {
     var email = "person@example.com";
+    when(userFactory.normalizeEmail(email)).thenReturn(email);
     when(userRepository.findByEmail(email)).thenReturn(Optional.empty());
     assertThrows(
         InvalidCredentialsException.class, () -> service.login(new LoginRequest(email, "correct")));
@@ -80,6 +86,7 @@ class AuthServiceImplTest {
   @Test
   void loginRejectsInvalidPassword() {
     var email = "person@example.com";
+    when(userFactory.normalizeEmail(email)).thenReturn(email);
     var user = new User(UUID.randomUUID(), email, BcryptUtil.bcryptHash("right"), Role.CLIENT);
     when(userRepository.findByEmail(email)).thenReturn(Optional.of(user));
     assertThrows(

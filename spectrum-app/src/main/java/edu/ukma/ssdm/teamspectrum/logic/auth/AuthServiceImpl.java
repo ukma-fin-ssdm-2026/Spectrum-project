@@ -28,7 +28,7 @@ public class AuthServiceImpl implements AuthService {
   }
 
   public IssuedToken register(RegisterRequest request) {
-    String email = normalizeEmail(request.email());
+    String email = userFactory.normalizeEmail(request.email());
     User user = userFactory.create(email, request.password());
     if (userRepository.findByEmail(user.email()).isPresent()) {
       throw new EmailAlreadyRegisteredException();
@@ -41,13 +41,9 @@ public class AuthServiceImpl implements AuthService {
   public IssuedToken login(LoginRequest request) {
     var user =
         userRepository
-            .findByEmail(normalizeEmail(request.email()))
+            .findByEmail(userFactory.normalizeEmail(request.email()))
             .filter(u -> BcryptUtil.matches(request.password(), u.passwordHash()))
             .orElseThrow(InvalidCredentialsException::new);
     return tokenFactory.create(user);
-  }
-
-  private static String normalizeEmail(String email) {
-    return email.trim().toLowerCase(java.util.Locale.ROOT);
   }
 }

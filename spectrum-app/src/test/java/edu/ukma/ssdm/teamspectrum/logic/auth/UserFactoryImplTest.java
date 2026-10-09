@@ -9,6 +9,13 @@ import org.junit.jupiter.api.Test;
 class UserFactoryImplTest {
 
   @Test
+  void normalizesEmail() {
+    var expected = "person@example.com";
+    assertEquals(expected, new UserFactoryImpl().normalizeEmail(" PERSON@Example.COM "));
+    assertEquals(expected, new UserFactoryImpl().normalizeEmail("person@example.com"));
+  }
+
+  @Test
   void createsClientWithEmailAndHashedPassword() {
     var email = "person@example.com";
     var password = "password123456";
