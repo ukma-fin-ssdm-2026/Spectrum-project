@@ -190,20 +190,23 @@ paths:
       tags:
       - Hotels
       parameters:
-      - name: amenity
+      - example: Wi-Fi
+        name: amenity
         in: query
         schema:
           type: object
           examples:
           - Wi-Fi
-      - name: checkIn
+      - example: 2027-06-15
+        name: checkIn
         in: query
         schema:
           format: date
           type: string
           examples:
           - 2027-06-15
-      - name: checkOut
+      - example: 2027-06-20
+        name: checkOut
         in: query
         schema:
           format: date
@@ -218,7 +221,8 @@ paths:
           maximum: 100
           minimum: 1
           default: 10
-      - name: location
+      - example: Kyiv
+        name: location
         in: query
         schema:
           type: string
@@ -226,14 +230,16 @@ paths:
           - Kyiv
           minLength: 2
           maxLength: 100
-      - name: maxPrice
+      - example: 300.00
+        name: maxPrice
         in: query
         schema:
           type: number
           examples:
           - 300.00
           minimum: 0.0
-      - name: maxRating
+      - example: 5.0
+        name: maxRating
         in: query
         schema:
           format: double
@@ -242,14 +248,16 @@ paths:
           - 5.0
           maximum: 5.0
           minimum: 0.0
-      - name: minPrice
+      - example: 100.00
+        name: minPrice
         in: query
         schema:
           type: number
           examples:
           - 100.00
           minimum: 0.0
-      - name: minRating
+      - example: 3.5
+        name: minRating
         in: query
         schema:
           format: double

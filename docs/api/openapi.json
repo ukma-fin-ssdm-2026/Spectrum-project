@@ -216,6 +216,7 @@
         "description" : "Returns a paginated list of all hotels",
         "tags" : [ "Hotels" ],
         "parameters" : [ {
+          "example" : "Wi-Fi",
           "name" : "amenity",
           "in" : "query",
           "schema" : {
@@ -223,6 +224,7 @@
             "examples" : [ "Wi-Fi" ]
           }
         }, {
+          "example" : "2027-06-15",
           "name" : "checkIn",
           "in" : "query",
           "schema" : {
@@ -231,6 +233,7 @@
             "examples" : [ "2027-06-15" ]
           }
         }, {
+          "example" : "2027-06-20",
           "name" : "checkOut",
           "in" : "query",
           "schema" : {
@@ -249,6 +252,7 @@
             "default" : 10
           }
         }, {
+          "example" : "Kyiv",
           "name" : "location",
           "in" : "query",
           "schema" : {
@@ -258,6 +262,7 @@
             "maxLength" : 100
           }
         }, {
+          "example" : 300.00,
           "name" : "maxPrice",
           "in" : "query",
           "schema" : {
@@ -266,6 +271,7 @@
             "minimum" : 0.0
           }
         }, {
+          "example" : 5.0,
           "name" : "maxRating",
           "in" : "query",
           "schema" : {
@@ -276,6 +282,7 @@
             "minimum" : 0.0
           }
         }, {
+          "example" : 100.00,
           "name" : "minPrice",
           "in" : "query",
           "schema" : {
@@ -284,6 +291,7 @@
             "minimum" : 0.0
           }
         }, {
+          "example" : 3.5,
           "name" : "minRating",
           "in" : "query",
           "schema" : {

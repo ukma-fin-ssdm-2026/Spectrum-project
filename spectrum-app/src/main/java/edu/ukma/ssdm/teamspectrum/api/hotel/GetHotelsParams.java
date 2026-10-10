@@ -10,30 +10,50 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
+import org.eclipse.microprofile.openapi.annotations.parameters.Parameter;
 
 public record GetHotelsParams(
     @QueryParam("location")
         @Size(min = 2, max = locationMaxSize)
+        @Parameter(example = locationExample)
         @Schema(examples = {locationExample})
         String location,
-    @QueryParam("checkIn") @FutureOrPresent @Schema(examples = {checkInExample}) LocalDate checkIn,
-    @QueryParam("checkOut") @FutureOrPresent @Schema(examples = {checkOutExample})
+    @QueryParam("checkIn")
+        @FutureOrPresent
+        @Parameter(example = checkInExample)
+        @Schema(examples = {checkInExample})
+        LocalDate checkIn,
+    @QueryParam("checkOut")
+        @FutureOrPresent
+        @Parameter(example = checkOutExample)
+        @Schema(examples = {checkOutExample})
         LocalDate checkOut,
-    @QueryParam("minPrice") @DecimalMin("0.0") @Schema(examples = {minPriceExample})
+    @QueryParam("minPrice")
+        @DecimalMin("0.0")
+        @Parameter(example = minPriceExample)
+        @Schema(examples = {minPriceExample})
         BigDecimal minPrice,
-    @QueryParam("maxPrice") @DecimalMin("0.0") @Schema(examples = {maxPriceExample})
+    @QueryParam("maxPrice")
+        @DecimalMin("0.0")
+        @Parameter(example = maxPriceExample)
+        @Schema(examples = {maxPriceExample})
         BigDecimal maxPrice,
     @QueryParam("minRating")
         @DecimalMin("0.0")
         @DecimalMax("5.0")
+        @Parameter(example = minRatingExample)
         @Schema(examples = {minRatingExample})
         Double minRating,
     @QueryParam("maxRating")
         @DecimalMin("0.0")
         @DecimalMax("5.0")
+        @Parameter(example = maxRatingExample)
         @Schema(examples = {maxRatingExample})
         Double maxRating,
-    @QueryParam("amenity") @Size(max = maxAmenities) @Schema(examples = {amenitiesExample})
+    @QueryParam("amenity")
+        @Size(max = maxAmenities)
+        @Parameter(example = amenitiesExample)
+        @Schema(examples = {amenitiesExample})
         List<@Size(min = 2, max = amenityMaxSize) String> amenities) {
   static final int locationMaxSize = 100;
   static final String locationExample = Address.cityExample;
