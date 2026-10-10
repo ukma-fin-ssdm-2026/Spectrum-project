@@ -1,0 +1,47 @@
+/* (C)2026 */
+package edu.ukma.ssdm.teamspectrum.api.hotel;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import edu.ukma.ssdm.teamspectrum.edu.ukma.ssdm.teamspectrum.logic.hotel.HotelSearchCriteria;
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Set;
+import org.junit.jupiter.api.Test;
+
+class HotelSearchCriteriaFactoryTest {
+  private final HotelSearchCriteriaFactory factory = new HotelSearchCriteriaFactory();
+
+  @Test
+  void mapsGetHotelsParamsToHotelSearchCriteria() {
+    GetHotelsParams params =
+        new GetHotelsParams(
+            2,
+            20,
+            "Kyiv",
+            LocalDate.parse("2026-11-01"),
+            LocalDate.parse("2026-11-05"),
+            new BigDecimal("50.00"),
+            new BigDecimal("200.00"),
+            3.5,
+            5.0,
+            List.of("wifi", "parking"));
+
+    HotelSearchCriteria criteria = factory.create(params);
+
+    assertEquals(
+        new HotelSearchCriteria(
+            "Kyiv",
+            LocalDate.parse("2026-11-01"),
+            LocalDate.parse("2026-11-05"),
+            new BigDecimal("50.00"),
+            new BigDecimal("200.00"),
+            3.5,
+            5.0,
+            Set.of("wifi", "parking"),
+            2,
+            20),
+        criteria);
+  }
+}

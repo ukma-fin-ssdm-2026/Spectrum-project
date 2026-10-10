@@ -5,7 +5,6 @@ import edu.ukma.ssdm.teamspectrum.api.common.error.ValidationError;
 import edu.ukma.ssdm.teamspectrum.api.common.page.PageResponse;
 import edu.ukma.ssdm.teamspectrum.api.common.page.PaginationParams;
 import edu.ukma.ssdm.teamspectrum.edu.ukma.ssdm.teamspectrum.logic.hotel.HotelRecord;
-import edu.ukma.ssdm.teamspectrum.edu.ukma.ssdm.teamspectrum.logic.hotel.HotelSearchCriteria;
 import edu.ukma.ssdm.teamspectrum.edu.ukma.ssdm.teamspectrum.logic.hotel.HotelSearchPage;
 import edu.ukma.ssdm.teamspectrum.edu.ukma.ssdm.teamspectrum.logic.hotel.HotelService;
 import jakarta.inject.Inject;
@@ -18,13 +17,9 @@ import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
-import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
-import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.util.List;
-import java.util.Set;
 import java.util.UUID;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.media.Content;
@@ -39,11 +34,16 @@ import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 public class HotelController {
   private final HotelService hotelService;
   private final HotelFactory hotelFactory;
+  private final HotelSearchCriteriaFactory searchCriteriaFactory;
 
   @Inject
-  public HotelController(HotelService hotelService, HotelFactory hotelFactory) {
+  public HotelController(
+      HotelService hotelService,
+      HotelFactory hotelFactory,
+      HotelSearchCriteriaFactory searchCriteriaFactory) {
     this.hotelService = hotelService;
     this.hotelFactory = hotelFactory;
+    this.searchCriteriaFactory = searchCriteriaFactory;
   }
 
   @POST
@@ -72,31 +72,11 @@ public class HotelController {
       responseCode = "400",
       description = "Validation failed",
       content = @Content(schema = @Schema(implementation = ValidationError.class)))
-  public Response getHotels(
-      @BeanParam @Valid PaginationParams params,
-      @QueryParam("location") String location,
-      @QueryParam("checkIn") LocalDate checkIn,
-      @QueryParam("checkOut") LocalDate checkOut,
-      @QueryParam("minPrice") BigDecimal minPrice,
-      @QueryParam("maxPrice") BigDecimal maxPrice,
-      @QueryParam("minRating") Double minRating,
-      @QueryParam("maxRating") Double maxRating,
-      @QueryParam("amenity") List<String> amenities) {
-    HotelSearchPage result =
-        hotelService.search(
-            new HotelSearchCriteria(
-                location,
-                checkIn,
-                checkOut,
-                minPrice,
-                maxPrice,
-                minRating,
-                maxRating,
-                amenities == null ? Set.of() : Set.copyOf(amenities),
-                params.page(),
-                params.limit()));
+  public Response getHotels(@BeanParam @Valid GetHotelsParams params) {
+    HotelSearchPage result = hotelService.search(searchCriteriaFactory.create(params));
     List<Hotel> items = result.items().stream().map(hotelFactory::create).toList();
-    return Response.ok(new PageResponse<>(items, result.totalItems(), params)).build();
+    PaginationParams pagination = new PaginationParams(params.page(), params.limit());
+    return Response.ok(new PageResponse<>(items, result.totalItems(), pagination)).build();
   }
 
   @GET
