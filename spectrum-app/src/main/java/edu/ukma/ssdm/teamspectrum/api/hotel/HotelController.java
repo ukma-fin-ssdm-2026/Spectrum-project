@@ -4,7 +4,6 @@ package edu.ukma.ssdm.teamspectrum.api.hotel;
 import edu.ukma.ssdm.teamspectrum.api.common.error.ValidationError;
 import edu.ukma.ssdm.teamspectrum.api.common.page.PageResponse;
 import edu.ukma.ssdm.teamspectrum.api.common.page.PaginationParams;
-import edu.ukma.ssdm.teamspectrum.edu.ukma.ssdm.teamspectrum.logic.hotel.HotelAddress;
 import edu.ukma.ssdm.teamspectrum.edu.ukma.ssdm.teamspectrum.logic.hotel.HotelRecord;
 import edu.ukma.ssdm.teamspectrum.edu.ukma.ssdm.teamspectrum.logic.hotel.HotelSearchCriteria;
 import edu.ukma.ssdm.teamspectrum.edu.ukma.ssdm.teamspectrum.logic.hotel.HotelSearchPage;
@@ -39,10 +38,12 @@ import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 @Tag(name = "Hotels", description = "Hotel management")
 public class HotelController {
   private final HotelService hotelService;
+  private final HotelFactory hotelFactory;
 
   @Inject
-  public HotelController(HotelService hotelService) {
+  public HotelController(HotelService hotelService, HotelFactory hotelFactory) {
     this.hotelService = hotelService;
+    this.hotelFactory = hotelFactory;
   }
 
   @POST
@@ -56,8 +57,8 @@ public class HotelController {
       description = "Validation failed",
       content = @Content(schema = @Schema(implementation = ValidationError.class)))
   public Response create(@Valid @NotNull CreateHotel request) {
-    HotelRecord saved = hotelService.create(request.name(), toLogicAddress(request.address()));
-    Hotel created = toApiHotel(saved);
+    HotelRecord saved = hotelService.save(hotelFactory.create(request));
+    Hotel created = hotelFactory.create(saved);
     return Response.status(Response.Status.CREATED).entity(created).build();
   }
 
@@ -94,7 +95,7 @@ public class HotelController {
                 amenities == null ? Set.of() : Set.copyOf(amenities),
                 params.page(),
                 params.limit()));
-    List<Hotel> items = result.items().stream().map(HotelController::toApiHotel).toList();
+    List<Hotel> items = result.items().stream().map(hotelFactory::create).toList();
     return Response.ok(new PageResponse<>(items, result.totalItems(), params)).build();
   }
 
@@ -115,29 +116,8 @@ public class HotelController {
   public Response getHotel(@PathParam("hotelId") UUID hotelId) {
     return hotelService
         .findById(hotelId)
-        .map(HotelController::toApiHotel)
+        .map(hotelFactory::create)
         .map(h -> Response.ok(h).build())
         .orElse(Response.status(Response.Status.NOT_FOUND).build());
-  }
-
-  private static Hotel toApiHotel(HotelRecord hotel) {
-    return new Hotel(
-        hotel.id(),
-        hotel.name(),
-        toApiAddress(hotel.address()),
-        hotel.pictureUrl(),
-        hotel.pricePerNight(),
-        hotel.rating(),
-        hotel.amenities());
-  }
-
-  private static HotelAddress toLogicAddress(Address address) {
-    return new HotelAddress(
-        address.city(), address.district(), address.street(), address.buildingNumber());
-  }
-
-  private static Address toApiAddress(HotelAddress address) {
-    return new Address(
-        address.city(), address.district(), address.street(), address.buildingNumber());
   }
 }

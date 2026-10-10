@@ -7,7 +7,7 @@ import java.util.UUID;
 public interface HotelService {
   HotelSearchPage search(HotelSearchCriteria criteria);
 
-  HotelRecord create(String name, HotelAddress address);
+  HotelRecord save(HotelRecord hotel);
 
   Optional<HotelRecord> findById(UUID id);
 }
