@@ -242,9 +242,8 @@
           "name" : "limit",
           "in" : "query",
           "schema" : {
-            "format" : "int32",
             "type" : "integer",
-            "examples" : [ 10 ],
+            "format" : "int32",
             "maximum" : 100,
             "minimum" : 1,
             "default" : 10
@@ -298,9 +297,8 @@
           "name" : "page",
           "in" : "query",
           "schema" : {
-            "format" : "int32",
             "type" : "integer",
-            "examples" : [ 0 ],
+            "format" : "int32",
             "minimum" : 0,
             "default" : 0
           }

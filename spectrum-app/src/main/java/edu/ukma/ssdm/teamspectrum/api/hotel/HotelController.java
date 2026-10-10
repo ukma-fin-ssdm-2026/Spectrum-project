@@ -72,10 +72,10 @@ public class HotelController {
       responseCode = "400",
       description = "Validation failed",
       content = @Content(schema = @Schema(implementation = ValidationError.class)))
-  public Response getHotels(@BeanParam @Valid GetHotelsParams params) {
-    HotelSearchPage result = hotelService.search(searchCriteriaFactory.create(params));
+  public Response getHotels(
+      @BeanParam @Valid GetHotelsParams params, @BeanParam @Valid PaginationParams pagination) {
+    HotelSearchPage result = hotelService.search(searchCriteriaFactory.create(params, pagination));
     List<Hotel> items = result.items().stream().map(hotelFactory::create).toList();
-    PaginationParams pagination = new PaginationParams(params.page(), params.limit());
     return Response.ok(new PageResponse<>(items, result.totalItems(), pagination)).build();
   }
 

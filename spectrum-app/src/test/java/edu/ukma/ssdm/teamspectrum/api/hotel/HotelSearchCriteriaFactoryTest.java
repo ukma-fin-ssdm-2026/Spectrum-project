@@ -3,6 +3,7 @@ package edu.ukma.ssdm.teamspectrum.api.hotel;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import edu.ukma.ssdm.teamspectrum.api.common.page.PaginationParams;
 import edu.ukma.ssdm.teamspectrum.logic.hotel.HotelSearchCriteria;
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -17,8 +18,6 @@ class HotelSearchCriteriaFactoryTest {
   void mapsGetHotelsParamsToHotelSearchCriteria() {
     GetHotelsParams params =
         new GetHotelsParams(
-            2,
-            20,
             "Kyiv",
             LocalDate.parse("2026-11-01"),
             LocalDate.parse("2026-11-05"),
@@ -27,8 +26,9 @@ class HotelSearchCriteriaFactoryTest {
             3.5,
             5.0,
             List.of("wifi", "parking"));
+    PaginationParams pagination = new PaginationParams(2, 20);
 
-    HotelSearchCriteria criteria = factory.create(params);
+    HotelSearchCriteria criteria = factory.create(params, pagination);
 
     assertEquals(
         new HotelSearchCriteria(

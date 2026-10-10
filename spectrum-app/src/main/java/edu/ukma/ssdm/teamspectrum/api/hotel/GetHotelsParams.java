@@ -4,10 +4,7 @@ package edu.ukma.ssdm.teamspectrum.api.hotel;
 import jakarta.validation.constraints.DecimalMax;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.FutureOrPresent;
-import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Size;
-import jakarta.ws.rs.DefaultValue;
 import jakarta.ws.rs.QueryParam;
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -15,9 +12,6 @@ import java.util.List;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 
 public record GetHotelsParams(
-    @QueryParam("page") @DefaultValue("0") @Min(0) @Schema(examples = {pageExample}) int page,
-    @QueryParam("limit") @DefaultValue("10") @Min(1) @Max(100) @Schema(examples = {limitExample})
-        int limit,
     @QueryParam("location")
         @Size(min = 2, max = locationMaxSize)
         @Schema(examples = {locationExample})
@@ -41,8 +35,6 @@ public record GetHotelsParams(
         Double maxRating,
     @QueryParam("amenity") @Size(max = maxAmenities) @Schema(examples = {amenitiesExample})
         List<@Size(min = 2, max = amenityMaxSize) String> amenities) {
-  static final String pageExample = "0";
-  static final String limitExample = "10";
   static final int locationMaxSize = 100;
   static final String locationExample = Address.cityExample;
   static final String checkInExample = "2027-06-15";
