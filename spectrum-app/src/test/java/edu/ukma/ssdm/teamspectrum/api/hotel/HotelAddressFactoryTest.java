@@ -3,7 +3,7 @@ package edu.ukma.ssdm.teamspectrum.api.hotel;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import edu.ukma.ssdm.teamspectrum.edu.ukma.ssdm.teamspectrum.logic.hotel.HotelAddress;
+import edu.ukma.ssdm.teamspectrum.logic.hotel.HotelAddress;
 import org.junit.jupiter.api.Test;
 
 class HotelAddressFactoryTest {

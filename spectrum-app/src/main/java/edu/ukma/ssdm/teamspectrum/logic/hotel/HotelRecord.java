@@ -1,5 +1,5 @@
 /* (C)2026 */
-package edu.ukma.ssdm.teamspectrum.edu.ukma.ssdm.teamspectrum.logic.hotel;
+package edu.ukma.ssdm.teamspectrum.logic.hotel;
 
 import java.math.BigDecimal;
 import java.util.Set;

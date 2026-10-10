@@ -1,7 +1,7 @@
 /* (C)2026 */
 package edu.ukma.ssdm.teamspectrum.api.hotel;
 
-import edu.ukma.ssdm.teamspectrum.edu.ukma.ssdm.teamspectrum.logic.hotel.HotelRecord;
+import edu.ukma.ssdm.teamspectrum.logic.hotel.HotelRecord;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import java.math.BigDecimal;

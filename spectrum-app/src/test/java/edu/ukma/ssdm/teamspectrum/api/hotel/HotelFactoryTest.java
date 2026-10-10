@@ -7,8 +7,8 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import edu.ukma.ssdm.teamspectrum.edu.ukma.ssdm.teamspectrum.logic.hotel.HotelAddress;
-import edu.ukma.ssdm.teamspectrum.edu.ukma.ssdm.teamspectrum.logic.hotel.HotelRecord;
+import edu.ukma.ssdm.teamspectrum.logic.hotel.HotelAddress;
+import edu.ukma.ssdm.teamspectrum.logic.hotel.HotelRecord;
 import java.math.BigDecimal;
 import java.util.Set;
 import java.util.UUID;

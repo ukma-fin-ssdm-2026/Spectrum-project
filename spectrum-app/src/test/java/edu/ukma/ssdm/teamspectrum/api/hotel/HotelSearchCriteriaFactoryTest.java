@@ -3,7 +3,7 @@ package edu.ukma.ssdm.teamspectrum.api.hotel;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import edu.ukma.ssdm.teamspectrum.edu.ukma.ssdm.teamspectrum.logic.hotel.HotelSearchCriteria;
+import edu.ukma.ssdm.teamspectrum.logic.hotel.HotelSearchCriteria;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;

@@ -1,5 +1,5 @@
 /* (C)2026 */
-package edu.ukma.ssdm.teamspectrum.edu.ukma.ssdm.teamspectrum.logic.hotel;
+package edu.ukma.ssdm.teamspectrum.logic.hotel;
 
 import java.util.Optional;
 import java.util.UUID;
