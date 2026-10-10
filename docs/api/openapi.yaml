@@ -1,6 +1,8 @@
 ---
 openapi: 3.1.0
 tags:
+- name: Authentication
+  description: Account registration and login
 - name: Hotels
   description: Hotel management
 components:
@@ -41,6 +43,12 @@ components:
           - 34
           maximum: 100
           minimum: 1
+    AuthResponse:
+      type: object
+      properties:
+        expiresIn:
+          type: integer
+          format: int64
     CreateHotel:
       type: object
       required:
@@ -97,6 +105,41 @@ components:
         limit:
           type: integer
           format: int32
+    LoginRequest:
+      type: object
+      required:
+      - email
+      - password
+      properties:
+        email:
+          type: string
+          examples:
+          - example@gmail.com
+          pattern: \S
+        password:
+          type: string
+          examples:
+          - qwerty1234567
+          pattern: \S
+    RegisterRequest:
+      type: object
+      required:
+      - email
+      - password
+      properties:
+        email:
+          type: string
+          examples:
+          - example@gmail.com
+          pattern: \S
+          maxLength: 254
+        password:
+          type: string
+          examples:
+          - qwerty1234567
+          pattern: \S
+          minLength: 12
+          maxLength: 72
     UUID:
       type: string
       format: uuid
@@ -108,8 +151,14 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/FieldError"
+  securitySchemes:
+    SecurityScheme:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Authentication
 paths:
-  /v1/hotels:
+  /v1/api/hotels:
     get:
       summary: Fetch all hotels
       description: Returns a paginated list of all hotels
@@ -168,7 +217,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ValidationError"
-  /v1/hotels/{hotelId}:
+  /v1/api/hotels/{hotelId}:
     get:
       summary: Fetch a hotel by ID
       description: Returns a single hotel by its unique identifier
@@ -189,6 +238,58 @@ paths:
                 $ref: "#/components/schemas/Hotel"
         "404":
           description: Hotel not found
+        "400":
+          description: Validation failed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationError"
+  /v1/auth/login:
+    post:
+      summary: Log in and receive an access token
+      tags:
+      - Authentication
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginRequest"
+        required: true
+      responses:
+        "200":
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthResponse"
+        "401":
+          description: Invalid email or password
+        "400":
+          description: Validation failed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationError"
+  /v1/auth/register:
+    post:
+      summary: Register an account
+      tags:
+      - Authentication
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RegisterRequest"
+        required: true
+      responses:
+        "201":
+          description: Account registered
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthResponse"
+        "409":
+          description: Email is already registered
         "400":
           description: Validation failed
           content:
