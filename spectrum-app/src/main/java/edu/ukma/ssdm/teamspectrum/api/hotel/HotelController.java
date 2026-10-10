@@ -4,6 +4,10 @@ package edu.ukma.ssdm.teamspectrum.api.hotel;
 import edu.ukma.ssdm.teamspectrum.api.common.error.ValidationError;
 import edu.ukma.ssdm.teamspectrum.api.common.page.PageResponse;
 import edu.ukma.ssdm.teamspectrum.api.common.page.PaginationParams;
+import edu.ukma.ssdm.teamspectrum.logic.hotel.HotelRecord;
+import edu.ukma.ssdm.teamspectrum.logic.hotel.HotelSearchPage;
+import edu.ukma.ssdm.teamspectrum.logic.hotel.HotelService;
+import jakarta.inject.Inject;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import jakarta.ws.rs.BeanParam;
@@ -16,9 +20,7 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.media.Content;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
@@ -30,7 +32,19 @@ import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 @Produces(MediaType.APPLICATION_JSON)
 @Tag(name = "Hotels", description = "Hotel management")
 public class HotelController {
-  Map<UUID, Hotel> hotels = new ConcurrentHashMap<>();
+  private final HotelService hotelService;
+  private final HotelFactory hotelFactory;
+  private final HotelSearchCriteriaFactory searchCriteriaFactory;
+
+  @Inject
+  public HotelController(
+      HotelService hotelService,
+      HotelFactory hotelFactory,
+      HotelSearchCriteriaFactory searchCriteriaFactory) {
+    this.hotelService = hotelService;
+    this.hotelFactory = hotelFactory;
+    this.searchCriteriaFactory = searchCriteriaFactory;
+  }
 
   @POST
   @Operation(summary = "Create a hotel", description = "Creates a new hotel")
@@ -43,8 +57,8 @@ public class HotelController {
       description = "Validation failed",
       content = @Content(schema = @Schema(implementation = ValidationError.class)))
   public Response create(@Valid @NotNull CreateHotel request) {
-    Hotel created = new Hotel(UUID.randomUUID(), request.name(), request.address());
-    hotels.put(created.hotelId(), created);
+    HotelRecord saved = hotelService.save(hotelFactory.create(request));
+    Hotel created = hotelFactory.create(saved);
     return Response.status(Response.Status.CREATED).entity(created).build();
   }
 
@@ -58,15 +72,11 @@ public class HotelController {
       responseCode = "400",
       description = "Validation failed",
       content = @Content(schema = @Schema(implementation = ValidationError.class)))
-  public Response getHotels(@BeanParam @Valid PaginationParams params) {
-    long total = hotels.size();
-    List<Hotel> items =
-        hotels.values().stream()
-            .skip((long) params.page() * params.limit())
-            .limit(params.limit())
-            .toList();
-
-    return Response.ok(new PageResponse<>(items, total, params)).build();
+  public Response getHotels(
+      @BeanParam @Valid GetHotelsParams params, @BeanParam @Valid PaginationParams pagination) {
+    HotelSearchPage result = hotelService.search(searchCriteriaFactory.create(params, pagination));
+    List<Hotel> items = result.items().stream().map(hotelFactory::create).toList();
+    return Response.ok(new PageResponse<>(items, result.totalItems(), pagination)).build();
   }
 
   @GET
@@ -84,10 +94,10 @@ public class HotelController {
       description = "Validation failed",
       content = @Content(schema = @Schema(implementation = ValidationError.class)))
   public Response getHotel(@PathParam("hotelId") UUID hotelId) {
-    Hotel hotel = hotels.get(hotelId);
-    if (hotel == null) {
-      return Response.status(Response.Status.NOT_FOUND).build();
-    }
-    return Response.ok(hotel).build();
+    return hotelService
+        .findById(hotelId)
+        .map(hotelFactory::create)
+        .map(h -> Response.ok(h).build())
+        .orElse(Response.status(Response.Status.NOT_FOUND).build());
   }
 }
