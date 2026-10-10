@@ -79,6 +79,9 @@ components:
       type: object
       properties:
         hotelId:
+          type: string
+          examples:
+          - 123e4567-e89b-12d3-a456-426614174000
           $ref: "#/components/schemas/UUID"
         name:
           type: string
@@ -86,6 +89,28 @@ components:
           - Grand Budapest
         address:
           $ref: "#/components/schemas/Address"
+        pictureUrl:
+          type: string
+          examples:
+          - https://example.com/hotels/grand-budapest.jpg
+        pricePerNight:
+          type: number
+          examples:
+          - 145.00
+        rating:
+          type: number
+          format: double
+          examples:
+          - 4.8
+          maximum: 5.0
+          minimum: 0.0
+        amenities:
+          type: array
+          uniqueItems: true
+          items:
+            type: string
+          examples:
+          - Wi-Fi
     HotelPageResponse:
       type: object
       properties:
@@ -165,19 +190,83 @@ paths:
       tags:
       - Hotels
       parameters:
+      - name: amenity
+        in: query
+        schema:
+          type: object
+          examples:
+          - Wi-Fi
+      - name: checkIn
+        in: query
+        schema:
+          format: date
+          type: string
+          examples:
+          - 2027-06-15
+      - name: checkOut
+        in: query
+        schema:
+          format: date
+          type: string
+          examples:
+          - 2027-06-20
       - name: limit
         in: query
         schema:
-          type: integer
           format: int32
+          type: integer
+          examples:
+          - 10
           maximum: 100
           minimum: 1
           default: 10
+      - name: location
+        in: query
+        schema:
+          type: string
+          examples:
+          - Kyiv
+          minLength: 2
+          maxLength: 100
+      - name: maxPrice
+        in: query
+        schema:
+          type: number
+          examples:
+          - 300.00
+          minimum: 0.0
+      - name: maxRating
+        in: query
+        schema:
+          format: double
+          type: number
+          examples:
+          - 5.0
+          maximum: 5.0
+          minimum: 0.0
+      - name: minPrice
+        in: query
+        schema:
+          type: number
+          examples:
+          - 100.00
+          minimum: 0.0
+      - name: minRating
+        in: query
+        schema:
+          format: double
+          type: number
+          examples:
+          - 3.5
+          maximum: 5.0
+          minimum: 0.0
       - name: page
         in: query
         schema:
-          type: integer
           format: int32
+          type: integer
+          examples:
+          - 0
           minimum: 0
           default: 0
       responses:

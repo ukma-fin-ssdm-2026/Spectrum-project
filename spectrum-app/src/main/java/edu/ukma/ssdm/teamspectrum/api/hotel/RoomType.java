@@ -4,5 +4,7 @@ package edu.ukma.ssdm.teamspectrum.api.hotel;
 public enum RoomType {
   SINGLE,
   DOUBLE,
-  SUITE
+  SUITE;
+
+  public static final String example = "DOUBLE";
 }
