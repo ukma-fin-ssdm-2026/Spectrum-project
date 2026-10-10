@@ -20,6 +20,7 @@ Go back to the [Main README](README.md).
 - Quality Lead: @VeronikaGovorischeva
 - Traceability Lead: @VeronikaGovorischeva
 - Documentation Lead: ???
+- Quality Lead: @Demon4ort
 - FR Lead: @Demon4ort
 
 ## 3. Communication plan
@@ -56,12 +57,20 @@ Go back to the [Main README](README.md).
   - Intellectual Honesty
   - Respect for colleagues
 
-## 8. AI usage
+## 8. Code quality and review policy
+- Every developer should install pre-commit and use it
+- Therefore, any problem raised by spotbugs or gitleaks should be fixed or suppressed with sufficient justification
+- Any pull request must not be merged without successful workflows runs
+- Pull request should have at least one review ideally
+- If developer finds a problem in already merged code - he should create an issue describing the problem and assign it to the author of problematic part
+- Any breaking changes to API after creation of frontend part must create new version of API
+
+## 9. AI usage
 - Instruments: Any kind of available llm(OpenAI, Anthropic, Deepseek, Google) or harnesses(codex, claude code, hermess, openclaw, omp)
 - Disclosure rules: Any kind of llm usage for content creation should be disclosed in short note inside the artifact the content is placed
 - Verification rules: generated code should be treated the same as the one written by a person - all same responsibilities and rules apply
 
-## 9. Signatures
+## 10. Signatures
 - [x] Данило (GitHub: @Demon4ort)
 - [x] Вероніка (GitHub: @VeronikaGovorischeva)
 - [ ] Павло (GitHub: @FalsePromisee)
