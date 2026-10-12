@@ -2,6 +2,9 @@
 package edu.ukma.ssdm.teamspectrum.logic.hotel;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -38,6 +41,38 @@ class HotelServiceImplTest {
     when(repository.count(criteria)).thenReturn(7L);
     var result = service.search(criteria);
     assertEquals(7, result.totalItems());
+  }
+
+  @Test
+  void saveAddsAndReturnsHotelWhenNameIsAvailable() {
+    var hotel = mkHotel("Spectrum Hotel");
+    when(repository.findByName(hotel.name())).thenReturn(java.util.Optional.empty());
+
+    var result = service.save(hotel);
+
+    assertSame(hotel, result);
+    verify(repository).add(hotel);
+  }
+
+  @Test
+  void saveThrowsAndDoesNotAddHotelWhenNameAlreadyExists() {
+    var hotel = mkHotel("Spectrum Hotel");
+    when(repository.findByName(hotel.name())).thenReturn(java.util.Optional.of(hotel));
+
+    assertThrows(HotelAlreadyExistsException.class, () -> service.save(hotel));
+
+    verify(repository, never()).add(hotel);
+  }
+
+  private static HotelRecord mkHotel(String name) {
+    return new HotelRecord(
+        null,
+        name,
+        new HotelAddress("Kyiv", null, "Main Street", 1),
+        null,
+        BigDecimal.TEN,
+        4.5,
+        Set.of("wifi"));
   }
 
   private static HotelSearchCriteria criteria(
