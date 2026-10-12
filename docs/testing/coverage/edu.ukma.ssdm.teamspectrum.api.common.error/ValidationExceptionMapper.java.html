@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="uk"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ValidationExceptionMapper.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">spectrum-app</a> &gt; <a href="index.source.html" class="el_package">edu.ukma.ssdm.teamspectrum.api.common.error</a> &gt; <span class="el_source">ValidationExceptionMapper.java</span></div><h1>ValidationExceptionMapper.java</h1><pre class="source lang-java linenums">/* (C)2026 */
+package edu.ukma.ssdm.teamspectrum.api.common.error;
+
+import jakarta.validation.ConstraintViolationException;
+import jakarta.validation.Path;
+import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.ext.ExceptionMapper;
+import jakarta.ws.rs.ext.Provider;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
+
+@Provider
+<span class="nc" id="L14">public class ValidationExceptionMapper implements ExceptionMapper&lt;ConstraintViolationException&gt; {</span>
+  @Override
+  public Response toResponse(ConstraintViolationException e) {
+<span class="nc" id="L17">    List&lt;ValidationError.FieldError&gt; errors =</span>
+<span class="nc" id="L18">        e.getConstraintViolations().stream()</span>
+<span class="nc" id="L19">            .map(</span>
+                v -&gt;
+<span class="nc" id="L21">                    new ValidationError.FieldError(</span>
+<span class="nc" id="L22">                        StreamSupport.stream(v.getPropertyPath().spliterator(), false)</span>
+<span class="nc" id="L23">                            .skip(2) // skip method name and parameter name</span>
+<span class="nc" id="L24">                            .map(Path.Node::getName)</span>
+<span class="nc" id="L25">                            .collect(Collectors.joining(&quot;.&quot;)),</span>
+<span class="nc" id="L26">                        v.getMessage()))</span>
+<span class="nc" id="L27">            .toList();</span>
+<span class="nc" id="L28">    ValidationError body = new ValidationError(errors);</span>
+<span class="nc" id="L29">    return Response.status(400).entity(body).build();</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

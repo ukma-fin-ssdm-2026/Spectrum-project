@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="uk"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Address.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">spectrum-app</a> &gt; <a href="index.source.html" class="el_package">edu.ukma.ssdm.teamspectrum.api.hotel</a> &gt; <span class="el_source">Address.java</span></div><h1>Address.java</h1><pre class="source lang-java linenums">/* (C)2026 */
+package edu.ukma.ssdm.teamspectrum.api.hotel;
+
+import jakarta.validation.constraints.*;
+import org.eclipse.microprofile.openapi.annotations.media.Schema;
+
+<span class="fc" id="L7">public record Address(</span>
+    @NotBlank(message = &quot;City can't be empty&quot;)
+        @Size(min = cityMinSize, max = cityMaxSize)
+        @Schema(examples = {cityExample})
+        String city,
+    @NotBlank(message = &quot;District can't be empty&quot;)
+        @Size(min = districtMinSize, max = districtMaxSize)
+        @Schema(examples = {districtExample})
+        String district,
+    @NotBlank(message = &quot;Street can't be empty&quot;)
+        @Size(min = streetMinSize, max = streetMaxSize)
+        @Schema(examples = {streetExample})
+        String street,
+    @NotNull
+        @Min(buildingNumberMin)
+        @Max(buildingNumberMax)
+        @Schema(examples = {buildingNumberExample})
+        Integer buildingNumber) {
+  static final int cityMinSize = 3;
+  static final int cityMaxSize = 30;
+  static final String cityExample = &quot;Kyiv&quot;;
+
+  static final int districtMinSize = 3;
+  static final int districtMaxSize = 30;
+  static final String districtExample = &quot;Podil's'kyi&quot;;
+
+  static final int streetMinSize = 3;
+  static final int streetMaxSize = 30;
+  static final String streetExample = &quot;Skovorody&quot;;
+
+  static final int buildingNumberMin = 1;
+  static final int buildingNumberMax = 100;
+  static final String buildingNumberExample = &quot;34&quot;;
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>
