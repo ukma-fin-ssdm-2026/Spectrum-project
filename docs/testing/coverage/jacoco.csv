@@ -1,5 +1,5 @@
 GROUP,PACKAGE,CLASS,INSTRUCTION_MISSED,INSTRUCTION_COVERED,BRANCH_MISSED,BRANCH_COVERED,LINE_MISSED,LINE_COVERED,COMPLEXITY_MISSED,COMPLEXITY_COVERED,METHOD_MISSED,METHOD_COVERED
-spectrum-app,edu.ukma.ssdm.teamspectrum.api.common.page,PageResponse,97,42,16,0,7,11,12,5,4,5
+spectrum-app,edu.ukma.ssdm.teamspectrum.api.common.page,PageResponse,139,0,16,0,18,0,17,0,9,0
 spectrum-app,edu.ukma.ssdm.teamspectrum.api.common.page,PaginationParams,0,9,0,0,0,1,0,1,0,1
 spectrum-app,edu.ukma.ssdm.teamspectrum.api.auth,RegisterRequest,0,9,0,0,0,1,0,1,0,1
 spectrum-app,edu.ukma.ssdm.teamspectrum.api.auth,LoginRequest,0,9,0,0,0,1,0,1,0,1
@@ -20,7 +20,7 @@ spectrum-app,edu.ukma.ssdm.teamspectrum.api.hotel,CreateHotel,0,9,0,0,0,1,0,1,0,
 spectrum-app,edu.ukma.ssdm.teamspectrum.api.hotel,Address,0,15,0,0,0,1,0,1,0,1
 spectrum-app,edu.ukma.ssdm.teamspectrum.api.hotel,HotelController,85,0,0,0,16,0,5,0,5,0
 spectrum-app,edu.ukma.ssdm.teamspectrum.api.hotel,HotelSearchCriteriaFactory,0,28,0,0,0,12,0,2,0,2
-spectrum-app,edu.ukma.ssdm.teamspectrum.api.hotel,GetHotelsParams,0,34,0,2,0,3,0,2,0,1
+spectrum-app,edu.ukma.ssdm.teamspectrum.api.hotel,GetHotelsParams,2,32,1,1,0,3,1,1,0,1
 spectrum-app,edu.ukma.ssdm.teamspectrum.api.hotel,RoomStatus,15,0,0,0,3,0,1,0,1,0
 spectrum-app,edu.ukma.ssdm.teamspectrum.api.hotel,HotelAddressFactory,0,27,0,0,0,5,0,3,0,3
 spectrum-app,edu.ukma.ssdm.teamspectrum.logic.hotel,HotelAlreadyExistsException,0,4,0,0,0,2,0,1,0,1
