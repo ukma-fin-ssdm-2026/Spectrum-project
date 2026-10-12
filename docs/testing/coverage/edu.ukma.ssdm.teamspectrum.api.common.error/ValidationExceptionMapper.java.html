@@ -11,22 +11,22 @@ import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 @Provider
-<span class="fc" id="L14">public class ValidationExceptionMapper implements ExceptionMapper&lt;ConstraintViolationException&gt; {</span>
+<span class="nc" id="L14">public class ValidationExceptionMapper implements ExceptionMapper&lt;ConstraintViolationException&gt; {</span>
   @Override
   public Response toResponse(ConstraintViolationException e) {
-<span class="fc" id="L17">    List&lt;ValidationError.FieldError&gt; errors =</span>
-<span class="fc" id="L18">        e.getConstraintViolations().stream()</span>
-<span class="fc" id="L19">            .map(</span>
+<span class="nc" id="L17">    List&lt;ValidationError.FieldError&gt; errors =</span>
+<span class="nc" id="L18">        e.getConstraintViolations().stream()</span>
+<span class="nc" id="L19">            .map(</span>
                 v -&gt;
-<span class="fc" id="L21">                    new ValidationError.FieldError(</span>
-<span class="fc" id="L22">                        StreamSupport.stream(v.getPropertyPath().spliterator(), false)</span>
-<span class="fc" id="L23">                            .skip(2) // skip method name and parameter name</span>
-<span class="fc" id="L24">                            .map(Path.Node::getName)</span>
-<span class="fc" id="L25">                            .collect(Collectors.joining(&quot;.&quot;)),</span>
-<span class="fc" id="L26">                        v.getMessage()))</span>
-<span class="fc" id="L27">            .toList();</span>
-<span class="fc" id="L28">    ValidationError body = new ValidationError(errors);</span>
-<span class="fc" id="L29">    return Response.status(400).entity(body).build();</span>
+<span class="nc" id="L21">                    new ValidationError.FieldError(</span>
+<span class="nc" id="L22">                        StreamSupport.stream(v.getPropertyPath().spliterator(), false)</span>
+<span class="nc" id="L23">                            .skip(2) // skip method name and parameter name</span>
+<span class="nc" id="L24">                            .map(Path.Node::getName)</span>
+<span class="nc" id="L25">                            .collect(Collectors.joining(&quot;.&quot;)),</span>
+<span class="nc" id="L26">                        v.getMessage()))</span>
+<span class="nc" id="L27">            .toList();</span>
+<span class="nc" id="L28">    ValidationError body = new ValidationError(errors);</span>
+<span class="nc" id="L29">    return Response.status(400).entity(body).build();</span>
   }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

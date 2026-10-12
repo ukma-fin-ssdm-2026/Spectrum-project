@@ -3,12 +3,12 @@ spectrum-app,edu.ukma.ssdm.teamspectrum.api.common.page,PageResponse,139,0,16,0,
 spectrum-app,edu.ukma.ssdm.teamspectrum.api.common.page,PaginationParams,0,9,0,0,0,1,0,1,0,1
 spectrum-app,edu.ukma.ssdm.teamspectrum.api.auth,RegisterRequest,0,9,0,0,0,1,0,1,0,1
 spectrum-app,edu.ukma.ssdm.teamspectrum.api.auth,LoginRequest,0,9,0,0,0,1,0,1,0,1
-spectrum-app,edu.ukma.ssdm.teamspectrum.api.auth,AuthResponse,0,6,0,0,0,1,0,1,0,1
-spectrum-app,edu.ukma.ssdm.teamspectrum.api.auth,AuthController,0,74,0,0,0,21,0,4,0,4
+spectrum-app,edu.ukma.ssdm.teamspectrum.api.auth,AuthResponse,6,0,0,0,1,0,1,0,1,0
+spectrum-app,edu.ukma.ssdm.teamspectrum.api.auth,AuthController,74,0,0,0,21,0,4,0,4,0
 spectrum-app,edu.ukma.ssdm.teamspectrum.api.auth,IssuedToken,0,9,0,0,0,1,0,1,0,1
-spectrum-app,edu.ukma.ssdm.teamspectrum.api.common.error,ValidationError,37,10,6,0,6,4,6,2,3,2
-spectrum-app,edu.ukma.ssdm.teamspectrum.api.common.error,ValidationError.FieldError,0,9,0,0,0,1,0,1,0,1
-spectrum-app,edu.ukma.ssdm.teamspectrum.api.common.error,ValidationExceptionMapper,0,40,0,0,0,13,0,3,0,3
+spectrum-app,edu.ukma.ssdm.teamspectrum.api.common.error,ValidationError,47,0,6,0,10,0,8,0,5,0
+spectrum-app,edu.ukma.ssdm.teamspectrum.api.common.error,ValidationError.FieldError,9,0,0,0,1,0,1,0,1,0
+spectrum-app,edu.ukma.ssdm.teamspectrum.api.common.error,ValidationExceptionMapper,40,0,0,0,13,0,3,0,3,0
 spectrum-app,edu.ukma.ssdm.teamspectrum.api.hotel,HotelPageResponse,6,0,0,0,2,0,1,0,1,0
 spectrum-app,edu.ukma.ssdm.teamspectrum.api.hotel,Hotel,0,27,0,0,0,3,0,1,0,1
 spectrum-app,edu.ukma.ssdm.teamspectrum.api.hotel,HotelFactory,0,43,0,0,0,16,0,3,0,3

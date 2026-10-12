@@ -8,12 +8,12 @@ import org.eclipse.microprofile.openapi.annotations.media.Schema;
 public class ValidationError {
   private final List&lt;FieldError&gt; fields;
 
-<span class="fc" id="L11">  public ValidationError(List&lt;FieldError&gt; fields) {</span>
-<span class="fc" id="L12">    this.fields = List.copyOf(fields);</span>
-<span class="fc" id="L13">  }</span>
+<span class="nc" id="L11">  public ValidationError(List&lt;FieldError&gt; fields) {</span>
+<span class="nc" id="L12">    this.fields = List.copyOf(fields);</span>
+<span class="nc" id="L13">  }</span>
 
   public List&lt;FieldError&gt; getFields() {
-<span class="fc" id="L16">    return fields;</span>
+<span class="nc" id="L16">    return fields;</span>
   }
 
   @Override
@@ -34,7 +34,7 @@ public class ValidationError {
 <span class="nc" id="L34">    return &quot;ValidationError[&quot; + &quot;fields=&quot; + fields + ']';</span>
   }
 
-<span class="fc" id="L37">  public record FieldError(</span>
+<span class="nc" id="L37">  public record FieldError(</span>
       @Schema(examples = {&quot;name&quot;}) String path,
       @Schema(examples = {&quot;size must be between 3 and 40&quot;}) String message) {}
 }
