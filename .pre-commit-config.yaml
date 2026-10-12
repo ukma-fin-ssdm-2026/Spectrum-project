@@ -4,14 +4,14 @@ repos:
       - id: spotless
         name: Spotless format
         entry: python scripts/precommit_maven.py spotless:check
-        language: system
+        language: python
         pass_filenames: false
         always_run: true
 
       - id: spotbugs
         name: SpotBugs static analysis
-        entry: python scripts/precommit_maven.py -DskipTests compile spotbugs:check
-        language: system
+        entry: python scripts/precommit_maven.py -Duser.timezone=Europe/Kyiv -DskipTests compile spotbugs:check
+        language: python
         pass_filenames: false
         always_run: true
 
