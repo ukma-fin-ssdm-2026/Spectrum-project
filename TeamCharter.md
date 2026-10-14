@@ -14,17 +14,21 @@ Go back to the [Main README](README.md).
 
 ## 2. Roles and responsibilities
 
+Lab 1 (team setup):
+
 - Repo Maintainer: @VeronikaGovorischeva
 - CI Maintainer: @Demon4ort
-- Documentation Lead: @Roman19122006
+- Documentation Lead (README, team charter): @Roman19122006
 - Issue Tracker Lead: @FalsePromisee
 - Project Brief Lead: @Roman19122006
+
+Lab 2 (requirements):
+
 - Requirements Lead: @Demon4ort
-- Quality Lead: @VeronikaGovorischeva
-- Traceability Lead: @VeronikaGovorischeva
-- Documentation Lead: ???
-- Quality Lead: @Demon4ort
 - FR Lead: @Demon4ort
+- Quality Lead: @Demon4ort
+- Traceability Lead: @VeronikaGovorischeva
+- Documentation Lead (requirements artifacts): @VeronikaGovorischeva
 
 ## 3. Communication plan
 
@@ -38,7 +42,8 @@ Go back to the [Main README](README.md).
 - Commit practice: conventional commits
 - Code review rules: all commits require pull request, successful ci run and at least 1
   approve(ideally)
-- Task working process: open → assign → work → pr → close
+- Task working process: open → assign → work → pr → close, described in
+  [Task workflow](docs/process/task-workflow.md)
 - Requirements review: reviewing pull requests or issue in repo
 - NFR checks: benchmarks and their results with explanations and instructions how to
   reproduce
