@@ -16,7 +16,7 @@ public class HotelSearchCriteriaFactory {
   }
 
   public HotelSortBy mkSortBy(edu.ukma.ssdm.teamspectrum.api.hotel.HotelSortBy sortBy) {
-    return sortBy == null ? HotelSortBy.Rating : HotelSortBy.valueOf(sortBy.toString());
+    return sortBy == null ? HotelSortBy.Rating : HotelSortBy.valueOf(sortBy.name());
   }
 
   public HotelSearchCriteria create(GetHotelsParams params, PaginationParams pagination) {
