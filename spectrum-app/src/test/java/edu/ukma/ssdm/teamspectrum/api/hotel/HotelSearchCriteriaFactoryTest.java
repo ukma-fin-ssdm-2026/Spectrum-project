@@ -17,6 +17,30 @@ class HotelSearchCriteriaFactoryTest {
   private final HotelSearchCriteriaFactory factory = new HotelSearchCriteriaFactory();
 
   @Test
+  void mapsGetHotelsParamsNullSortFieldsToDefaultValues() {
+    GetHotelsParams params = new GetHotelsParams(null, null, null, null, null, null, null, null);
+    PaginationParams pagination = new PaginationParams(2, 20);
+
+    HotelSearchCriteria criteria = factory.create(params, pagination);
+
+    assertEquals(
+        new HotelSearchCriteria(
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            2,
+            20,
+            HotelSortBy.Rating,
+            SortOrder.Desc),
+        criteria);
+  }
+
+  @Test
   void mapsGetHotelsParamsToHotelSearchCriteria() {
     GetHotelsParams params =
         new GetHotelsParams(
