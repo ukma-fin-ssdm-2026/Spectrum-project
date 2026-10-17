@@ -273,6 +273,16 @@ paths:
           format: int32
           minimum: 0
           default: 0
+      - name: sortBy
+        in: query
+        schema:
+          type: object
+          default: RATING
+      - name: sortOrder
+        in: query
+        schema:
+          type: object
+          default: DESC
       responses:
         "200":
           description: Successful retrieval
