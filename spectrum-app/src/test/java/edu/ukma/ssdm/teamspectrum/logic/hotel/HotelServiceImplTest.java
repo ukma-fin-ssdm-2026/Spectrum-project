@@ -9,7 +9,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.math.BigDecimal;
-import java.util.List;
 import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -23,9 +22,6 @@ class HotelServiceImplTest {
   void setUp() {
     repository = Mockito.mock(HotelRepository.class);
     service = new HotelServiceImpl(repository);
-    when(repository.search(Mockito.any(), Mockito.anyInt(), Mockito.anyInt()))
-        .thenReturn(List.of());
-    when(repository.count(Mockito.any())).thenReturn(0L);
   }
 
   @Test
