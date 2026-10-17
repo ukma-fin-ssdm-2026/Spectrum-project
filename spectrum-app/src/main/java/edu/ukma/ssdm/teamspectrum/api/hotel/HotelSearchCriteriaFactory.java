@@ -11,7 +11,7 @@ import java.util.Set;
 @ApplicationScoped
 public class HotelSearchCriteriaFactory {
 
-  private SortOrder mkSortOrder(edu.ukma.ssdm.teamspectrum.api.common.SortOrder sortOrder) {
+  public SortOrder mkSortOrder(edu.ukma.ssdm.teamspectrum.api.common.SortOrder sortOrder) {
     return sortOrder == null ? SortOrder.Desc : SortOrder.valueOf(sortOrder.toString());
   }
 
