@@ -4,6 +4,7 @@ package edu.ukma.ssdm.teamspectrum.api.hotel;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import edu.ukma.ssdm.teamspectrum.api.common.page.PaginationParams;
+import edu.ukma.ssdm.teamspectrum.logic.common.SortOrder;
 import edu.ukma.ssdm.teamspectrum.logic.hotel.HotelSearchCriteria;
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -41,7 +42,9 @@ class HotelSearchCriteriaFactoryTest {
             5.0,
             Set.of("wifi", "parking"),
             2,
-            20),
+            20,
+            null,
+            SortOrder.Desc),
         criteria);
   }
 }
