@@ -37,7 +37,6 @@
 - [Component diagram](docs/architecture/uml/component_diagram.puml)
 - [Sequence diagram](docs/architecture/uml/sequence_diagram.puml)
 - [Data model diagram](docs/architecture/uml/data_model.puml)
-- [Sequence diagram](docs/architecture/uml/sequence_diagram.puml)
 
 ### API:
 
