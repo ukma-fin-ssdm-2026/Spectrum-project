@@ -12,7 +12,7 @@ import java.util.Set;
 public class HotelSearchCriteriaFactory {
 
   public SortOrder mkSortOrder(edu.ukma.ssdm.teamspectrum.api.common.SortOrder sortOrder) {
-    return sortOrder == null ? SortOrder.Desc : SortOrder.valueOf(sortOrder.toString());
+    return sortOrder == null ? SortOrder.Desc : SortOrder.valueOf(sortOrder.name());
   }
 
   private HotelSortBy mkSortBy(edu.ukma.ssdm.teamspectrum.api.hotel.HotelSortBy sortBy) {
