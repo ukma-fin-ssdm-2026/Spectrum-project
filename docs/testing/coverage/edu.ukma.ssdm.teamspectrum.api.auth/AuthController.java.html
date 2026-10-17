@@ -23,11 +23,13 @@ import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 @Produces(MediaType.APPLICATION_JSON)
 @Tag(name = &quot;Authentication&quot;, description = &quot;Account registration and login&quot;)
 public class AuthController {
+  public static final String authTokenName = &quot;access_token&quot;;
+  public static final String tokenPath = &quot;/v1/api&quot;;
   private final AuthService authService;
 
-<span class="nc" id="L28">  public AuthController(AuthService authService) {</span>
-<span class="nc" id="L29">    this.authService = authService;</span>
-<span class="nc" id="L30">  }</span>
+<span class="fc" id="L30">  public AuthController(AuthService authService) {</span>
+<span class="fc" id="L31">    this.authService = authService;</span>
+<span class="fc" id="L32">  }</span>
 
   @POST
   @Path(&quot;register&quot;)
@@ -43,9 +45,9 @@ public class AuthController {
       content = @Content(schema = @Schema(implementation = ValidationError.class)))
   public Response register(@Valid @NotNull RegisterRequest request) {
     try {
-<span class="nc" id="L46">      return authResponse(Response.Status.CREATED, authService.register(request));</span>
-<span class="nc" id="L47">    } catch (EmailAlreadyRegisteredException e) {</span>
-<span class="nc" id="L48">      return Response.status(Response.Status.CONFLICT).build();</span>
+<span class="fc" id="L48">      return authResponse(Response.Status.CREATED, authService.register(request));</span>
+<span class="fc" id="L49">    } catch (EmailAlreadyRegisteredException e) {</span>
+<span class="fc" id="L50">      return Response.status(Response.Status.CONFLICT).build();</span>
     }
   }
 
@@ -63,26 +65,26 @@ public class AuthController {
       content = @Content(schema = @Schema(implementation = ValidationError.class)))
   public Response login(@Valid @NotNull LoginRequest request) {
     try {
-<span class="nc" id="L66">      return authResponse(Response.Status.OK, authService.login(request));</span>
-<span class="nc" id="L67">    } catch (InvalidCredentialsException e) {</span>
-<span class="nc" id="L68">      return Response.status(Response.Status.UNAUTHORIZED).build();</span>
+<span class="fc" id="L68">      return authResponse(Response.Status.OK, authService.login(request));</span>
+<span class="fc" id="L69">    } catch (InvalidCredentialsException e) {</span>
+<span class="fc" id="L70">      return Response.status(Response.Status.UNAUTHORIZED).build();</span>
     }
   }
 
   private static Response authResponse(Response.Status status, IssuedToken token) {
-<span class="nc" id="L73">    NewCookie cookie =</span>
-        new NewCookie.Builder(&quot;access_token&quot;)
-<span class="nc" id="L75">            .value(token.value())</span>
-<span class="nc" id="L76">            .path(&quot;/v1/api&quot;)</span>
-<span class="nc" id="L77">            .maxAge(Math.toIntExact(token.expiresIn()))</span>
-<span class="nc" id="L78">            .secure(true)</span>
-<span class="nc" id="L79">            .httpOnly(true)</span>
-<span class="nc" id="L80">            .sameSite(NewCookie.SameSite.LAX)</span>
-<span class="nc" id="L81">            .build();</span>
-<span class="nc" id="L82">    return Response.status(status)</span>
-<span class="nc" id="L83">        .cookie(cookie)</span>
-<span class="nc" id="L84">        .entity(new AuthResponse(token.expiresIn()))</span>
-<span class="nc" id="L85">        .build();</span>
+<span class="fc" id="L75">    NewCookie cookie =</span>
+        new NewCookie.Builder(authTokenName)
+<span class="fc" id="L77">            .value(token.value())</span>
+<span class="fc" id="L78">            .path(tokenPath)</span>
+<span class="fc" id="L79">            .maxAge(Math.toIntExact(token.expiresIn()))</span>
+<span class="fc" id="L80">            .secure(true)</span>
+<span class="fc" id="L81">            .httpOnly(true)</span>
+<span class="fc" id="L82">            .sameSite(NewCookie.SameSite.LAX)</span>
+<span class="fc" id="L83">            .build();</span>
+<span class="fc" id="L84">    return Response.status(status)</span>
+<span class="fc" id="L85">        .cookie(cookie)</span>
+<span class="fc" id="L86">        .entity(new AuthResponse(token.expiresIn()))</span>
+<span class="fc" id="L87">        .build();</span>
   }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>
