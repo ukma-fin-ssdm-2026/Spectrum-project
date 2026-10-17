@@ -49,6 +49,16 @@ class HotelSearchCriteriaFactoryTest {
   }
 
   @Test
+  void mapsGetHotelsSortBy() {
+    assertEquals(
+        HotelSortBy.Rating,
+        factory.mkSortBy(edu.ukma.ssdm.teamspectrum.api.hotel.HotelSortBy.Rating));
+    assertEquals(
+        HotelSortBy.PricePerNight,
+        factory.mkSortBy(edu.ukma.ssdm.teamspectrum.api.hotel.HotelSortBy.PricePerNight));
+  }
+
+  @Test
   void mapsGetHotelsParamsToHotelSearchCriteria() {
     GetHotelsParams params =
         new GetHotelsParams(
