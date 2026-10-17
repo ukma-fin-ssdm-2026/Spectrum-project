@@ -2,24 +2,37 @@
 package edu.ukma.ssdm.teamspectrum.api.hotel;
 
 import edu.ukma.ssdm.teamspectrum.api.common.page.PaginationParams;
+import edu.ukma.ssdm.teamspectrum.logic.common.SortOrder;
 import edu.ukma.ssdm.teamspectrum.logic.hotel.HotelSearchCriteria;
+import edu.ukma.ssdm.teamspectrum.logic.hotel.HotelSortBy;
 import jakarta.enterprise.context.ApplicationScoped;
 import java.util.Set;
 
 @ApplicationScoped
-<span class="fc" id="L10">public class HotelSearchCriteriaFactory {</span>
+<span class="fc" id="L12">public class HotelSearchCriteriaFactory {</span>
+
+  public SortOrder mkSortOrder(edu.ukma.ssdm.teamspectrum.api.common.SortOrder sortOrder) {
+<span class="fc bfc" id="L15" title="All 2 branches covered.">    return sortOrder == null ? SortOrder.Desc : SortOrder.valueOf(sortOrder.name());</span>
+  }
+
+  public HotelSortBy mkSortBy(edu.ukma.ssdm.teamspectrum.api.hotel.HotelSortBy sortBy) {
+<span class="fc bfc" id="L19" title="All 2 branches covered.">    return sortBy == null ? HotelSortBy.Rating : HotelSortBy.valueOf(sortBy.name());</span>
+  }
+
   public HotelSearchCriteria create(GetHotelsParams params, PaginationParams pagination) {
-<span class="fc" id="L12">    return new HotelSearchCriteria(</span>
-<span class="fc" id="L13">        params.location(),</span>
-<span class="fc" id="L14">        params.checkIn(),</span>
-<span class="fc" id="L15">        params.checkOut(),</span>
-<span class="fc" id="L16">        params.minPrice(),</span>
-<span class="fc" id="L17">        params.maxPrice(),</span>
-<span class="fc" id="L18">        params.minRating(),</span>
-<span class="fc" id="L19">        params.maxRating(),</span>
-<span class="fc" id="L20">        Set.copyOf(params.amenities()),</span>
-<span class="fc" id="L21">        pagination.page(),</span>
-<span class="fc" id="L22">        pagination.limit());</span>
+<span class="fc" id="L23">    return new HotelSearchCriteria(</span>
+<span class="fc" id="L24">        params.location(),</span>
+<span class="fc" id="L25">        params.checkIn(),</span>
+<span class="fc" id="L26">        params.checkOut(),</span>
+<span class="fc" id="L27">        params.minPrice(),</span>
+<span class="fc" id="L28">        params.maxPrice(),</span>
+<span class="fc" id="L29">        params.minRating(),</span>
+<span class="fc" id="L30">        params.maxRating(),</span>
+<span class="fc" id="L31">        Set.copyOf(params.amenities()),</span>
+<span class="fc" id="L32">        pagination.page(),</span>
+<span class="fc" id="L33">        pagination.limit(),</span>
+<span class="fc" id="L34">        mkSortBy(params.sortBy()),</span>
+<span class="fc" id="L35">        mkSortOrder(params.sortOrder()));</span>
   }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>
