@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>GetHotelsParams.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">spectrum-app</a> &gt; <a href="index.source.html" class="el_package">edu.ukma.ssdm.teamspectrum.api.hotel</a> &gt; <span class="el_source">GetHotelsParams.java</span></div><h1>GetHotelsParams.java</h1><pre class="source lang-java linenums">/* (C)2026 */
+package edu.ukma.ssdm.teamspectrum.api.hotel;
+
+import jakarta.validation.constraints.DecimalMax;
+import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.FutureOrPresent;
+import jakarta.validation.constraints.Size;
+import jakarta.ws.rs.QueryParam;
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.util.List;
+import org.eclipse.microprofile.openapi.annotations.media.Schema;
+import org.eclipse.microprofile.openapi.annotations.parameters.Parameter;
+
+public record GetHotelsParams(
+    @QueryParam(&quot;location&quot;)
+        @Size(min = 2, max = locationMaxSize)
+        @Parameter(example = locationExample)
+        @Schema(examples = {locationExample})
+        String location,
+    @QueryParam(&quot;checkIn&quot;)
+        @FutureOrPresent
+        @Parameter(example = checkInExample)
+        @Schema(examples = {checkInExample})
+        LocalDate checkIn,
+    @QueryParam(&quot;checkOut&quot;)
+        @FutureOrPresent
+        @Parameter(example = checkOutExample)
+        @Schema(examples = {checkOutExample})
+        LocalDate checkOut,
+    @QueryParam(&quot;minPrice&quot;)
+        @DecimalMin(&quot;0.0&quot;)
+        @Parameter(example = minPriceExample)
+        @Schema(examples = {minPriceExample})
+        BigDecimal minPrice,
+    @QueryParam(&quot;maxPrice&quot;)
+        @DecimalMin(&quot;0.0&quot;)
+        @Parameter(example = maxPriceExample)
+        @Schema(examples = {maxPriceExample})
+        BigDecimal maxPrice,
+    @QueryParam(&quot;minRating&quot;)
+        @DecimalMin(&quot;0.0&quot;)
+        @DecimalMax(&quot;5.0&quot;)
+        @Parameter(example = minRatingExample)
+        @Schema(examples = {minRatingExample})
+        Double minRating,
+    @QueryParam(&quot;maxRating&quot;)
+        @DecimalMin(&quot;0.0&quot;)
+        @DecimalMax(&quot;5.0&quot;)
+        @Parameter(example = maxRatingExample)
+        @Schema(examples = {maxRatingExample})
+        Double maxRating,
+    @QueryParam(&quot;amenity&quot;)
+        @Size(max = maxAmenities)
+        @Parameter(example = amenitiesExample)
+        @Schema(examples = {amenitiesExample})
+        List&lt;@Size(min = 2, max = amenityMaxSize) String&gt; amenities) {
+  static final int locationMaxSize = 100;
+  static final String locationExample = Address.cityExample;
+  static final String checkInExample = &quot;2027-06-15&quot;;
+  static final String checkOutExample = &quot;2027-06-20&quot;;
+  static final String minPriceExample = &quot;100.00&quot;;
+  static final String maxPriceExample = &quot;300.00&quot;;
+  static final String minRatingExample = &quot;3.5&quot;;
+  static final String maxRatingExample = &quot;5.0&quot;;
+  static final int maxAmenities = 20;
+  static final int amenityMaxSize = 40;
+  static final String amenitiesExample = &quot;Wi-Fi&quot;;
+
+<span class="fc" id="L70">  public GetHotelsParams {</span>
+<span class="fc bfc" id="L71" title="All 2 branches covered.">    amenities = amenities == null ? List.of() : List.copyOf(amenities);</span>
+<span class="fc" id="L72">  }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

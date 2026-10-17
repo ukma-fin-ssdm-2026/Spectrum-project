@@ -37,9 +37,8 @@
 - [Component diagram](docs/architecture/uml/component_diagram.puml)
 - [Sequence diagram](docs/architecture/uml/sequence_diagram.puml)
 - [Data model diagram](docs/architecture/uml/data_model.puml)
-- [Sequence diagram](docs/architecture/uml/sequence_diagram.puml)
 
-## API:
+### API:
 
 - [API design](docs/api/api-design.md)
 - [API quality attributes](docs/api/quality-attributes.md)
@@ -48,6 +47,12 @@
   (Swagger UI)
 - API source code: [`spectrum-app/src/main/java/edu/ukma/ssdm/teamspectrum/api`](spectrum-app/src/main/java/edu/ukma/ssdm/teamspectrum/api)
 - Swagger UI when running locally: `http://localhost:8080/api-docs`
+
+### Testing:
+
+- [Test coverage report](docs/testing/coverage/index.html)
+- [Debugging log](docs/testing/debugging-log.md)
+
 
 ### How to run locally:
 
