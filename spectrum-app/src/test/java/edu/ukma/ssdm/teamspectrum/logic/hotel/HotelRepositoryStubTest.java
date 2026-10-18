@@ -1,8 +1,8 @@
 /* (C)2026 */
 package edu.ukma.ssdm.teamspectrum.logic.hotel;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.math.BigDecimal;
 import java.util.Set;
