@@ -33,6 +33,9 @@ Roles are described in the [Team charter](TeamCharter.md); the task process is d
 - [High-Level Design](docs/architecture/high-level-design.md)
 - [Data model](docs/architecture/data-model.md)
 - [Threat model (STRIDE)](docs/architecture/threat-model.md)
+- [Traceability matrix](docs/architecture/traceability-matrix.md)
+- Architecture decisions: [ADR-001](docs/architecture/decisions/ADR-001.md) (architectural
+  style), [ADR-002](docs/architecture/decisions/ADR-002.md) (data storage)
 
 ### Diagrams:
 
