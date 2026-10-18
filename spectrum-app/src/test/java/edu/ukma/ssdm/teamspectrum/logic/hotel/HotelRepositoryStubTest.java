@@ -23,7 +23,7 @@ class HotelRepositoryStubTest {
     assertTrue(result.isPresent());
   }
 
-    @Test
+  @Test
   void findByNameIgnoresSurroundingSpaces() {
     // Arrange
     var repository = new HotelRepositoryStub();

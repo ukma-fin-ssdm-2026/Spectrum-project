@@ -55,7 +55,7 @@ public class HotelRepositoryStub implements HotelRepository {
 
   @Override
   public Optional<HotelRecord> findByName(String name) {
-    return hotels.values().stream().filter(h -> h.name().equalsIgnoreCase(name)).findFirst();
+    return hotels.values().stream().filter(h -> h.name().equalsIgnoreCase(name.trim())).findFirst();
   }
 
   @Override
