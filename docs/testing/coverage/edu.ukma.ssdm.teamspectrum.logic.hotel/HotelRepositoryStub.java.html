@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>HotelRepositoryStub.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">spectrum-app</a> &gt; <a href="index.source.html" class="el_package">edu.ukma.ssdm.teamspectrum.logic.hotel</a> &gt; <span class="el_source">HotelRepositoryStub.java</span></div><h1>HotelRepositoryStub.java</h1><pre class="source lang-java linenums">/* (C)2026 */
+package edu.ukma.ssdm.teamspectrum.logic.hotel;
+
+import jakarta.enterprise.context.ApplicationScoped;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.util.stream.Stream;
+
+@ApplicationScoped
+<span class="nc" id="L14">public class HotelRepositoryStub implements HotelRepository {</span>
+<span class="nc" id="L15">  private final ConcurrentMap&lt;UUID, HotelRecord&gt; hotels = new ConcurrentHashMap&lt;&gt;();</span>
+
+  @Override
+  public List&lt;HotelRecord&gt; search(HotelSearchCriteria criteria, int offset, int limit) {
+<span class="nc" id="L19">    return filtered(criteria)</span>
+<span class="nc" id="L20">        .sorted(Comparator.comparingDouble(HotelRecord::rating).reversed())</span>
+<span class="nc" id="L21">        .skip(offset)</span>
+<span class="nc" id="L22">        .limit(limit)</span>
+<span class="nc" id="L23">        .toList();</span>
+  }
+
+  @Override
+  public long count(HotelSearchCriteria criteria) {
+<span class="nc" id="L28">    return filtered(criteria).count();</span>
+  }
+
+  private Stream&lt;HotelRecord&gt; filtered(HotelSearchCriteria criteria) {
+<span class="nc" id="L32">    return hotels.values().stream()</span>
+<span class="nc" id="L33">        .filter(</span>
+            h -&gt;
+<span class="nc bnc" id="L35" title="All 2 branches missed.">                criteria.location() == null</span>
+<span class="nc bnc" id="L36" title="All 2 branches missed.">                    || h.address().city().equalsIgnoreCase(criteria.location()))</span>
+<span class="nc" id="L37">        .filter(</span>
+            h -&gt;
+<span class="nc bnc" id="L39" title="All 2 branches missed.">                criteria.minPrice() == null</span>
+<span class="nc bnc" id="L40" title="All 2 branches missed.">                    || h.pricePerNight().compareTo(criteria.minPrice()) &gt;= 0)</span>
+<span class="nc" id="L41">        .filter(</span>
+            h -&gt;
+<span class="nc bnc" id="L43" title="All 2 branches missed.">                criteria.maxPrice() == null</span>
+<span class="nc bnc" id="L44" title="All 2 branches missed.">                    || h.pricePerNight().compareTo(criteria.maxPrice()) &lt;= 0)</span>
+<span class="nc bnc" id="L45" title="All 4 branches missed.">        .filter(h -&gt; criteria.minRating() == null || h.rating() &gt;= criteria.minRating())</span>
+<span class="nc bnc" id="L46" title="All 4 branches missed.">        .filter(h -&gt; criteria.maxRating() == null || h.rating() &lt;= criteria.maxRating())</span>
+<span class="nc" id="L47">        .filter(</span>
+<span class="nc bnc" id="L48" title="All 4 branches missed.">            h -&gt; criteria.amenities().isEmpty() || h.amenities().containsAll(criteria.amenities()));</span>
+  }
+
+  @Override
+  public Optional&lt;HotelRecord&gt; findById(UUID id) {
+<span class="nc" id="L53">    return Optional.ofNullable(hotels.get(id));</span>
+  }
+
+  @Override
+  public Optional&lt;HotelRecord&gt; findByName(String name) {
+<span class="nc" id="L58">    return hotels.values().stream().filter(h -&gt; h.name().equals(name)).findFirst();</span>
+  }
+
+  @Override
+  public void add(HotelRecord hotel) {
+<span class="nc" id="L63">    hotels.put(hotel.id(), hotel);</span>
+<span class="nc" id="L64">  }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

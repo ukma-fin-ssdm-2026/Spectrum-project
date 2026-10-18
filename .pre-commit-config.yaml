@@ -1,0 +1,21 @@
+repos:
+  - repo: local
+    hooks:
+      - id: spotless
+        name: Spotless format
+        entry: python scripts/precommit_maven.py spotless:check
+        language: python
+        pass_filenames: false
+        always_run: true
+
+      - id: spotbugs
+        name: SpotBugs static analysis
+        entry: python scripts/precommit_maven.py -Duser.timezone=Europe/Kyiv -DskipTests compile spotbugs:check
+        language: python
+        pass_filenames: false
+        always_run: true
+
+  - repo: https://github.com/gitleaks/gitleaks
+    rev: v8.30.1
+    hooks:
+      - id: gitleaks

@@ -301,3 +301,66 @@ As a hotel worker, I want to delete hotel rooms, so I can clean up obsolete data
 6. ***Given***: I have confirmed the deletion of a room \
    ***When***: a system or server error occurs during the delete operation \
    ***Then***: I should see an error message indicating the deletion failed
+
+### US-011:
+
+As a client, I want to book a room for my selected dates, so I am sure the room is
+reserved for my stay.
+
+#### AC:
+
+1. ***Given***: I am authenticated as a client and viewing an available room for selected
+   dates \
+   ***When***: I click "Book" and confirm the booking \
+   ***Then***: a booking should be created for that room and dates \
+   ***And***: I should see a confirmation with the hotel, room, dates and total price
+
+2. ***Given***: I have successfully booked a room \
+   ***When***: the booking is created \
+   ***Then***: I should receive an email with the booking details
+
+3. ***Given***: another client has just booked the last room of this type for overlapping
+   dates \
+   ***When***: I try to confirm my booking \
+   ***Then***: the booking should not be created \
+   ***And***: I should see a message that the room is no longer available
+
+4. ***Given***: I am not authenticated \
+   ***When***: I click "Book" \
+   ***Then***: I should be redirected to the login page \
+   ***And***: after logging in I should return to the same room and dates
+
+5. ***Given***: I have confirmed a booking \
+   ***When***: a system or server error occurs during saving \
+   ***Then***: I should see an error message that the booking could not be created \
+   ***And***: no booking should be created
+
+### US-012:
+
+As a client, I want to be notified when my booking is cancelled by the hotel, so I can
+make other plans in time.
+
+#### AC:
+
+1. ***Given***: I have an active booking \
+   ***When***: a hotel worker cancels it \
+   ***Then***: I should receive an email with the cancelled booking's details
+
+2. ***Given***: my booking was cancelled by the hotel \
+   ***When***: I open my bookings list \
+   ***Then***: the booking should be shown with the status "Cancelled"
+
+3. ***Given***: my booking was cancelled \
+   ***When***: the cancellation is saved \
+   ***Then***: the room should become available to other clients for those dates
+
+4. ***Given***: I am authenticated as a client \
+   ***When***: I open my bookings list \
+   ***Then***: I should see only my own bookings
+
+
+### AI usage note:
+
+US-011 and US-012 were drafted and formatted with an LLM (Claude) from the functional requirements
+(FR-007, FR-013, FR-015, FR-016) and own ideas; the acceptance criteria were reviewed by the author
+before committing.
