@@ -8,10 +8,13 @@
 
 | Member | GitHub | Role(s) |
 |---|---|---|
-| Данило | [@Demon4ort](https://github.com/Demon4ort) | CI Maintainer, Requirements Lead |
-| Вероніка | [@VeronikaGovorischeva](https://github.com/VeronikaGovorischeva) | Repo Maintainer |
+| Данило | [@Demon4ort](https://github.com/Demon4ort) | CI Maintainer, Requirements Lead, FR Lead, Quality Lead |
+| Вероніка | [@VeronikaGovorischeva](https://github.com/VeronikaGovorischeva) | Repo Maintainer, Traceability Lead, Documentation Lead (requirements artifacts) |
 | Павло | [@FalsePromisee](https://github.com/FalsePromisee) | Issue Tracker Lead |
-| Роман | [@Roman19122006](https://github.com/Roman19122006) | Documentation Lead, Project Brief Lead |
+| Роман | [@Roman19122006](https://github.com/Roman19122006) | Documentation Lead (README, team charter), Project Brief Lead |
+
+Roles are described in the [Team charter](TeamCharter.md); the task process is described in
+[Task workflow](docs/process/task-workflow.md).
 
 [Project Description](./Project-Description.md)
 
