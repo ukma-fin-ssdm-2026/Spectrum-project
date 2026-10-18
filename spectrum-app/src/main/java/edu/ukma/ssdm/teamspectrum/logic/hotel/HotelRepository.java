@@ -12,5 +12,7 @@ public interface HotelRepository {
 
   Optional<HotelRecord> findById(UUID id);
 
+  Optional<HotelRecord> findByName(String name);
+
   void add(HotelRecord hotel);
 }

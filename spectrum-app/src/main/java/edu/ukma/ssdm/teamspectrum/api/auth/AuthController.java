@@ -23,6 +23,8 @@ import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 @Produces(MediaType.APPLICATION_JSON)
 @Tag(name = "Authentication", description = "Account registration and login")
 public class AuthController {
+  public static final String authTokenName = "access_token";
+  public static final String tokenPath = "/v1/api";
   private final AuthService authService;
 
   public AuthController(AuthService authService) {
@@ -71,9 +73,9 @@ public class AuthController {
 
   private static Response authResponse(Response.Status status, IssuedToken token) {
     NewCookie cookie =
-        new NewCookie.Builder("access_token")
+        new NewCookie.Builder(authTokenName)
             .value(token.value())
-            .path("/v1/api")
+            .path(tokenPath)
             .maxAge(Math.toIntExact(token.expiresIn()))
             .secure(true)
             .httpOnly(true)

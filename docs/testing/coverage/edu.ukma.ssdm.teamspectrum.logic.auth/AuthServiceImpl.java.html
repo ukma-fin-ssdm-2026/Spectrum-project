@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AuthServiceImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">spectrum-app</a> &gt; <a href="index.source.html" class="el_package">edu.ukma.ssdm.teamspectrum.logic.auth</a> &gt; <span class="el_source">AuthServiceImpl.java</span></div><h1>AuthServiceImpl.java</h1><pre class="source lang-java linenums">/* (C)2026 */
+package edu.ukma.ssdm.teamspectrum.logic.auth;
+
+import edu.ukma.ssdm.teamspectrum.api.auth.IssuedToken;
+import edu.ukma.ssdm.teamspectrum.api.auth.LoginRequest;
+import edu.ukma.ssdm.teamspectrum.api.auth.RegisterRequest;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import io.quarkus.elytron.security.common.BcryptUtil;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+@ApplicationScoped
+public class AuthServiceImpl implements AuthService {
+
+<span class="fc" id="L17">  private final Logger logger = LoggerFactory.getLogger(AuthServiceImpl.class);</span>
+  private final UserRepository userRepository;
+  private final UserFactory userFactory;
+  private final TokenFactory tokenFactory;
+
+  @Inject
+  @SuppressFBWarnings(
+      value = &quot;EI_EXPOSE_REP2&quot;,
+      justification = &quot;This is an intentionally shared repository dependency.&quot;)
+  public AuthServiceImpl(
+<span class="fc" id="L27">      UserRepository userRepository, UserFactory userFactory, TokenFactory tokenFactory) {</span>
+<span class="fc" id="L28">    this.userRepository = userRepository;</span>
+<span class="fc" id="L29">    this.userFactory = userFactory;</span>
+<span class="fc" id="L30">    this.tokenFactory = tokenFactory;</span>
+<span class="fc" id="L31">  }</span>
+
+  public IssuedToken register(RegisterRequest request) {
+<span class="fc" id="L34">    logger.debug(&quot;Register request: {}&quot;, request);</span>
+<span class="fc" id="L35">    String email = userFactory.normalizeEmail(request.email());</span>
+<span class="fc" id="L36">    User user = userFactory.create(email, request.password());</span>
+<span class="fc bfc" id="L37" title="All 2 branches covered.">    if (userRepository.findByEmail(user.email()).isPresent()) {</span>
+<span class="fc" id="L38">      throw new EmailAlreadyRegisteredException();</span>
+    } else {
+<span class="fc" id="L40">      userRepository.add(user);</span>
+<span class="fc" id="L41">      logger.debug(&quot;Registered user: {}&quot;, user.email());</span>
+<span class="fc" id="L42">      return tokenFactory.create(user);</span>
+    }
+  }
+
+  public IssuedToken login(LoginRequest request) {
+<span class="fc" id="L47">    logger.debug(&quot;Logging in: {}&quot;, request.email());</span>
+<span class="fc" id="L48">    var user =</span>
+        userRepository
+<span class="fc" id="L50">            .findByEmail(userFactory.normalizeEmail(request.email()))</span>
+<span class="fc" id="L51">            .filter(u -&gt; BcryptUtil.matches(request.password(), u.passwordHash()))</span>
+<span class="fc" id="L52">            .orElseThrow(InvalidCredentialsException::new);</span>
+<span class="fc" id="L53">    logger.debug(&quot;Logged in: {}&quot;, request.email());</span>
+<span class="fc" id="L54">    return tokenFactory.create(user);</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

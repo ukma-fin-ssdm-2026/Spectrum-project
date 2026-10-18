@@ -1,6 +1,7 @@
 /* (C)2026 */
 package edu.ukma.ssdm.teamspectrum.api.hotel;
 
+import edu.ukma.ssdm.teamspectrum.api.common.SortOrder;
 import jakarta.validation.constraints.DecimalMax;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.FutureOrPresent;
@@ -54,7 +55,9 @@ public record GetHotelsParams(
         @Size(max = maxAmenities)
         @Parameter(example = amenitiesExample)
         @Schema(examples = {amenitiesExample})
-        List<@Size(min = 2, max = amenityMaxSize) String> amenities) {
+        List<@Size(min = 2, max = amenityMaxSize) String> amenities,
+    @QueryParam("sortBy") @Schema(defaultValue = HotelSortBy.Values.Rating) HotelSortBy sortBy,
+    @QueryParam("sortOrder") @Schema(defaultValue = SortOrder.Values.Desc) SortOrder sortOrder) {
   static final int locationMaxSize = 100;
   static final String locationExample = Address.cityExample;
   static final String checkInExample = "2027-06-15";
@@ -69,5 +72,19 @@ public record GetHotelsParams(
 
   public GetHotelsParams {
     amenities = amenities == null ? List.of() : List.copyOf(amenities);
+  }
+
+  public GetHotelsParams(
+      String location,
+      LocalDate checkIn,
+      LocalDate checkOut,
+      BigDecimal minPrice,
+      BigDecimal maxPrice,
+      Double minRating,
+      Double maxRating,
+      List<@Size(min = 2, max = amenityMaxSize) String> amenities) {
+    this(
+        location, checkIn, checkOut, minPrice, maxPrice, minRating, maxRating, amenities, null,
+        null);
   }
 }

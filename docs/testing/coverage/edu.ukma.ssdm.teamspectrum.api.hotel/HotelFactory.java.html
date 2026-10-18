@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>HotelFactory.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">spectrum-app</a> &gt; <a href="index.source.html" class="el_package">edu.ukma.ssdm.teamspectrum.api.hotel</a> &gt; <span class="el_source">HotelFactory.java</span></div><h1>HotelFactory.java</h1><pre class="source lang-java linenums">/* (C)2026 */
+package edu.ukma.ssdm.teamspectrum.api.hotel;
+
+import edu.ukma.ssdm.teamspectrum.logic.hotel.HotelRecord;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import java.math.BigDecimal;
+import java.util.Set;
+import java.util.UUID;
+
+@ApplicationScoped
+public class HotelFactory {
+  private final HotelAddressFactory addressFactory;
+
+  @Inject
+<span class="fc" id="L16">  public HotelFactory(HotelAddressFactory addressFactory) {</span>
+<span class="fc" id="L17">    this.addressFactory = addressFactory;</span>
+<span class="fc" id="L18">  }</span>
+
+  public HotelRecord create(CreateHotel request) {
+<span class="fc" id="L21">    return new HotelRecord(</span>
+<span class="fc" id="L22">        UUID.randomUUID(),</span>
+<span class="fc" id="L23">        request.name(),</span>
+<span class="fc" id="L24">        addressFactory.create(request.address()),</span>
+        null,
+        BigDecimal.ZERO,
+        0,
+<span class="fc" id="L28">        Set.of());</span>
+  }
+
+  public Hotel create(HotelRecord hotel) {
+<span class="fc" id="L32">    return new Hotel(</span>
+<span class="fc" id="L33">        hotel.id(),</span>
+<span class="fc" id="L34">        hotel.name(),</span>
+<span class="fc" id="L35">        addressFactory.create(hotel.address()),</span>
+<span class="fc" id="L36">        hotel.pictureUrl(),</span>
+<span class="fc" id="L37">        hotel.pricePerNight(),</span>
+<span class="fc" id="L38">        hotel.rating(),</span>
+<span class="fc" id="L39">        hotel.amenities());</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>
