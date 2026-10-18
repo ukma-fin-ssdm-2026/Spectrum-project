@@ -10,7 +10,7 @@ so I can choose one.
 
 1. ***Given***: I have selected a location and dates on the search page \
    ***When***: I search for hotels \
-   ***Then***: I should the list of hotels with available rooms
+   ***Then***: I should see the list of hotels with available rooms
 
 2. ***Given***: I am searching for hotels in selected location and dates \
    ***When***: no hotels are available \
@@ -18,7 +18,7 @@ so I can choose one.
 
 3. ***Given***: I am authenticated as a client \
    ***When***: I am viewing the hotel list \
-   ***Then***: I should the list of hotels with each displaying name, picture, price per
+   ***Then***: I should see the list of hotels with each displaying name, picture, price per
    night, rating
 
 4. ***Given***: I am viewing the list of hotels \
@@ -130,7 +130,7 @@ so I can choose one.
 
 1. ***Given***: I have selected a hotel on the search page \
    ***When***: I search for rooms \
-   ***Then***: I should the list of available rooms
+   ***Then***: I should see the list of available rooms
 
 2. ***Given***: I am searching for rooms of a selected hotel in selected dates \
    ***When***: no rooms are available \
@@ -138,7 +138,7 @@ so I can choose one.
 
 3. ***Given***: I am authenticated as a client \
    ***When***: I am viewing the room list \
-   ***Then***: I should the list of rooms with each displaying name, pictures, price per
+   ***Then***: I should see the list of rooms with each displaying name, pictures, price per
    night, number of available rooms of this type
 
 4. ***Given***: I am viewing the list of rooms \
