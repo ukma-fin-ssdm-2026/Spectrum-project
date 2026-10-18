@@ -1,0 +1,27 @@
+name: Spotbugs check
+
+on:
+  pull_request:
+    types: [ opened, synchronize ]
+    branches:
+      - main
+
+jobs:
+  spotbugs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+          cache: maven
+      - name: Permissions for mvnw
+        working-directory: spectrum-app
+        run: chmod +x mvnw
+      - name: Perform static analysis
+        working-directory: spectrum-app
+        run: ./mvnw -B spotbugs:check

@@ -1,0 +1,523 @@
+{
+  "openapi" : "3.1.0",
+  "tags" : [ {
+    "name" : "Authentication",
+    "description" : "Account registration and login"
+  }, {
+    "name" : "Hotels",
+    "description" : "Hotel management"
+  } ],
+  "components" : {
+    "schemas" : {
+      "Address" : {
+        "type" : "object",
+        "required" : [ "city", "district", "street", "buildingNumber" ],
+        "properties" : {
+          "city" : {
+            "type" : "string",
+            "examples" : [ "Kyiv" ],
+            "pattern" : "\\S",
+            "minLength" : 3,
+            "maxLength" : 30
+          },
+          "district" : {
+            "type" : "string",
+            "examples" : [ "Podil's'kyi" ],
+            "pattern" : "\\S",
+            "minLength" : 3,
+            "maxLength" : 30
+          },
+          "street" : {
+            "type" : "string",
+            "examples" : [ "Skovorody" ],
+            "pattern" : "\\S",
+            "minLength" : 3,
+            "maxLength" : 30
+          },
+          "buildingNumber" : {
+            "type" : "integer",
+            "format" : "int32",
+            "examples" : [ 34 ],
+            "maximum" : 100,
+            "minimum" : 1
+          }
+        }
+      },
+      "AuthResponse" : {
+        "type" : "object",
+        "properties" : {
+          "expiresIn" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        }
+      },
+      "CreateHotel" : {
+        "type" : "object",
+        "required" : [ "name", "address" ],
+        "properties" : {
+          "name" : {
+            "type" : "string",
+            "examples" : [ "Grand Budapest" ],
+            "pattern" : "\\S",
+            "minLength" : 3,
+            "maxLength" : 40
+          },
+          "address" : {
+            "$ref" : "#/components/schemas/Address"
+          }
+        }
+      },
+      "FieldError" : {
+        "type" : "object",
+        "properties" : {
+          "path" : {
+            "type" : "string",
+            "examples" : [ "name" ]
+          },
+          "message" : {
+            "type" : "string",
+            "examples" : [ "size must be between 3 and 40" ]
+          }
+        }
+      },
+      "Hotel" : {
+        "type" : "object",
+        "properties" : {
+          "hotelId" : {
+            "type" : "string",
+            "examples" : [ "123e4567-e89b-12d3-a456-426614174000" ],
+            "$ref" : "#/components/schemas/UUID"
+          },
+          "name" : {
+            "type" : "string",
+            "examples" : [ "Grand Budapest" ]
+          },
+          "address" : {
+            "$ref" : "#/components/schemas/Address"
+          },
+          "pictureUrl" : {
+            "type" : "string",
+            "examples" : [ "https://example.com/hotels/grand-budapest.jpg" ]
+          },
+          "pricePerNight" : {
+            "type" : "number",
+            "examples" : [ 145.00 ]
+          },
+          "rating" : {
+            "type" : "number",
+            "format" : "double",
+            "examples" : [ 4.8 ],
+            "maximum" : 5.0,
+            "minimum" : 0.0
+          },
+          "amenities" : {
+            "type" : "array",
+            "uniqueItems" : true,
+            "items" : {
+              "type" : "string"
+            },
+            "examples" : [ "Wi-Fi" ]
+          }
+        }
+      },
+      "HotelPageResponse" : {
+        "type" : "object",
+        "properties" : {
+          "items" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/Hotel"
+            }
+          },
+          "totalItems" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "totalPages" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "currentPage" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "limit" : {
+            "type" : "integer",
+            "format" : "int32"
+          }
+        }
+      },
+      "LoginRequest" : {
+        "type" : "object",
+        "required" : [ "email", "password" ],
+        "properties" : {
+          "email" : {
+            "type" : "string",
+            "examples" : [ "example@gmail.com" ],
+            "pattern" : "\\S"
+          },
+          "password" : {
+            "type" : "string",
+            "examples" : [ "qwerty1234567" ],
+            "pattern" : "\\S"
+          }
+        }
+      },
+      "RegisterRequest" : {
+        "type" : "object",
+        "required" : [ "email", "password" ],
+        "properties" : {
+          "email" : {
+            "type" : "string",
+            "examples" : [ "example@gmail.com" ],
+            "pattern" : "\\S",
+            "maxLength" : 254
+          },
+          "password" : {
+            "type" : "string",
+            "examples" : [ "qwerty1234567" ],
+            "pattern" : "\\S",
+            "minLength" : 12,
+            "maxLength" : 72
+          }
+        }
+      },
+      "UUID" : {
+        "type" : "string",
+        "format" : "uuid",
+        "pattern" : "[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}"
+      },
+      "ValidationError" : {
+        "type" : "object",
+        "properties" : {
+          "fields" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/FieldError"
+            }
+          }
+        }
+      }
+    },
+    "securitySchemes" : {
+      "SecurityScheme" : {
+        "type" : "http",
+        "scheme" : "bearer",
+        "bearerFormat" : "JWT",
+        "description" : "Authentication"
+      }
+    }
+  },
+  "paths" : {
+    "/v1/api/hotels" : {
+      "get" : {
+        "summary" : "Fetch all hotels",
+        "description" : "Returns a paginated list of all hotels",
+        "tags" : [ "Hotels" ],
+        "parameters" : [ {
+          "example" : "Wi-Fi",
+          "name" : "amenity",
+          "in" : "query",
+          "schema" : {
+            "type" : "object",
+            "examples" : [ "Wi-Fi" ]
+          }
+        }, {
+          "example" : "2027-06-15",
+          "name" : "checkIn",
+          "in" : "query",
+          "schema" : {
+            "format" : "date",
+            "type" : "string",
+            "examples" : [ "2027-06-15" ]
+          }
+        }, {
+          "example" : "2027-06-20",
+          "name" : "checkOut",
+          "in" : "query",
+          "schema" : {
+            "format" : "date",
+            "type" : "string",
+            "examples" : [ "2027-06-20" ]
+          }
+        }, {
+          "name" : "limit",
+          "in" : "query",
+          "schema" : {
+            "type" : "integer",
+            "format" : "int32",
+            "maximum" : 100,
+            "minimum" : 1,
+            "default" : 10
+          }
+        }, {
+          "example" : "Kyiv",
+          "name" : "location",
+          "in" : "query",
+          "schema" : {
+            "type" : "string",
+            "examples" : [ "Kyiv" ],
+            "minLength" : 2,
+            "maxLength" : 100
+          }
+        }, {
+          "example" : 300.00,
+          "name" : "maxPrice",
+          "in" : "query",
+          "schema" : {
+            "type" : "number",
+            "examples" : [ 300.00 ],
+            "minimum" : 0.0
+          }
+        }, {
+          "example" : 5.0,
+          "name" : "maxRating",
+          "in" : "query",
+          "schema" : {
+            "format" : "double",
+            "type" : "number",
+            "examples" : [ 5.0 ],
+            "maximum" : 5.0,
+            "minimum" : 0.0
+          }
+        }, {
+          "example" : 100.00,
+          "name" : "minPrice",
+          "in" : "query",
+          "schema" : {
+            "type" : "number",
+            "examples" : [ 100.00 ],
+            "minimum" : 0.0
+          }
+        }, {
+          "example" : 3.5,
+          "name" : "minRating",
+          "in" : "query",
+          "schema" : {
+            "format" : "double",
+            "type" : "number",
+            "examples" : [ 3.5 ],
+            "maximum" : 5.0,
+            "minimum" : 0.0
+          }
+        }, {
+          "name" : "page",
+          "in" : "query",
+          "schema" : {
+            "type" : "integer",
+            "format" : "int32",
+            "minimum" : 0,
+            "default" : 0
+          }
+        }, {
+          "name" : "sortBy",
+          "in" : "query",
+          "schema" : {
+            "type" : "object",
+            "default" : "RATING"
+          }
+        }, {
+          "name" : "sortOrder",
+          "in" : "query",
+          "schema" : {
+            "type" : "object",
+            "default" : "DESC"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Successful retrieval",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/HotelPageResponse"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "Validation failed",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post" : {
+        "summary" : "Create a hotel",
+        "description" : "Creates a new hotel",
+        "tags" : [ "Hotels" ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/CreateHotel"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "201" : {
+            "description" : "Hotel created",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Hotel"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "Validation failed",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/api/hotels/{hotelId}" : {
+      "get" : {
+        "summary" : "Fetch a hotel by ID",
+        "description" : "Returns a single hotel by its unique identifier",
+        "tags" : [ "Hotels" ],
+        "parameters" : [ {
+          "name" : "hotelId",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/components/schemas/UUID"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Successful retrieval",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Hotel"
+                }
+              }
+            }
+          },
+          "404" : {
+            "description" : "Hotel not found"
+          },
+          "400" : {
+            "description" : "Validation failed",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/auth/login" : {
+      "post" : {
+        "summary" : "Log in and receive an access token",
+        "tags" : [ "Authentication" ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/LoginRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "Login successful",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/AuthResponse"
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "Invalid email or password"
+          },
+          "400" : {
+            "description" : "Validation failed",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/auth/register" : {
+      "post" : {
+        "summary" : "Register an account",
+        "tags" : [ "Authentication" ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/RegisterRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "201" : {
+            "description" : "Account registered",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/AuthResponse"
+                }
+              }
+            }
+          },
+          "409" : {
+            "description" : "Email is already registered"
+          },
+          "400" : {
+            "description" : "Validation failed",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "info" : {
+    "title" : "spectrum-app API",
+    "version" : "1.0.0-SNAPSHOT"
+  },
+  "servers" : [ {
+    "url" : "http://localhost:8080",
+    "description" : "Auto generated value"
+  }, {
+    "url" : "http://0.0.0.0:8080",
+    "description" : "Auto generated value"
+  } ]
+}
