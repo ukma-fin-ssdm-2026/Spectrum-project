@@ -57,7 +57,23 @@ System and acceptance should be rerun in case of changes to corresponding module
 *NB*: Integrations can be turned off for each changes in case of runs being too long (
 e.g. >= 15 minutes)
 
+### Bonuses
+
+#### Coverage gate in CI
+
+- **What:** the JaCoCo `check` goal fails the build when line coverage of the whole
+  application (`BUNDLE`) is below **70%** (`spectrum-app/pom.xml`, `jacoco-maven-plugin`,
+  rule `LINE` / `COVEREDRATIO` / `0.70`).
+- **Where it runs:** the "CI Test" workflow (`.github/workflows/github-actions-test.yml`) runs
+  `./mvnw -B verify` on every push and on every pull request to `main`, so a pull request
+  that lowers coverage below the threshold fails.
+- **Why 70%:** the committed report shows 71% line coverage. The threshold is set just below
+  the current value, so coverage cannot drop unnoticed, but it does not force tests for
+  code that is better covered at other levels: the controllers and the in-memory
+  repository stubs are planned for integration tests, and records and enums have no logic
+  to test. The threshold is raised as integration tests are added.
 
 #### AI usage
 
-**Plans** section was drafted with LLM.
+**Plans** section was drafted with LLM. The **Bonuses** section was drafted with LLM from
+`pom.xml` and the workflow configuration; reviewed in the pull request before merging.
