@@ -53,7 +53,7 @@ public class HotelRepositoryStub implements HotelRepository {
     return Optional.ofNullable(hotels.get(id));
   }
 
-    @Override
+  @Override
   public Optional<HotelRecord> findByName(String name) {
     if (name == null) {
       return Optional.empty();
