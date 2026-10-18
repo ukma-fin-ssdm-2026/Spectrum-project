@@ -2,6 +2,7 @@
 package edu.ukma.ssdm.teamspectrum.logic.hotel;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 import java.math.BigDecimal;
 import java.util.Set;
@@ -34,6 +35,19 @@ class HotelRepositoryStubTest {
 
     // Assert
     assertTrue(result.isPresent());
+  }
+
+  @Test
+  void findByNameReturnsEmptyForNullName() {
+    // Arrange
+    var repository = new HotelRepositoryStub();
+    repository.add(hotel("Spectrum Hotel"));
+
+    // Act
+    var result = repository.findByName(null);
+
+    // Assert
+    assertFalse(result.isPresent());
   }
 
   private static HotelRecord hotel(String name) {
