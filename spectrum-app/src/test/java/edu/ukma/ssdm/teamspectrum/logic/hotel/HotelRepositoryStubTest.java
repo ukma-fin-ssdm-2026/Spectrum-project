@@ -23,6 +23,19 @@ class HotelRepositoryStubTest {
     assertTrue(result.isPresent());
   }
 
+    @Test
+  void findByNameIgnoresSurroundingSpaces() {
+    // Arrange
+    var repository = new HotelRepositoryStub();
+    repository.add(hotel("Spectrum Hotel"));
+
+    // Act
+    var result = repository.findByName("  Spectrum Hotel  ");
+
+    // Assert
+    assertTrue(result.isPresent());
+  }
+
   private static HotelRecord hotel(String name) {
     return new HotelRecord(
         UUID.randomUUID(),
