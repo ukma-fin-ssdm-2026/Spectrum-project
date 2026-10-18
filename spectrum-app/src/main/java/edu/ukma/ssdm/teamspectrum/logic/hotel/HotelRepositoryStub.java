@@ -55,7 +55,14 @@ public class HotelRepositoryStub implements HotelRepository {
 
   @Override
   public Optional<HotelRecord> findByName(String name) {
-    return hotels.values().stream().filter(h -> h.name().equals(name)).findFirst();
+    if (name == null) {
+      return Optional.empty();
+    }
+    return hotels.values().stream().filter(h -> sameName(h.name(), name)).findFirst();
+  }
+
+  private static boolean sameName(String existing, String requested) {
+    return existing.equalsIgnoreCase(requested.trim());
   }
 
   @Override
