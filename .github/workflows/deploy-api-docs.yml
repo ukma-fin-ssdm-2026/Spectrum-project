@@ -8,7 +8,7 @@ on:
 
 jobs:
   generate-and-deploy:
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, linux]
     permissions:
       contents: write
     steps:
