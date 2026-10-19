@@ -58,6 +58,8 @@ Roles are described in the [Team charter](TeamCharter.md); the task process is d
 
 - [Test coverage report](docs/testing/coverage/index.html)
 - [Debugging log](docs/testing/debugging-log.md)
+- [Testing strategy](docs/testing/testing-strategy.md)
+- [Testing plan](docs/validation/test-plan.md)
 
 ### Code quality:
 
