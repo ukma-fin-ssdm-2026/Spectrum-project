@@ -13,14 +13,18 @@ import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.junit.TestProfile;
 import jakarta.inject.Inject;
 import java.math.BigDecimal;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Stream;
 import org.jooq.DSLContext;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
 @QuarkusTest
 @TestProfile(RepositoryTestProfile.class)
@@ -113,6 +117,45 @@ class HotelRepositoryImplTest {
     assertEquals(List.of(second), repository.search(criteria, 1, 1));
   }
 
+  @ParameterizedTest
+  @MethodSource("sortingCases")
+  void searchSortsByRequestedFieldAndOrder(HotelSortBy sortBy, SortOrder order) {
+    HotelRecord low = hotel("Low price and rating", "Kyiv", "Podil", 100, 3.0, Set.of());
+    HotelRecord high = hotel("High price and rating", "Kyiv", "Podil", 200, 5.0, Set.of());
+
+    repository.add(low);
+    repository.add(high);
+
+    Comparator<HotelRecord> comparator =
+        switch (sortBy) {
+          case Rating -> Comparator.comparingDouble(HotelRecord::rating);
+          case PricePerNight -> Comparator.comparing(HotelRecord::pricePerNight);
+        };
+
+    comparator =
+        switch (order) {
+          case Desc -> comparator.reversed();
+          case Asc -> comparator;
+        };
+
+    List<String> expected = Stream.of(low, high).sorted(comparator).map(HotelRecord::name).toList();
+
+    var actual =
+        repository.search(sortedCriteria(sortBy, order), 0, 10).stream()
+            .map(HotelRecord::name)
+            .toList();
+
+    assertEquals(expected, actual);
+  }
+
+  private static Stream<org.junit.jupiter.params.provider.Arguments> sortingCases() {
+    return Stream.of(
+        org.junit.jupiter.params.provider.Arguments.of(HotelSortBy.PricePerNight, SortOrder.Asc),
+        org.junit.jupiter.params.provider.Arguments.of(HotelSortBy.PricePerNight, SortOrder.Desc),
+        org.junit.jupiter.params.provider.Arguments.of(HotelSortBy.Rating, SortOrder.Asc),
+        org.junit.jupiter.params.provider.Arguments.of(HotelSortBy.Rating, SortOrder.Desc));
+  }
+
   @Test
   void countReturnsZeroWhenNoHotelsMatch() {
     assertEquals(0, repository.count(criteria("Kyiv", null, null, null, null, Set.of())));
@@ -127,6 +170,11 @@ class HotelRepositoryImplTest {
       Set<String> amenities) {
     return new HotelSearchCriteria(
         location, null, null, minPrice, maxPrice, minRating, maxRating, amenities, 0, 10);
+  }
+
+  private static HotelSearchCriteria sortedCriteria(HotelSortBy sortBy, SortOrder order) {
+    return new HotelSearchCriteria(
+        null, null, null, null, null, null, null, Set.of(), 0, 10, sortBy, order);
   }
 
   private static HotelRecord hotel(
