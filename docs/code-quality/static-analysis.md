@@ -114,6 +114,62 @@ Fingerprint: spectrum-app/src/main/java/edu/ukma/ssdm/teamspectrum/api/auth/Regi
 2. Second one was about secret leak, but was just an example for openapi specification,
    found by `gitleaks`
 
+### Security analyzer result and threat T-01
+
+Performed at commit `76870d7a`.
+
+SpotBugs with Find Security Bugs found **no security vulnerability**: the only `Medium`
+findings were the `EI_EXPOSE_REP` / `EI_EXPOSE_REP2` warnings above. The configuration is the
+one in the table above; the analysis covers all compiled classes of
+`spectrum-app/src/main/java` (packages `api` and `logic`), test code is not analysed.
+
+Because the analyzer found nothing, we take a threat from the
+[threat model](../architecture/threat-model.md) and show how the code counters it.
+
+| ID   | Component / boundary | STRIDE   | Scenario                                                                                 | Rating |
+|------|----------------------|----------|------------------------------------------------------------------------------------------|--------|
+| T-01 | TB-1, login endpoint | Spoofing | An attacker guesses or reuses leaked passwords to log in as another client or worker.    | High   |
+
+#### How the code counters T-01
+
+| Measure | Where in the code | Effect |
+|---------|-------------------|--------|
+| Passwords are stored only as bcrypt hashes | [`UserFactoryImpl.java:18`](../../spectrum-app/src/main/java/edu/ukma/ssdm/teamspectrum/logic/auth/UserFactoryImpl.java#L18): `BcryptUtil.bcryptHash(password)` | A leak of user data does not reveal passwords; bcrypt is slow, so offline guessing is expensive (SEC-002) |
+| Login compares the password with the hash | [`AuthServiceImpl.java:51`](../../spectrum-app/src/main/java/edu/ukma/ssdm/teamspectrum/logic/auth/AuthServiceImpl.java#L51): `BcryptUtil.matches(...)` | The plain password is never stored or compared directly |
+| The same `401` for an unknown email and a wrong password | [`AuthController.java:69-70`](../../spectrum-app/src/main/java/edu/ukma/ssdm/teamspectrum/api/auth/AuthController.java#L69-L70) | The response does not tell an attacker which emails are registered |
+| Passwords of 12–72 characters | [`RegisterRequest.java:11`](../../spectrum-app/src/main/java/edu/ukma/ssdm/teamspectrum/api/auth/RegisterRequest.java#L11): `@Size(min = 12, max = 72)` | Short passwords are rejected; 72 is the bcrypt input limit |
+| Short-lived token in a protected cookie | [`TokenFactoryImpl.java:15`](../../spectrum-app/src/main/java/edu/ukma/ssdm/teamspectrum/logic/auth/TokenFactoryImpl.java#L15) (15 minutes), [`AuthController.java:80-82`](../../spectrum-app/src/main/java/edu/ukma/ssdm/teamspectrum/api/auth/AuthController.java#L80-L82) (`Secure`, `HttpOnly`, `SameSite=Lax`) | A stolen token works for at most 15 minutes and cannot be read by JavaScript (also T-02) |
+
+#### Not countered yet
+
+| Gap | Risk | Rating | Planned action |
+|-----|------|--------|----------------|
+| No limit on login attempts | Online password guessing is not slowed down | High | Rate limiting of the login endpoint in Nginx, as planned in the threat model |
+| bcrypt runs only when the email exists | The response time shows whether an email is registered | Low | Compare against a fixed dummy hash when the user is not found |
+
+#### Finding from manual review
+
+Reading the code for T-01 revealed a problem that SpotBugs does not report:
+
+- **What:** [`AuthServiceImpl.java:34`](../../spectrum-app/src/main/java/edu/ukma/ssdm/teamspectrum/logic/auth/AuthServiceImpl.java#L34) logs
+  `logger.debug("Register request: {}", request)`. `RegisterRequest` is a record, and the
+  `toString()` of a record contains all fields, so the plain-text password is written to the
+  log whenever the `DEBUG` level is enabled.
+- **Why it is a risk:** logs are read by more people and kept longer than the database;
+  passwords must exist only as hashes (SEC-002).
+- **Rating:** Medium. The default log level is `INFO`, so nothing is logged today, but one
+  configuration change exposes every new password.
+- **Decision:** fix it by logging only the normalised email (as `login` already does),
+  in a separate pull request with a regression test.
+
+A second gap from the same review: `POST /v1/api/hotels`
+([`HotelController.java:59`](../../spectrum-app/src/main/java/edu/ukma/ssdm/teamspectrum/api/hotel/HotelController.java#L59)) requires no
+authentication, so anyone can create a hotel. This is threat T-09 / SEC-003; authorization
+for hotel and room management is in progress (see [progress](progress.md)).
+
 #### AI usage:
 
-Initial skeleton was drafted with LLM
+Initial skeleton was drafted with LLM.
+The section "Security analyzer result and threat T-01" was drafted with LLM from the threat
+model and the source code; the line references were checked against commit `76870d7a`.
+Verification: reviewed in the pull request before merging.
