@@ -31,7 +31,7 @@ public class AuthServiceImpl implements AuthService {
   }
 
   public IssuedToken register(RegisterRequest request) {
-    logger.debug("Register request: {}", request);
+    logger.debug("Register request: {}", request.email());
     String email = userFactory.normalizeEmail(request.email());
     User user = userFactory.create(email, request.password());
     if (userRepository.findByEmail(user.email()).isPresent()) {
