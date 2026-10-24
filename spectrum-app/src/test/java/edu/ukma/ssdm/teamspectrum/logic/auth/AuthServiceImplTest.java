@@ -15,15 +15,23 @@ import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
 import java.util.logging.Logger;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 class AuthServiceImplTest {
 
-  private final UserRepository userRepository = mock(UserRepository.class);
-  private final UserFactory userFactory = mock(UserFactory.class);
-  private final TokenFactory tokenFactory = mock(TokenFactory.class);
-  private final AuthServiceImpl service =
-      new AuthServiceImpl(userRepository, userFactory, tokenFactory);
+  private UserRepository userRepository;
+  private UserFactory userFactory;
+  private TokenFactory tokenFactory;
+  private AuthServiceImpl service;
+
+  @BeforeEach
+  void setUp() {
+    userRepository = mock(UserRepository.class);
+    userFactory = mock(UserFactory.class);
+    tokenFactory = mock(TokenFactory.class);
+    service = new AuthServiceImpl(userRepository, userFactory, tokenFactory);
+  }
 
   @Test
   void registerSavesUserAndReturnsIssuedToken() {
