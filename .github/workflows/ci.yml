@@ -1,0 +1,78 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    types: [opened, synchronize, reopened]
+    branches:
+      - main
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.head.repo.full_name || github.repository }}-${{ github.event.pull_request.head.ref || github.ref_name }}
+  cancel-in-progress: true
+
+jobs:
+  checks:
+    runs-on: [self-hosted, linux]
+    permissions:
+      contents: write
+    services:
+      postgres:
+        image: postgres:18
+        env:
+          POSTGRES_DB: spectrum
+          POSTGRES_USER: spectrum
+          POSTGRES_PASSWORD: spectrum
+        ports:
+          - 5433:5432
+        options: >-
+          --health-cmd "pg_isready -U spectrum -d spectrum"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 10
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+          cache: maven
+
+      - name: Permissions for mvnw
+        working-directory: spectrum-app
+        run: chmod +x mvnw
+
+      - name: Check formatting, tests, and static analysis
+        working-directory: spectrum-app
+        run: ./mvnw -B spotless:check verify spotbugs:check
+
+      - name: Checkout PR head for OpenAPI generation
+        if: github.event_name == 'pull_request'
+        uses: actions/checkout@v7
+        with:
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
+          ref: ${{ github.event.pull_request.head.ref }}
+
+      - name: Build and generate OpenAPI
+        if: github.event_name == 'pull_request'
+        run: ./spectrum-app/mvnw -f spectrum-app/pom.xml clean package -DskipTests
+
+      - name: Commit and push OpenAPI changes
+        if: github.event_name == 'pull_request'
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@://github.com"
+
+          git add docs/api/openapi.yaml
+
+          if git diff --staged --quiet; then
+            echo "No changes to OpenAPI specification files."
+          else
+            git commit -m "chore: auto-generate openapi specification [skip ci]"
+            git push origin HEAD:${{ github.event.pull_request.head.ref }}
+          fi
