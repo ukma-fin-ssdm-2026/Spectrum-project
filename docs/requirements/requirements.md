@@ -29,28 +29,32 @@ Out of scope: payments, in-app communication between hotel workers and clients
 
 ## Functional Requirements(FR)
 
-- FR-001: The system shall allow a hotel worker to create a room when all required fields
+Priorities follow MoSCoW: **Must** – needed for the first working version, **Should** –
+important but the system works without it, **Could** – implemented last and cut first if
+time runs out (see R-004).
+
+- FR-001 (Must): The system shall allow a hotel worker to create a room when all required fields
   contain valid data
-- FR-002: The system shall allow a hotel worker to edit an existing room's details when
+- FR-002 (Must): The system shall allow a hotel worker to edit an existing room's details when
   submitted data is valid
-- FR-003: The system shall allow a hotel worker to edit a room when the room is vacant and
+- FR-003 (Must): The system shall allow a hotel worker to edit a room when the room is vacant and
   no booking exists
-- FR-004: The system shall allow a hotel worker to delete a room when the room is vacant
+- FR-004 (Must): The system shall allow a hotel worker to delete a room when the room is vacant
   and no booking exists
-- FR-005: The system shall allow a hotel worker to activate or deactivate a room
-- FR-006: The system shall allow a hotel worker to view a room's availability calendar
-- FR-007: The system shall allow a hotel worker to cancel a booking
-- FR-008: The system shall allow a client to search for hotels by location and dates
-- FR-009: The system shall allow a client to filter search results by price
-- FR-010: The system shall allow a client to filter search results by rating
-- FR-011: The system shall allow a client to filter search results by amenities
-- FR-012: The system shall allow a client to view a hotel's rooms
-- FR-013: The system shall allow a client to book a room
-- FR-014: The system shall allow a client to rate a hotel after a stay
-- FR-015: The system shall notify a client about a booking
-- FR-016: The system shall notify a client about a booking cancellation
-- FR-017: The system shall allow a hotel worker to view a hotel's rooms
-- FR-018: The system shall allow a hotel administrator to manage workers' permissions
+- FR-005 (Should): The system shall allow a hotel worker to activate or deactivate a room
+- FR-006 (Should): The system shall allow a hotel worker to view a room's availability calendar
+- FR-007 (Must): The system shall allow a hotel worker to cancel a booking
+- FR-008 (Must): The system shall allow a client to search for hotels by location and dates
+- FR-009 (Should): The system shall allow a client to filter search results by price
+- FR-010 (Should): The system shall allow a client to filter search results by rating
+- FR-011 (Should): The system shall allow a client to filter search results by amenities
+- FR-012 (Must): The system shall allow a client to view a hotel's rooms
+- FR-013 (Must): The system shall allow a client to book a room
+- FR-014 (Could): The system shall allow a client to rate a hotel after a stay
+- FR-015 (Should): The system shall notify a client about a booking
+- FR-016 (Should): The system shall notify a client about a booking cancellation
+- FR-017 (Must): The system shall allow a hotel worker to view a hotel's rooms
+- FR-018 (Could): The system shall allow a hotel administrator to manage workers' permissions
 
 ## Non-Functional Requirements(NFR)
 
@@ -118,6 +122,6 @@ verified.
 
 The NFR wording, assumptions, risks and open questions were drafted with an LLM (Claude)
 from the NFRs agreed by the team and the existing requirements and architecture
-documents. SEC-003 was proposed by the LLM to cover the worker stories (US-006 – US-010)
+documents. FR priorities were proposed by the LLM based on the key features and R-004. SEC-003 was proposed by the LLM to cover the worker stories (US-006 – US-010)
 and agreed by the team. Verification: reviewed by the team in the pull request before merging.
 
