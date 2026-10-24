@@ -58,6 +58,11 @@ jobs:
           repository: ${{ github.event.pull_request.head.repo.full_name }}
           ref: ${{ github.event.pull_request.head.ref }}
 
+      - name: Permission for mvnw after checkout
+        if: github.event_name == 'pull_request'
+        working-directory: spectrum-app
+        run: chmod +x mvnw
+
       - name: Build and generate OpenAPI
         if: github.event_name == 'pull_request'
         run: ./spectrum-app/mvnw -f spectrum-app/pom.xml clean package -DskipTests
