@@ -1,7 +1,6 @@
 /* (C)2026 */
 package edu.ukma.ssdm.teamspectrum.logic.hotel;
 
-import jakarta.enterprise.context.ApplicationScoped;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -10,7 +9,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.stream.Stream;
 
-@ApplicationScoped
 public class HotelRepositoryStub implements HotelRepository {
   private final ConcurrentMap<UUID, HotelRecord> hotels = new ConcurrentHashMap<>();
 
