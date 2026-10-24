@@ -5,12 +5,10 @@ import static edu.ukma.ssdm.teamspectrum.db.jooq.tables.Amenities.AMENITIES;
 import static edu.ukma.ssdm.teamspectrum.db.jooq.tables.HotelAmenities.HOTEL_AMENITIES;
 import static edu.ukma.ssdm.teamspectrum.db.jooq.tables.Hotels.HOTELS;
 
+import edu.ukma.ssdm.teamspectrum.db.jooq.tables.records.HotelsRecord;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -20,7 +18,6 @@ import java.util.stream.Collectors;
 import org.jooq.Condition;
 import org.jooq.DSLContext;
 import org.jooq.Field;
-import org.jooq.Record;
 import org.jooq.SortField;
 import org.jooq.impl.DSL;
 
@@ -57,7 +54,7 @@ public class HotelRepositoryImpl implements HotelRepository {
   public Optional<HotelRecord> findById(UUID id) {
     return dsl.selectFrom(HOTELS)
         .where(HOTELS.ID.eq(id))
-        .fetchOptional(record -> toHotels(List.of(record)).getFirst());
+        .fetchOptional(record -> toHotel(record, fetchAmenities(id)));
   }
 
   @Override
@@ -67,7 +64,7 @@ public class HotelRepositoryImpl implements HotelRepository {
     }
     return dsl.selectFrom(HOTELS)
         .where(DSL.lower(HOTELS.NAME).eq(name.trim().toLowerCase()))
-        .fetchOptional(record -> toHotels(List.of(record)).getFirst());
+        .fetchOptional(record -> toHotel(record, fetchAmenities(record.getId())));
   }
 
   @Override
@@ -107,6 +104,32 @@ public class HotelRepositoryImpl implements HotelRepository {
         });
   }
 
+  public Map<UUID, Set<String>> fetchAmenities(Set<UUID> hotelIds) {
+    return dsl.select(HOTEL_AMENITIES.HOTEL_ID, AMENITIES.NAME)
+        .from(HOTEL_AMENITIES)
+        .join(AMENITIES)
+        .on(HOTEL_AMENITIES.AMENITY_ID.eq(AMENITIES.ID))
+        .where(HOTEL_AMENITIES.HOTEL_ID.in(hotelIds))
+        .fetch()
+        .collect(
+            Collectors.groupingBy(
+                row -> row.get(HOTEL_AMENITIES.HOTEL_ID),
+                Collectors.mapping(row -> row.get(AMENITIES.NAME), Collectors.toSet())));
+  }
+
+  public Set<String> fetchAmenities(UUID hotelId) {
+    return dsl
+        .select(AMENITIES.NAME)
+        .from(HOTEL_AMENITIES)
+        .join(AMENITIES)
+        .on(HOTEL_AMENITIES.AMENITY_ID.eq(AMENITIES.ID))
+        .where(HOTEL_AMENITIES.HOTEL_ID.eq(hotelId))
+        .fetch()
+        .stream()
+        .map(r -> r.get(AMENITIES.NAME))
+        .collect(Collectors.toSet());
+  }
+
   private static Condition matching(HotelSearchCriteria criteria) {
     Condition condition = DSL.trueCondition();
     if (criteria.location() != null) {
@@ -142,50 +165,43 @@ public class HotelRepositoryImpl implements HotelRepository {
     return condition;
   }
 
-  private static SortField<?> sortField(HotelSearchCriteria criteria) {
-    Field<?> field =
-        criteria.sortBy() == HotelSortBy.PricePerNight ? HOTELS.PRICE_PER_NIGHT : HOTELS.RATING;
-    if (criteria.order() == null
-        || criteria.order() == edu.ukma.ssdm.teamspectrum.logic.common.SortOrder.Desc) {
-      return field.desc();
-    }
-    return field.asc();
+  private static Field<?> sortField(HotelSortBy sortBy) {
+    return switch (sortBy) {
+      case Rating -> HOTELS.PRICE_PER_NIGHT;
+      case PricePerNight -> HOTELS.RATING;
+      case null -> HOTELS.RATING;
+    };
   }
 
-  private List<HotelRecord> toHotels(List<? extends Record> records) {
+  private static SortField<?> sortField(HotelSearchCriteria criteria) {
+    Field<?> field = sortField(criteria.sortBy());
+    return switch (criteria.order()) {
+      case Desc -> field.desc();
+      case Asc -> field.asc();
+      case null -> field.desc();
+    };
+  }
+
+  private HotelRecord toHotel(HotelsRecord hotel, Set<String> amenities) {
+    return new HotelRecord(
+        hotel.getId(),
+        hotel.getName(),
+        new HotelAddress(
+            hotel.getCity(), hotel.getDistrict(), hotel.getStreet(), hotel.getBuildingNumber()),
+        hotel.getPictureUrl(),
+        hotel.getPricePerNight(),
+        hotel.getRating(),
+        amenities != null ? amenities : Set.of());
+  }
+
+  private List<HotelRecord> toHotels(List<HotelsRecord> records) {
     if (records.isEmpty()) {
       return List.of();
     }
-    List<UUID> ids = records.stream().map(record -> record.get(HOTELS.ID)).toList();
-    Map<UUID, Set<String>> amenitiesByHotel = new HashMap<>();
-    dsl.select(HOTEL_AMENITIES.HOTEL_ID, AMENITIES.NAME)
-        .from(HOTEL_AMENITIES)
-        .join(AMENITIES)
-        .on(HOTEL_AMENITIES.AMENITY_ID.eq(AMENITIES.ID))
-        .where(HOTEL_AMENITIES.HOTEL_ID.in(ids))
-        .fetch()
-        .forEach(
-            row ->
-                amenitiesByHotel
-                    .computeIfAbsent(row.get(HOTEL_AMENITIES.HOTEL_ID), ignored -> new HashSet<>())
-                    .add(row.get(AMENITIES.NAME)));
-    List<HotelRecord> hotels = new ArrayList<>(records.size());
-    for (Record record : records) {
-      var hotel = record.into(HOTELS);
-      hotels.add(
-          new HotelRecord(
-              hotel.getId(),
-              hotel.getName(),
-              new HotelAddress(
-                  hotel.getCity(),
-                  hotel.getDistrict(),
-                  hotel.getStreet(),
-                  hotel.getBuildingNumber()),
-              hotel.getPictureUrl(),
-              hotel.getPricePerNight(),
-              hotel.getRating(),
-              amenitiesByHotel.getOrDefault(hotel.getId(), Set.of())));
-    }
-    return List.copyOf(hotels);
+    var ids = records.stream().map(record -> record.get(HOTELS.ID)).collect(Collectors.toSet());
+    Map<UUID, Set<String>> amenitiesByHotel = fetchAmenities(ids);
+    return records.stream()
+        .map(hotel -> toHotel(hotel, amenitiesByHotel.get(hotel.getId())))
+        .toList();
   }
 }
