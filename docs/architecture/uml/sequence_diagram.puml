@@ -1,0 +1,64 @@
+@startuml
+title Sequence Diagram: client books a room
+
+skinparam shadowing false
+autonumber
+
+actor Client
+participant "Web Client" as Web
+participant "API Gateway\n(Nginx)" as Gateway
+participant "Booking Service" as Booking
+participant "Auth Service" as Auth
+database "Database\n(Postgres)" as DB
+participant "Notification Service" as Notify
+participant "Email Provider" as Email
+
+Client -> Web : choose room and dates, click "Book"
+activate Web
+Web -> Gateway : POST /v1/bookings\n(JWT, roomId, checkIn, checkOut)
+activate Gateway
+Gateway -> Booking : forward request
+activate Booking
+
+Booking -> Auth : validate token and role
+activate Auth
+Auth --> Booking : user id, role
+deactivate Auth
+
+alt token invalid or role is not CLIENT
+  Booking --> Gateway : 401 Unauthorized / 403 Forbidden
+else client is authenticated
+  Booking -> DB : insert booking (PENDING)\nin one transaction
+  activate DB
+  note right of DB
+    Constraint: no two active bookings
+    of one room overlap (REL-001)
+  end note
+
+  alt dates are free
+    DB --> Booking : booking saved
+    deactivate DB
+    Booking ->> Notify : booking created (async)
+    Booking --> Gateway : 201 Created (booking)
+    activate Notify
+    Notify -> Email : send confirmation email
+    activate Email
+    Email --> Notify : accepted
+    deactivate Email
+    deactivate Notify
+  else overlapping booking exists
+    activate DB
+    DB --> Booking : constraint violation
+    deactivate DB
+    Booking --> Gateway : 409 Conflict\n(room no longer available)
+  end
+end
+
+deactivate Booking
+Gateway --> Web : response
+deactivate Gateway
+Web --> Client : confirmation or error message
+deactivate Web
+
+caption **AI usage**: drafted with LLM from high-level-design.md and requirements.md
+@enduml
