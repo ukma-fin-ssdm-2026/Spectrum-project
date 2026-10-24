@@ -23,10 +23,10 @@ As it is the only functionality currently implemented
 
 | №     | Component/function                      | Test level  | Type (positive/negative) | 	Expected result / acceptance criteria                                                   | Owner      | Requirement |
 |-------|-----------------------------------------|-------------|--------------------------|------------------------------------------------------------------------------------------|------------|-------------|
-| TP-1  | Auth Service/register                   | Integration | Positive                 | User registers with valid credentials                                                    | @Demon4ort | 1           |
-| TP-2  | Auth Service/register                   | Integration | Negative                 | User registers with invalid credentials                                                  | @Demon4ort | 1           |
-| TP-3  | Auth Service/login                      | System      | Positive                 | User logs in with valid credentials                                                      | @Demon4ort | SEC-001     |
-| TP-4  | Auth Service/login                      | System      | Negative                 | User unanable to log in with invalid credentials                                         | @Demon4ort | SEC-001     |
+| TP-1  | Auth Service/register                   | Integration | Positive                 | User registers with valid credentials                                                    | @Demon4ort | FR-019      |
+| TP-2  | Auth Service/register                   | Integration | Negative                 | User registers with invalid credentials                                                  | @Demon4ort | FR-020      |
+| TP-3  | Auth Service/login                      | System      | Positive                 | User logs in with valid credentials                                                      | @Demon4ort | FR-021      |
+| TP-4  | Auth Service/login                      | System      | Negative                 | User unable to log in with invalid credentials                                           | @Demon4ort | FR-022      |
 | TP-5  | Auth Service/PermissionGrant management | Unit        | Positive                 | Worker can create a room in hotel having valid PermissionGrant                           | @Demon4ort | 6           |
 | TP-6  | Auth Service/PermissionGrant management | Unit        | Negative                 | Worker can't create a room in hotel having invalid PermissionGrant                       | @Demon4ort | SEC-003     |
 | TP-7  | Auth Service/PermissionGrant management | Integration | Positive                 | Worker can create a room in hotel having valid PermissionGrant                           | @Demon4ort | 6           |

@@ -358,6 +358,37 @@ make other plans in time.
    ***When***: I open my bookings list \
    ***Then***: I should see only my own bookings
 
+### US-013:
+
+As a visitor, I want to register with valid credentials, so I can create an account and
+use the system.
+
+#### AC:
+
+1. ***Given***: I am a visitor on the registration page \
+   ***When***: I submit valid credentials \
+   ***Then***: my account should be created and I should receive confirmation
+2. ***Given***: I am a visitor on the registration page \
+   ***When***: I submit invalid or incomplete credentials \
+   ***Then***: my account should not be created and I should see validation feedback
+3. ***Given***: I am a visitor on the registration page \
+   ***When***: I submit credentials with email belonging to already existing account \
+   ***Then***: my account should not be created and I should see validation feedback
+
+### US-014:
+
+As a registered user, I want to log in with my credentials, so I can access my account.
+
+#### AC:
+
+1. ***Given***: I have a registered account \
+   ***When***: I submit the correct email and password \
+   ***Then***: I should be authenticated and gain access to my account
+2. ***Given***: I am on the login page \
+   ***When***: I submit an incorrect email or password \
+   ***Then***: I should not be authenticated and should see an error
+
+
 
 ### AI usage note:
 
