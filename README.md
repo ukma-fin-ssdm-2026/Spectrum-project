@@ -72,10 +72,32 @@ Roles are described in the [Team charter](TeamCharter.md); the task process is d
 #### Prerequisites:
 
 - **JDK 21+** (check with `java -version`)
+- Docker
+
+The app uses PostgreSQL in Docker Compose.
+
+```bash 
+  cd spectrum-app 
+  docker compose up -d 
+  docker compose ps
+```
+
+App expects next env variables to be provided:
+
+- DB_URL="jdbc:postgresql://localhost:5433/spectrum
+- DB_USERNAME="spectrum"
+- DB_PASSWORD="spectrum"
+- JWT_SECRET="local-dev-only-secret-change-this-123456"
+- JAVA_TOOL_OPTIONS="-Duser.timezone=Europe/Kyiv"
 
 **Linux / macOS**
 
 ```shell
+export DB_URL="jdbc:postgresql://localhost:5433/spectrum" 
+export DB_USERNAME="spectrum" 
+export DB_PASSWORD="spectrum" 
+export JWT_SECRET="local-dev-only-secret-change-this-123456" 
+export JAVA_TOOL_OPTIONS="-Duser.timezone=Europe/Kyiv"
 cd spectrum-app
 ./mvnw quarkus:dev
 ```
@@ -85,6 +107,12 @@ cd spectrum-app
 **Windows (Command Prompt)**
 
 ```bat
+set DB_URL=jdbc:postgresql://localhost:5433/spectrum 
+set DB_USERNAME=spectrum 
+set DB_PASSWORD=spectrum 
+set JWT_SECRET=local-dev-only-secret-change-this-123456 
+set JAVA_TOOL_OPTIONS=-Duser.timezone=Europe/Kyiv
+
 cd spectrum-app
 mvnw quarkus:dev
 ```
@@ -92,6 +120,11 @@ mvnw quarkus:dev
 **Windows (PowerShell)**
 
 ```powershell
+$env:DB_URL = "jdbc:postgresql://localhost:5433/spectrum" 
+$env:DB_USERNAME = "spectrum" 
+$env:DB_PASSWORD = "spectrum" 
+$env:JWT_SECRET = "local-dev-only-secret-change-this-123456" 
+$env:JAVA_TOOL_OPTIONS = "-Duser.timezone=Europe/Kyiv"
 cd spectrum-app
 .\mvnw quarkus:dev
 ```
@@ -117,7 +150,8 @@ with [Find Security Bugs](https://find-sec-bugs.github.io/).
 
 ### Pre-commit
 
-Pre-commit runs Spotless, SpotBugs, and Gitleaks before each commit. Install Python 3, then install the `pre-commit` package and Git hook once after cloning the repository.
+Pre-commit runs Spotless, SpotBugs, and Gitleaks before each commit. Install Python 3,
+then install the `pre-commit` package and Git hook once after cloning the repository.
 
 **Linux / macOS**
 
@@ -133,7 +167,8 @@ py -m pip install --user pre-commit
 py -m pre_commit install
 ```
 
-Run all hooks against every tracked file (for example, after installing or updating the hooks):
+Run all hooks against every tracked file (for example, after installing or updating the
+hooks):
 
 **Linux / macOS**
 
@@ -147,4 +182,5 @@ python3 -m pre_commit run --all-files
 py -m pre_commit run --all-files
 ```
 
-After `pre-commit install` has been run in a clone, the hooks run automatically on each `git commit`.
+After `pre-commit install` has been run in a clone, the hooks run automatically on each
+`git commit`.

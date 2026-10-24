@@ -1,12 +1,10 @@
 /* (C)2026 */
 package edu.ukma.ssdm.teamspectrum.logic.auth;
 
-import jakarta.enterprise.context.ApplicationScoped;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-@ApplicationScoped
 public class UserRepositoryStub implements UserRepository {
   private final ConcurrentMap<String, User> users = new ConcurrentHashMap<>();
 

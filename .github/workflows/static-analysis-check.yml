@@ -9,6 +9,20 @@ on:
 jobs:
   spotbugs:
     runs-on: [self-hosted, linux]
+    services:
+      postgres:
+        image: postgres:18
+        env:
+          POSTGRES_DB: spectrum
+          POSTGRES_USER: spectrum
+          POSTGRES_PASSWORD: spectrum
+        ports:
+          - 5433:5432
+        options: >-
+          --health-cmd "pg_isready -U spectrum -d spectrum"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 10
     steps:
       - uses: actions/checkout@v7
         with:
@@ -24,4 +38,4 @@ jobs:
         run: chmod +x mvnw
       - name: Perform static analysis
         working-directory: spectrum-app
-        run: ./mvnw -B spotbugs:check
+        run: ./mvnw -B -DskipTests compile spotbugs:check
