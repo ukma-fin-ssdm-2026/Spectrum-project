@@ -192,7 +192,7 @@
                         <database>
                             <name>org.jooq.meta.postgres.PostgresDatabase</name>
                             <inputSchema>public</inputSchema>
-                            <includes>users|user_role</includes>
+                            <includes>users|user_role|hotels|amenities|hotel_amenities</includes>
                         </database>
                         <target>
                             <packageName>edu.ukma.ssdm.teamspectrum.db.jooq</packageName>
