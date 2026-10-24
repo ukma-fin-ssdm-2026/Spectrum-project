@@ -55,6 +55,10 @@ time runs out (see R-004).
 - FR-016 (Should): The system shall notify a client about a booking cancellation
 - FR-017 (Must): The system shall allow a hotel worker to view a hotel's rooms
 - FR-018 (Could): The system shall allow a hotel administrator to manage workers' permissions
+- FR-019 (Must): The system shall allow a visitor to register an account when submitted credentials are valid
+- FR-020 (Must): The system shall reject registration when submitted credentials are invalid or incomplete
+- FR-021 (Must): The system shall authenticate a registered user when they submit valid login credentials
+- FR-022 (Must): The system shall reject login attempts with invalid credentials
 
 ## Non-Functional Requirements(NFR)
 
