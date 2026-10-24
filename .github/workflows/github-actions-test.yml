@@ -2,7 +2,7 @@ name: CI Test
 on: [push]
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, linux]
     steps:
       - uses: actions/checkout@v7
         with:
