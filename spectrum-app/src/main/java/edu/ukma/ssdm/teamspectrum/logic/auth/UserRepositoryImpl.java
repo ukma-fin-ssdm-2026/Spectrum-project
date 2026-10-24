@@ -3,6 +3,7 @@ package edu.ukma.ssdm.teamspectrum.logic.auth;
 
 import static edu.ukma.ssdm.teamspectrum.db.jooq.tables.Users.USERS;
 
+import edu.ukma.ssdm.teamspectrum.db.jooq.enums.UserRole;
 import edu.ukma.ssdm.teamspectrum.db.jooq.tables.records.UsersRecord;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -35,7 +36,7 @@ public class UserRepositoryImpl implements UserRepository {
             .set(USERS.ID, user.id())
             .set(USERS.EMAIL, user.email())
             .set(USERS.PASSWORD_HASH, user.passwordHash())
-            .set(USERS.ROLE, user.role().name())
+            .set(USERS.ROLE, UserRole.valueOf(user.role().name()))
             .onConflict(USERS.EMAIL)
             .doNothing()
             .execute()
@@ -47,6 +48,6 @@ public class UserRepositoryImpl implements UserRepository {
         record.getId(),
         record.getEmail(),
         record.getPasswordHash(),
-        Role.valueOf(record.getRole()));
+        Role.valueOf(record.getRole().getLiteral()));
   }
 }
