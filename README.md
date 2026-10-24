@@ -55,6 +55,7 @@ Roles are described in the [Team charter](TeamCharter.md); the task process is d
 
 - [Test coverage report](docs/testing/coverage/index.html)
 - [Debugging log](docs/testing/debugging-log.md)
+- [Review log](docs/validation/review-log.md)
 
 
 ### How to run locally:
