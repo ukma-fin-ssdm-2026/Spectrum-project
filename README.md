@@ -60,6 +60,7 @@ Roles are described in the [Team charter](TeamCharter.md); the task process is d
 - [Debugging log](docs/testing/debugging-log.md)
 - [Testing strategy](docs/testing/testing-strategy.md)
 - [Testing plan](docs/validation/test-plan.md)
+- [Review log](docs/validation/review-log.md)
 
 ### Code quality:
 
