@@ -7,6 +7,7 @@ import edu.ukma.ssdm.teamspectrum.api.common.page.PaginationParams;
 import edu.ukma.ssdm.teamspectrum.logic.hotel.HotelRecord;
 import edu.ukma.ssdm.teamspectrum.logic.hotel.HotelSearchPage;
 import edu.ukma.ssdm.teamspectrum.logic.hotel.HotelService;
+import jakarta.annotation.security.RolesAllowed;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
@@ -56,6 +57,12 @@ public class HotelController {
       responseCode = "400",
       description = "Validation failed",
       content = @Content(schema = @Schema(implementation = ValidationError.class)))
+  @APIResponse(responseCode = "401", description = "Not authenticated")
+  @APIResponse(
+      responseCode = "403",
+      description = "Only workers and administrators can create hotels")
+  @APIResponse(responseCode = "409", description = "A hotel with this name already exists")
+  @RolesAllowed({"WORKER", "ADMIN"})
   public Response create(@Valid @NotNull CreateHotel request) {
     HotelRecord saved = hotelService.save(hotelFactory.create(request));
     Hotel created = hotelFactory.create(saved);
