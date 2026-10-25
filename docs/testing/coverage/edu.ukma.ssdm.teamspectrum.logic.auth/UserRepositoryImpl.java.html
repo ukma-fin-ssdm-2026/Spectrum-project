@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="uk"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>UserRepositoryImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">spectrum-app</a> &gt; <a href="index.source.html" class="el_package">edu.ukma.ssdm.teamspectrum.logic.auth</a> &gt; <span class="el_source">UserRepositoryImpl.java</span></div><h1>UserRepositoryImpl.java</h1><pre class="source lang-java linenums">/* (C)2026 */
+package edu.ukma.ssdm.teamspectrum.logic.auth;
+
+import static edu.ukma.ssdm.teamspectrum.db.jooq.tables.Users.USERS;
+
+import edu.ukma.ssdm.teamspectrum.db.jooq.enums.UserRole;
+import edu.ukma.ssdm.teamspectrum.db.jooq.tables.records.UsersRecord;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import java.util.Optional;
+import org.jooq.DSLContext;
+
+@ApplicationScoped
+public class UserRepositoryImpl implements UserRepository {
+  private final DSLContext dsl;
+
+  @Inject
+  @SuppressFBWarnings(
+      value = &quot;EI_EXPOSE_REP2&quot;,
+      justification = &quot;DSLContext is an intentionally shared injected database dependency.&quot;)
+<span class="fc" id="L22">  public UserRepositoryImpl(DSLContext dsl) {</span>
+<span class="fc" id="L23">    this.dsl = dsl;</span>
+<span class="fc" id="L24">  }</span>
+
+  @Override
+  public Optional&lt;User&gt; findByEmail(String email) {
+<span class="fc" id="L28">    return dsl.selectFrom(USERS)</span>
+<span class="fc" id="L29">        .where(USERS.EMAIL.eq(email))</span>
+<span class="fc" id="L30">        .fetchOptional(UserRepositoryImpl::toUser);</span>
+  }
+
+  @Override
+  public boolean add(User user) {
+<span class="fc" id="L35">    return dsl.insertInto(USERS)</span>
+<span class="fc" id="L36">            .set(USERS.ID, user.id())</span>
+<span class="fc" id="L37">            .set(USERS.EMAIL, user.email())</span>
+<span class="fc" id="L38">            .set(USERS.PASSWORD_HASH, user.passwordHash())</span>
+<span class="fc" id="L39">            .set(USERS.ROLE, UserRole.valueOf(user.role().name()))</span>
+<span class="fc" id="L40">            .onConflict(USERS.EMAIL)</span>
+<span class="fc" id="L41">            .doNothing()</span>
+<span class="fc bfc" id="L42" title="All 2 branches covered.">            .execute()</span>
+        == 1;
+  }
+
+  private static User toUser(UsersRecord record) {
+<span class="fc" id="L47">    return new User(</span>
+<span class="fc" id="L48">        record.getId(),</span>
+<span class="fc" id="L49">        record.getEmail(),</span>
+<span class="fc" id="L50">        record.getPasswordHash(),</span>
+<span class="fc" id="L51">        Role.valueOf(record.getRole().getLiteral()));</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>
