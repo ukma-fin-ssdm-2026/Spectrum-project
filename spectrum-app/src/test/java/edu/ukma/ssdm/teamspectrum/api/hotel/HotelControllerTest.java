@@ -9,6 +9,9 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import edu.ukma.ssdm.teamspectrum.api.auth.AuthController;
+import edu.ukma.ssdm.teamspectrum.logic.auth.Role;
+import edu.ukma.ssdm.teamspectrum.logic.auth.TokenFactoryImpl;
+import edu.ukma.ssdm.teamspectrum.logic.auth.User;
 import edu.ukma.ssdm.teamspectrum.logic.hotel.HotelAddress;
 import edu.ukma.ssdm.teamspectrum.logic.hotel.HotelAlreadyExistsException;
 import edu.ukma.ssdm.teamspectrum.logic.hotel.HotelRecord;
@@ -18,9 +21,7 @@ import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.junit.QuarkusTestProfile;
 import io.quarkus.test.junit.TestProfile;
 import io.restassured.http.ContentType;
-import io.smallrye.jwt.build.Jwt;
 import java.math.BigDecimal;
-import java.time.Duration;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -98,7 +99,7 @@ class HotelControllerTest {
   void createReturnsForbiddenForClient() {
     given()
         .contentType(ContentType.JSON)
-        .cookie(AuthController.authTokenName, token("CLIENT"))
+        .cookie(AuthController.authTokenName, token(Role.CLIENT))
         .body(createBody)
         .when()
         .post(hotelsPath)
@@ -115,7 +116,7 @@ class HotelControllerTest {
 
     given()
         .contentType(ContentType.JSON)
-        .cookie(AuthController.authTokenName, token("WORKER"))
+        .cookie(AuthController.authTokenName, token(Role.WORKER))
         .body(createBody)
         .when()
         .post(hotelsPath)
@@ -131,7 +132,7 @@ class HotelControllerTest {
 
     given()
         .contentType(ContentType.JSON)
-        .cookie(AuthController.authTokenName, token("ADMIN"))
+        .cookie(AuthController.authTokenName, token(Role.ADMIN))
         .body(createBody)
         .when()
         .post(hotelsPath)
@@ -139,14 +140,10 @@ class HotelControllerTest {
         .statusCode(409);
   }
 
-  private static String token(String role) {
-    return Jwt.issuer("spectrum-app")
-        .subject(UUID.randomUUID().toString())
-        .upn("staff@example.com")
-        .groups(Set.of(role))
-        .expiresIn(Duration.ofMinutes(15))
-        .jws()
-        .signWithSecret(jwtSecret);
+  // Issued by the same factory as login, so the test also checks that login tokens are accepted
+  private static String token(Role role) {
+    var user = new User(UUID.randomUUID(), "staff@example.com", "hash", role);
+    return new TokenFactoryImpl(jwtSecret).create(user).value();
   }
 
   private static HotelRecord hotel(String name) {
