@@ -1,0 +1,63 @@
+name: SonarQube Cloud
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    types: [opened, synchronize, reopened]
+    branches:
+      - main
+  workflow_dispatch:
+
+concurrency:
+  group: sonar-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  sonar:
+    name: Build, test and analyze
+    runs-on: [self-hosted, linux]
+    timeout-minutes: 20
+    services:
+      postgres:
+        image: postgres:18
+        env:
+          POSTGRES_DB: spectrum
+          POSTGRES_USER: spectrum
+          POSTGRES_PASSWORD: spectrum
+        ports:
+          - 5433:5432
+        options: >-
+          --health-cmd "pg_isready -U spectrum -d spectrum"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 10
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: 21
+          cache: maven
+
+      - name: Permissions for mvnw
+        working-directory: spectrum-app
+        run: chmod +x mvnw
+
+      # Build, tests (JaCoCo coverage) and the scan in one job: the scanner needs the compiled classes
+      - name: Build, test and analyze
+        working-directory: spectrum-app
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: >
+          ./mvnw -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar
+          -Dsonar.projectKey=ukma-fin-ssdm-2026_Spectrum-project
+          -Dsonar.organization=ukma-fin-ssdm-2026
+          -Dsonar.host.url=https://sonarcloud.io
