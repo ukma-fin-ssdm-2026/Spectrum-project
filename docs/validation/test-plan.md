@@ -56,12 +56,17 @@ it does not switch off the integration tests.
 | TP-18 | Hotels Service/create hotel       | Integration | Negative                 | `POST /v1/api/hotels` without an auth cookie returns `401`, and without the worker or admin role returns `403`; no hotel is saved            | @VeronikaGovorischeva  | SEC-003                 |
 | TP-19 | Hotels Service/search performance | System      | Positive (NFR)           | 95th percentile response time of `GET /v1/api/hotels?location=Kyiv` is **≤ 2 s** with **20 concurrent users** for 1 min (k6), 0% errors     | @Demon4ort             | PERF-001                |
 
-**Known defects.** TP-18 fails now: `POST /v1/api/hotels` has no authentication check. The
-row stays red until the check is added, and until then the exit criterion "no open defect on a
-security NFR" is not met. TP-16 found a defect in `HotelRepositoryImpl.sortField` (PR #84):
-`Rating` sorts by price and `PricePerNight` sorts by rating. The current sorting test did not
-catch it, because in its data the cheaper hotel also has the lower rating (see the
-[review log](review-log.md)).
+**Defects found by the plan.** All three are fixed in PR #87, where the tests were committed
+red before the fix:
+
+- TP-18: `POST /v1/api/hotels` had no authentication check. A request without a token reached
+  the service.
+- TP-18: no JWT issued by the application could be verified, so every protected endpoint would
+  have returned `401`. SmallRye JWT reads `smallrye.jwt.verify.secretkey` only as a JWK, and in
+  dev and test mode Quarkus replaced it with a generated RSA key.
+- TP-16: `HotelRepositoryImpl.sortField` (PR #84) sorted `Rating` by price and `PricePerNight`
+  by rating. The old sorting test did not catch it, because in its data the cheaper hotel also
+  had the lower rating (see the [review log](review-log.md)).
 
 **TP-19** needs a running application with test data, so it runs manually before a release,
 not in every CI run. The result (p95 time and error rate) is recorded in the pull request.
@@ -84,3 +89,35 @@ The changes after the peer review (the split into executable and planned rows, T
 status codes, the CI section and the known defects) were drafted with an LLM (Claude) from the
 review comments, the code and `ci.yml`. Verification: every test name and status code was
 checked against the code; reviewed in the pull request before merging.
+
+### Бонуси (Bonuses)
+
+#### Tests as a specification for an AI agent
+
+- **Function:** authorization and conflict handling of `POST /v1/api/hotels`, and the JWT
+  verification it needs (TP-17, TP-18), in PR #87.
+- **Order of commits:** the test commit `test: hotel controller lookup, create authorization and
+  name conflict (TP-17, TP-18)` comes before the generated code commit `feat: require worker or
+  admin role to create a hotel and return 409 for duplicate names`. When the tests were
+  committed, 4 of 6 were red.
+- **AI checklist:** the generated code was checked with the same 5-point checklist as PR #84
+  (imports used, error handling, logic against TP-18, no dead code); the key decisions are
+  explained in the PR description, and reviewer questions are answered in PR #87.
+- **AI usage:** the implementation was generated with an LLM (Claude Code) until the tests
+  passed, in 3 iterations: (1) `@RolesAllowed` and the `409` mapper: valid tokens still got
+  `401`; (2) `smallrye.jwt.sign.key` to stop Quarkus from generating a dev key pair: the issuer
+  was fixed, but the key was still unresolvable; (3) a `JWTAuthContextInfo` producer with the
+  HS256 key: all tests green. Fixed manually: the root cause was confirmed in the SmallRye
+  debug log; the test helper was changed to issue tokens with `TokenFactoryImpl`, so it also
+  checks login tokens.
+
+#### Executable NFR test (security)
+
+- **NFR row:** TP-18, SEC-003 (only authorized staff may change data).
+- **Threshold:** 100% of protected endpoints return `401` without a token and `403` without the
+  required role.
+- **Measured:** 1 of 1 protected endpoint (`POST /v1/api/hotels`): `401` without a token, `403`
+  for `CLIENT`, `201` for `WORKER`, and the service is not called on `401` and `403`
+  (`HotelControllerTest`).
+- **Run command:** `./mvnw test -Dtest=HotelControllerTest` in `spectrum-app` (runs in CI as part
+  of `./mvnw -B spotless:check verify spotbugs:check`).

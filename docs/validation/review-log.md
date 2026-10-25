@@ -65,7 +65,7 @@ and the Gaps section records that `POST /v1/api/hotels` has no story or FR yet.
 | 2 | Error handling covers realistic failure scenarios            | Partly  | Good: `UserRepositoryImpl.add` uses `ON CONFLICT (email) DO NOTHING` and returns `false`, so a duplicate email becomes `409`, not a database error. Missing: `HotelRepositoryImpl.add` does not handle the `UNIQUE` violation on `hotels.name`. Two parallel requests with the same name pass the `findByName` check, and the second one ends in an unhandled `DataAccessException` (`500`). |
 | 3 | Logic matches the requirements and test plan                 | **No**  | **Blocking:** `HotelRepositoryImpl.sortField(HotelSortBy)` swaps the fields: `case Rating -> HOTELS.PRICE_PER_NIGHT` and `case PricePerNight -> HOTELS.RATING`. Sorting by rating actually sorts by price (US-004, TP-16). The test `searchSortsByRequestedFieldAndOrder` passes anyway, because in its data the cheaper hotel (100, 3.0) also has the lower rating (200, 5.0). That is why the plan's TP-16 requires hotels whose price order and rating order differ. |
 | 4 | No dead code                                                 | Yes, Nit | No uncalled methods. Nit: `fetchAmenities(Set<UUID>)` and `fetchAmenities(UUID)` are `public` but are used only inside the class and are not part of `HotelRepository`, so they can be `private`. The `case null` branches in the `sortField` switches are reachable only if `HotelSearchCriteriaFactory` stops setting defaults. |
-| 5 | The PR author explained key decisions in answer to reviewer questions | Pending | The PR was approved without questions. The questions below are asked in the PR, and the author's answers are recorded here. |
+| 5 | The PR author explained key decisions in answer to reviewer questions | Pending | The PR was approved without questions. The questions below were [asked in the PR](https://github.com/ukma-fin-ssdm-2026/Spectrum-project/pull/84#issuecomment-6393918386) on 25.10.2026; the author's answers are recorded here when he replies. |
 
 #### Questions to the author (PR #84)
 
@@ -79,10 +79,11 @@ and the Gaps section records that `POST /v1/api/hotels` has no story or FR yet.
 
 #### Follow-up
 
-- Fix the swapped sort fields and change the test data so that price and rating order differ
-  (TP-16).
-- Handle the `hotels.name` conflict in `HotelRepositoryImpl.add` and map
-  `HotelAlreadyExistsException` to `409`.
+- Done in PR #87: the swapped sort fields are fixed, and the test data now has price and
+  rating in different order, so the test fails on the old code (TP-16).
+- Done in PR #87: `HotelAlreadyExistsException` is mapped to `409`.
+- Open: the `UNIQUE` violation on `hotels.name` in `HotelRepositoryImpl.add` is still not
+  handled for two parallel requests (question 3).
 
 ### AI usage note
 
