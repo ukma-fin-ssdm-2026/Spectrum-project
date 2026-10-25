@@ -167,8 +167,8 @@ public class HotelRepositoryImpl implements HotelRepository {
 
   private static Field<?> sortField(HotelSortBy sortBy) {
     return switch (sortBy) {
-      case Rating -> HOTELS.PRICE_PER_NIGHT;
-      case PricePerNight -> HOTELS.RATING;
+      case Rating -> HOTELS.RATING;
+      case PricePerNight -> HOTELS.PRICE_PER_NIGHT;
       case null -> HOTELS.RATING;
     };
   }
