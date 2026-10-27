@@ -1,9 +1,10 @@
-<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="uk"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>HotelController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">spectrum-app</a> &gt; <a href="index.source.html" class="el_package">edu.ukma.ssdm.teamspectrum.api.hotel</a> &gt; <span class="el_source">HotelController.java</span></div><h1>HotelController.java</h1><pre class="source lang-java linenums">/* (C)2026 */
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>HotelController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">spectrum-app</a> &gt; <a href="index.source.html" class="el_package">edu.ukma.ssdm.teamspectrum.api.hotel</a> &gt; <span class="el_source">HotelController.java</span></div><h1>HotelController.java</h1><pre class="source lang-java linenums">/* (C)2026 */
 package edu.ukma.ssdm.teamspectrum.api.hotel;
 
 import edu.ukma.ssdm.teamspectrum.api.common.error.ValidationError;
 import edu.ukma.ssdm.teamspectrum.api.common.page.PageResponse;
 import edu.ukma.ssdm.teamspectrum.api.common.page.PaginationParams;
+import edu.ukma.ssdm.teamspectrum.logic.auth.Role;
 import edu.ukma.ssdm.teamspectrum.logic.hotel.HotelRecord;
 import edu.ukma.ssdm.teamspectrum.logic.hotel.HotelSearchPage;
 import edu.ukma.ssdm.teamspectrum.logic.hotel.HotelService;
@@ -41,11 +42,11 @@ public class HotelController {
   public HotelController(
       HotelService hotelService,
       HotelFactory hotelFactory,
-<span class="fc" id="L44">      HotelSearchCriteriaFactory searchCriteriaFactory) {</span>
-<span class="fc" id="L45">    this.hotelService = hotelService;</span>
-<span class="fc" id="L46">    this.hotelFactory = hotelFactory;</span>
-<span class="fc" id="L47">    this.searchCriteriaFactory = searchCriteriaFactory;</span>
-<span class="fc" id="L48">  }</span>
+<span class="fc" id="L45">      HotelSearchCriteriaFactory searchCriteriaFactory) {</span>
+<span class="fc" id="L46">    this.hotelService = hotelService;</span>
+<span class="fc" id="L47">    this.hotelFactory = hotelFactory;</span>
+<span class="fc" id="L48">    this.searchCriteriaFactory = searchCriteriaFactory;</span>
+<span class="fc" id="L49">  }</span>
 
   @POST
   @Operation(summary = &quot;Create a hotel&quot;, description = &quot;Creates a new hotel&quot;)
@@ -62,11 +63,11 @@ public class HotelController {
       responseCode = &quot;403&quot;,
       description = &quot;Only workers and administrators can create hotels&quot;)
   @APIResponse(responseCode = &quot;409&quot;, description = &quot;A hotel with this name already exists&quot;)
-  @RolesAllowed({&quot;WORKER&quot;, &quot;ADMIN&quot;})
+  @RolesAllowed({Role.Values.WORKER, Role.Values.ADMIN})
   public Response create(@Valid @NotNull CreateHotel request) {
-<span class="fc" id="L67">    HotelRecord saved = hotelService.save(hotelFactory.create(request));</span>
-<span class="fc" id="L68">    Hotel created = hotelFactory.create(saved);</span>
-<span class="fc" id="L69">    return Response.status(Response.Status.CREATED).entity(created).build();</span>
+<span class="fc" id="L68">    HotelRecord saved = hotelService.save(hotelFactory.create(request));</span>
+<span class="fc" id="L69">    Hotel created = hotelFactory.create(saved);</span>
+<span class="fc" id="L70">    return Response.status(Response.Status.CREATED).entity(created).build();</span>
   }
 
   @GET
@@ -81,9 +82,9 @@ public class HotelController {
       content = @Content(schema = @Schema(implementation = ValidationError.class)))
   public Response getHotels(
       @BeanParam @Valid GetHotelsParams params, @BeanParam @Valid PaginationParams pagination) {
-<span class="nc" id="L84">    HotelSearchPage result = hotelService.search(searchCriteriaFactory.create(params, pagination));</span>
-<span class="nc" id="L85">    List&lt;Hotel&gt; items = result.items().stream().map(hotelFactory::create).toList();</span>
-<span class="nc" id="L86">    return Response.ok(new PageResponse&lt;&gt;(items, result.totalItems(), pagination)).build();</span>
+<span class="nc" id="L85">    HotelSearchPage result = hotelService.search(searchCriteriaFactory.create(params, pagination));</span>
+<span class="nc" id="L86">    List&lt;Hotel&gt; items = result.items().stream().map(hotelFactory::create).toList();</span>
+<span class="nc" id="L87">    return Response.ok(new PageResponse&lt;&gt;(items, result.totalItems(), pagination)).build();</span>
   }
 
   @GET
@@ -101,11 +102,11 @@ public class HotelController {
       description = &quot;Validation failed&quot;,
       content = @Content(schema = @Schema(implementation = ValidationError.class)))
   public Response getHotel(@PathParam(&quot;hotelId&quot;) UUID hotelId) {
-<span class="fc" id="L104">    return hotelService</span>
-<span class="fc" id="L105">        .findById(hotelId)</span>
-<span class="fc" id="L106">        .map(hotelFactory::create)</span>
-<span class="fc" id="L107">        .map(h -&gt; Response.ok(h).build())</span>
-<span class="fc" id="L108">        .orElse(Response.status(Response.Status.NOT_FOUND).build());</span>
+<span class="fc" id="L105">    return hotelService</span>
+<span class="fc" id="L106">        .findById(hotelId)</span>
+<span class="fc" id="L107">        .map(hotelFactory::create)</span>
+<span class="fc" id="L108">        .map(h -&gt; Response.ok(h).build())</span>
+<span class="fc" id="L109">        .orElse(Response.status(Response.Status.NOT_FOUND).build());</span>
   }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

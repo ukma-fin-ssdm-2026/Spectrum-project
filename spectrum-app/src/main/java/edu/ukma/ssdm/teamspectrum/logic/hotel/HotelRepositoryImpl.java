@@ -2,8 +2,9 @@
 package edu.ukma.ssdm.teamspectrum.logic.hotel;
 
 import static edu.ukma.ssdm.teamspectrum.db.jooq.tables.Amenities.AMENITIES;
-import static edu.ukma.ssdm.teamspectrum.db.jooq.tables.HotelAmenities.HOTEL_AMENITIES;
 import static edu.ukma.ssdm.teamspectrum.db.jooq.tables.Hotels.HOTELS;
+import static edu.ukma.ssdm.teamspectrum.db.jooq.tables.RoomAmenities.ROOM_AMENITIES;
+import static edu.ukma.ssdm.teamspectrum.db.jooq.tables.Rooms.ROOMS;
 
 import edu.ukma.ssdm.teamspectrum.db.jooq.tables.records.HotelsRecord;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
@@ -83,47 +84,33 @@ public class HotelRepositoryImpl implements HotelRepository {
               .set(HOTELS.PRICE_PER_NIGHT, hotel.pricePerNight())
               .set(HOTELS.RATING, hotel.rating())
               .execute();
-          if (!hotel.amenities().isEmpty()) {
-            var amenityRows = hotel.amenities().stream().map(DSL::row).toList();
-            var amenities =
-                tx.insertInto(AMENITIES, AMENITIES.NAME)
-                    .valuesOfRows(amenityRows)
-                    .onConflict(AMENITIES.NAME)
-                    .doUpdate()
-                    .set(AMENITIES.NAME, DSL.excluded(AMENITIES.NAME))
-                    .returning(AMENITIES.ID, AMENITIES.NAME)
-                    .fetch();
-            var hotelAmenityRows =
-                amenities.stream()
-                    .map(amenity -> DSL.row(hotel.id(), amenity.get(AMENITIES.ID)))
-                    .collect(Collectors.toList());
-            tx.insertInto(HOTEL_AMENITIES, HOTEL_AMENITIES.HOTEL_ID, HOTEL_AMENITIES.AMENITY_ID)
-                .valuesOfRows(hotelAmenityRows)
-                .execute();
-          }
         });
   }
 
   public Map<UUID, Set<String>> fetchAmenities(Set<UUID> hotelIds) {
-    return dsl.select(HOTEL_AMENITIES.HOTEL_ID, AMENITIES.NAME)
-        .from(HOTEL_AMENITIES)
+    return dsl.select(ROOMS.HOTEL_ID, AMENITIES.NAME)
+        .from(ROOMS)
+        .join(ROOM_AMENITIES)
+        .on(ROOM_AMENITIES.ROOM_ID.eq(ROOMS.ID).and(ROOM_AMENITIES.HOTEL_ID.eq(ROOMS.HOTEL_ID)))
         .join(AMENITIES)
-        .on(HOTEL_AMENITIES.AMENITY_ID.eq(AMENITIES.ID))
-        .where(HOTEL_AMENITIES.HOTEL_ID.in(hotelIds))
+        .on(ROOM_AMENITIES.AMENITY_ID.eq(AMENITIES.ID))
+        .where(ROOMS.HOTEL_ID.in(hotelIds))
         .fetch()
         .collect(
             Collectors.groupingBy(
-                row -> row.get(HOTEL_AMENITIES.HOTEL_ID),
+                row -> row.get(ROOMS.HOTEL_ID),
                 Collectors.mapping(row -> row.get(AMENITIES.NAME), Collectors.toSet())));
   }
 
   public Set<String> fetchAmenities(UUID hotelId) {
     return dsl
         .select(AMENITIES.NAME)
-        .from(HOTEL_AMENITIES)
+        .from(ROOMS)
+        .join(ROOM_AMENITIES)
+        .on(ROOM_AMENITIES.ROOM_ID.eq(ROOMS.ID).and(ROOM_AMENITIES.HOTEL_ID.eq(ROOMS.HOTEL_ID)))
         .join(AMENITIES)
-        .on(HOTEL_AMENITIES.AMENITY_ID.eq(AMENITIES.ID))
-        .where(HOTEL_AMENITIES.HOTEL_ID.eq(hotelId))
+        .on(ROOM_AMENITIES.AMENITY_ID.eq(AMENITIES.ID))
+        .where(ROOMS.HOTEL_ID.eq(hotelId))
         .fetch()
         .stream()
         .map(r -> r.get(AMENITIES.NAME))
@@ -153,11 +140,17 @@ public class HotelRepositoryImpl implements HotelRepository {
     if (!criteria.amenities().isEmpty()) {
       condition =
           condition.and(
-              DSL.selectCount()
-                  .from(HOTEL_AMENITIES)
+              DSL.select(DSL.countDistinct(AMENITIES.ID))
+                  .from(ROOMS)
+                  .join(ROOM_AMENITIES)
+                  .on(
+                      ROOM_AMENITIES
+                          .ROOM_ID
+                          .eq(ROOMS.ID)
+                          .and(ROOM_AMENITIES.HOTEL_ID.eq(ROOMS.HOTEL_ID)))
                   .join(AMENITIES)
-                  .on(HOTEL_AMENITIES.AMENITY_ID.eq(AMENITIES.ID))
-                  .where(HOTEL_AMENITIES.HOTEL_ID.eq(HOTELS.ID))
+                  .on(ROOM_AMENITIES.AMENITY_ID.eq(AMENITIES.ID))
+                  .where(ROOMS.HOTEL_ID.eq(HOTELS.ID))
                   .and(AMENITIES.NAME.in(criteria.amenities()))
                   .asField()
                   .eq(criteria.amenities().size()));

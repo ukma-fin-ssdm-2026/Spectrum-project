@@ -4,6 +4,7 @@ package edu.ukma.ssdm.teamspectrum.api.hotel;
 import edu.ukma.ssdm.teamspectrum.api.common.error.ValidationError;
 import edu.ukma.ssdm.teamspectrum.api.common.page.PageResponse;
 import edu.ukma.ssdm.teamspectrum.api.common.page.PaginationParams;
+import edu.ukma.ssdm.teamspectrum.logic.auth.Role;
 import edu.ukma.ssdm.teamspectrum.logic.hotel.HotelRecord;
 import edu.ukma.ssdm.teamspectrum.logic.hotel.HotelSearchPage;
 import edu.ukma.ssdm.teamspectrum.logic.hotel.HotelService;
@@ -62,7 +63,7 @@ public class HotelController {
       responseCode = "403",
       description = "Only workers and administrators can create hotels")
   @APIResponse(responseCode = "409", description = "A hotel with this name already exists")
-  @RolesAllowed({"WORKER", "ADMIN"})
+  @RolesAllowed({Role.Values.WORKER, Role.Values.ADMIN})
   public Response create(@Valid @NotNull CreateHotel request) {
     HotelRecord saved = hotelService.save(hotelFactory.create(request));
     Hotel created = hotelFactory.create(saved);

@@ -1,9 +1,10 @@
-<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="uk"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>HotelRepositoryImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">spectrum-app</a> &gt; <a href="index.source.html" class="el_package">edu.ukma.ssdm.teamspectrum.logic.hotel</a> &gt; <span class="el_source">HotelRepositoryImpl.java</span></div><h1>HotelRepositoryImpl.java</h1><pre class="source lang-java linenums">/* (C)2026 */
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>HotelRepositoryImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">spectrum-app</a> &gt; <a href="index.source.html" class="el_package">edu.ukma.ssdm.teamspectrum.logic.hotel</a> &gt; <span class="el_source">HotelRepositoryImpl.java</span></div><h1>HotelRepositoryImpl.java</h1><pre class="source lang-java linenums">/* (C)2026 */
 package edu.ukma.ssdm.teamspectrum.logic.hotel;
 
 import static edu.ukma.ssdm.teamspectrum.db.jooq.tables.Amenities.AMENITIES;
-import static edu.ukma.ssdm.teamspectrum.db.jooq.tables.HotelAmenities.HOTEL_AMENITIES;
 import static edu.ukma.ssdm.teamspectrum.db.jooq.tables.Hotels.HOTELS;
+import static edu.ukma.ssdm.teamspectrum.db.jooq.tables.RoomAmenities.ROOM_AMENITIES;
+import static edu.ukma.ssdm.teamspectrum.db.jooq.tables.Rooms.ROOMS;
 
 import edu.ukma.ssdm.teamspectrum.db.jooq.tables.records.HotelsRecord;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
@@ -29,180 +30,172 @@ public class HotelRepositoryImpl implements HotelRepository {
   @SuppressFBWarnings(
       value = &quot;EI_EXPOSE_REP2&quot;,
       justification = &quot;DSLContext is an intentionally shared injected database dependency.&quot;)
-<span class="fc" id="L32">  public HotelRepositoryImpl(DSLContext dsl) {</span>
-<span class="fc" id="L33">    this.dsl = dsl;</span>
-<span class="fc" id="L34">  }</span>
+<span class="fc" id="L33">  public HotelRepositoryImpl(DSLContext dsl) {</span>
+<span class="fc" id="L34">    this.dsl = dsl;</span>
+<span class="fc" id="L35">  }</span>
 
   @Override
   public List&lt;HotelRecord&gt; search(HotelSearchCriteria criteria, int offset, int limit) {
-<span class="fc" id="L38">    var rows =</span>
-<span class="fc" id="L39">        dsl.selectFrom(HOTELS)</span>
-<span class="fc" id="L40">            .where(matching(criteria))</span>
-<span class="fc" id="L41">            .orderBy(sortField(criteria))</span>
-<span class="fc" id="L42">            .offset(offset)</span>
-<span class="fc" id="L43">            .limit(limit)</span>
-<span class="fc" id="L44">            .fetch();</span>
-<span class="fc" id="L45">    return toHotels(rows);</span>
+<span class="fc" id="L39">    var rows =</span>
+<span class="fc" id="L40">        dsl.selectFrom(HOTELS)</span>
+<span class="fc" id="L41">            .where(matching(criteria))</span>
+<span class="fc" id="L42">            .orderBy(sortField(criteria))</span>
+<span class="fc" id="L43">            .offset(offset)</span>
+<span class="fc" id="L44">            .limit(limit)</span>
+<span class="fc" id="L45">            .fetch();</span>
+<span class="fc" id="L46">    return toHotels(rows);</span>
   }
 
   @Override
   public long count(HotelSearchCriteria criteria) {
-<span class="fc" id="L50">    return dsl.fetchCount(dsl.selectFrom(HOTELS).where(matching(criteria)));</span>
+<span class="fc" id="L51">    return dsl.fetchCount(dsl.selectFrom(HOTELS).where(matching(criteria)));</span>
   }
 
   @Override
   public Optional&lt;HotelRecord&gt; findById(UUID id) {
-<span class="fc" id="L55">    return dsl.selectFrom(HOTELS)</span>
-<span class="fc" id="L56">        .where(HOTELS.ID.eq(id))</span>
-<span class="fc" id="L57">        .fetchOptional(record -&gt; toHotel(record, fetchAmenities(id)));</span>
+<span class="fc" id="L56">    return dsl.selectFrom(HOTELS)</span>
+<span class="fc" id="L57">        .where(HOTELS.ID.eq(id))</span>
+<span class="fc" id="L58">        .fetchOptional(record -&gt; toHotel(record, fetchAmenities(id)));</span>
   }
 
   @Override
   public Optional&lt;HotelRecord&gt; findByName(String name) {
-<span class="fc bfc" id="L62" title="All 2 branches covered.">    if (name == null) {</span>
-<span class="fc" id="L63">      return Optional.empty();</span>
+<span class="fc bfc" id="L63" title="All 2 branches covered.">    if (name == null) {</span>
+<span class="fc" id="L64">      return Optional.empty();</span>
     }
-<span class="fc" id="L65">    return dsl.selectFrom(HOTELS)</span>
-<span class="fc" id="L66">        .where(DSL.lower(HOTELS.NAME).eq(name.trim().toLowerCase()))</span>
-<span class="fc" id="L67">        .fetchOptional(record -&gt; toHotel(record, fetchAmenities(record.getId())));</span>
+<span class="fc" id="L66">    return dsl.selectFrom(HOTELS)</span>
+<span class="fc" id="L67">        .where(DSL.lower(HOTELS.NAME).eq(name.trim().toLowerCase()))</span>
+<span class="fc" id="L68">        .fetchOptional(record -&gt; toHotel(record, fetchAmenities(record.getId())));</span>
   }
 
   @Override
   public void add(HotelRecord hotel) {
-<span class="fc" id="L72">    dsl.transaction(</span>
+<span class="fc" id="L73">    dsl.transaction(</span>
         configuration -&gt; {
-<span class="fc" id="L74">          DSLContext tx = DSL.using(configuration);</span>
-<span class="fc" id="L75">          tx.insertInto(HOTELS)</span>
-<span class="fc" id="L76">              .set(HOTELS.ID, hotel.id())</span>
-<span class="fc" id="L77">              .set(HOTELS.NAME, hotel.name())</span>
-<span class="fc" id="L78">              .set(HOTELS.CITY, hotel.address().city())</span>
-<span class="fc" id="L79">              .set(HOTELS.DISTRICT, hotel.address().district())</span>
-<span class="fc" id="L80">              .set(HOTELS.STREET, hotel.address().street())</span>
-<span class="fc" id="L81">              .set(HOTELS.BUILDING_NUMBER, hotel.address().buildingNumber())</span>
-<span class="fc" id="L82">              .set(HOTELS.PICTURE_URL, hotel.pictureUrl())</span>
-<span class="fc" id="L83">              .set(HOTELS.PRICE_PER_NIGHT, hotel.pricePerNight())</span>
-<span class="fc" id="L84">              .set(HOTELS.RATING, hotel.rating())</span>
-<span class="fc" id="L85">              .execute();</span>
-<span class="fc bfc" id="L86" title="All 2 branches covered.">          if (!hotel.amenities().isEmpty()) {</span>
-<span class="fc" id="L87">            var amenityRows = hotel.amenities().stream().map(DSL::row).toList();</span>
-<span class="fc" id="L88">            var amenities =</span>
-<span class="fc" id="L89">                tx.insertInto(AMENITIES, AMENITIES.NAME)</span>
-<span class="fc" id="L90">                    .valuesOfRows(amenityRows)</span>
-<span class="fc" id="L91">                    .onConflict(AMENITIES.NAME)</span>
-<span class="fc" id="L92">                    .doUpdate()</span>
-<span class="fc" id="L93">                    .set(AMENITIES.NAME, DSL.excluded(AMENITIES.NAME))</span>
-<span class="fc" id="L94">                    .returning(AMENITIES.ID, AMENITIES.NAME)</span>
-<span class="fc" id="L95">                    .fetch();</span>
-<span class="fc" id="L96">            var hotelAmenityRows =</span>
-<span class="fc" id="L97">                amenities.stream()</span>
-<span class="fc" id="L98">                    .map(amenity -&gt; DSL.row(hotel.id(), amenity.get(AMENITIES.ID)))</span>
-<span class="fc" id="L99">                    .collect(Collectors.toList());</span>
-<span class="fc" id="L100">            tx.insertInto(HOTEL_AMENITIES, HOTEL_AMENITIES.HOTEL_ID, HOTEL_AMENITIES.AMENITY_ID)</span>
-<span class="fc" id="L101">                .valuesOfRows(hotelAmenityRows)</span>
-<span class="fc" id="L102">                .execute();</span>
-          }
-<span class="fc" id="L104">        });</span>
-<span class="fc" id="L105">  }</span>
+<span class="fc" id="L75">          DSLContext tx = DSL.using(configuration);</span>
+<span class="fc" id="L76">          tx.insertInto(HOTELS)</span>
+<span class="fc" id="L77">              .set(HOTELS.ID, hotel.id())</span>
+<span class="fc" id="L78">              .set(HOTELS.NAME, hotel.name())</span>
+<span class="fc" id="L79">              .set(HOTELS.CITY, hotel.address().city())</span>
+<span class="fc" id="L80">              .set(HOTELS.DISTRICT, hotel.address().district())</span>
+<span class="fc" id="L81">              .set(HOTELS.STREET, hotel.address().street())</span>
+<span class="fc" id="L82">              .set(HOTELS.BUILDING_NUMBER, hotel.address().buildingNumber())</span>
+<span class="fc" id="L83">              .set(HOTELS.PICTURE_URL, hotel.pictureUrl())</span>
+<span class="fc" id="L84">              .set(HOTELS.PRICE_PER_NIGHT, hotel.pricePerNight())</span>
+<span class="fc" id="L85">              .set(HOTELS.RATING, hotel.rating())</span>
+<span class="fc" id="L86">              .execute();</span>
+<span class="fc" id="L87">        });</span>
+<span class="fc" id="L88">  }</span>
 
   public Map&lt;UUID, Set&lt;String&gt;&gt; fetchAmenities(Set&lt;UUID&gt; hotelIds) {
-<span class="fc" id="L108">    return dsl.select(HOTEL_AMENITIES.HOTEL_ID, AMENITIES.NAME)</span>
-<span class="fc" id="L109">        .from(HOTEL_AMENITIES)</span>
-<span class="fc" id="L110">        .join(AMENITIES)</span>
-<span class="fc" id="L111">        .on(HOTEL_AMENITIES.AMENITY_ID.eq(AMENITIES.ID))</span>
-<span class="fc" id="L112">        .where(HOTEL_AMENITIES.HOTEL_ID.in(hotelIds))</span>
-<span class="fc" id="L113">        .fetch()</span>
-<span class="fc" id="L114">        .collect(</span>
-<span class="fc" id="L115">            Collectors.groupingBy(</span>
-<span class="fc" id="L116">                row -&gt; row.get(HOTEL_AMENITIES.HOTEL_ID),</span>
-<span class="fc" id="L117">                Collectors.mapping(row -&gt; row.get(AMENITIES.NAME), Collectors.toSet())));</span>
+<span class="fc" id="L91">    return dsl.select(ROOMS.HOTEL_ID, AMENITIES.NAME)</span>
+<span class="fc" id="L92">        .from(ROOMS)</span>
+<span class="fc" id="L93">        .join(ROOM_AMENITIES)</span>
+<span class="fc" id="L94">        .on(ROOM_AMENITIES.ROOM_ID.eq(ROOMS.ID).and(ROOM_AMENITIES.HOTEL_ID.eq(ROOMS.HOTEL_ID)))</span>
+<span class="fc" id="L95">        .join(AMENITIES)</span>
+<span class="fc" id="L96">        .on(ROOM_AMENITIES.AMENITY_ID.eq(AMENITIES.ID))</span>
+<span class="fc" id="L97">        .where(ROOMS.HOTEL_ID.in(hotelIds))</span>
+<span class="fc" id="L98">        .fetch()</span>
+<span class="fc" id="L99">        .collect(</span>
+<span class="fc" id="L100">            Collectors.groupingBy(</span>
+<span class="fc" id="L101">                row -&gt; row.get(ROOMS.HOTEL_ID),</span>
+<span class="fc" id="L102">                Collectors.mapping(row -&gt; row.get(AMENITIES.NAME), Collectors.toSet())));</span>
   }
 
   public Set&lt;String&gt; fetchAmenities(UUID hotelId) {
-<span class="fc" id="L121">    return dsl</span>
-<span class="fc" id="L122">        .select(AMENITIES.NAME)</span>
-<span class="fc" id="L123">        .from(HOTEL_AMENITIES)</span>
-<span class="fc" id="L124">        .join(AMENITIES)</span>
-<span class="fc" id="L125">        .on(HOTEL_AMENITIES.AMENITY_ID.eq(AMENITIES.ID))</span>
-<span class="fc" id="L126">        .where(HOTEL_AMENITIES.HOTEL_ID.eq(hotelId))</span>
-<span class="fc" id="L127">        .fetch()</span>
-<span class="fc" id="L128">        .stream()</span>
-<span class="fc" id="L129">        .map(r -&gt; r.get(AMENITIES.NAME))</span>
-<span class="fc" id="L130">        .collect(Collectors.toSet());</span>
+<span class="fc" id="L106">    return dsl</span>
+<span class="fc" id="L107">        .select(AMENITIES.NAME)</span>
+<span class="fc" id="L108">        .from(ROOMS)</span>
+<span class="fc" id="L109">        .join(ROOM_AMENITIES)</span>
+<span class="fc" id="L110">        .on(ROOM_AMENITIES.ROOM_ID.eq(ROOMS.ID).and(ROOM_AMENITIES.HOTEL_ID.eq(ROOMS.HOTEL_ID)))</span>
+<span class="fc" id="L111">        .join(AMENITIES)</span>
+<span class="fc" id="L112">        .on(ROOM_AMENITIES.AMENITY_ID.eq(AMENITIES.ID))</span>
+<span class="fc" id="L113">        .where(ROOMS.HOTEL_ID.eq(hotelId))</span>
+<span class="fc" id="L114">        .fetch()</span>
+<span class="fc" id="L115">        .stream()</span>
+<span class="fc" id="L116">        .map(r -&gt; r.get(AMENITIES.NAME))</span>
+<span class="fc" id="L117">        .collect(Collectors.toSet());</span>
   }
 
   private static Condition matching(HotelSearchCriteria criteria) {
-<span class="fc" id="L134">    Condition condition = DSL.trueCondition();</span>
-<span class="fc bfc" id="L135" title="All 2 branches covered.">    if (criteria.location() != null) {</span>
-<span class="fc" id="L136">      String location = criteria.location().trim().toLowerCase();</span>
-<span class="fc" id="L137">      condition =</span>
-<span class="fc" id="L138">          condition.and(</span>
-<span class="fc" id="L139">              DSL.lower(HOTELS.CITY).eq(location).or(DSL.lower(HOTELS.DISTRICT).eq(location)));</span>
+<span class="fc" id="L121">    Condition condition = DSL.trueCondition();</span>
+<span class="fc bfc" id="L122" title="All 2 branches covered.">    if (criteria.location() != null) {</span>
+<span class="fc" id="L123">      String location = criteria.location().trim().toLowerCase();</span>
+<span class="fc" id="L124">      condition =</span>
+<span class="fc" id="L125">          condition.and(</span>
+<span class="fc" id="L126">              DSL.lower(HOTELS.CITY).eq(location).or(DSL.lower(HOTELS.DISTRICT).eq(location)));</span>
     }
-<span class="fc bfc" id="L141" title="All 2 branches covered.">    if (criteria.minPrice() != null) {</span>
-<span class="fc" id="L142">      condition = condition.and(HOTELS.PRICE_PER_NIGHT.ge(criteria.minPrice()));</span>
+<span class="fc bfc" id="L128" title="All 2 branches covered.">    if (criteria.minPrice() != null) {</span>
+<span class="fc" id="L129">      condition = condition.and(HOTELS.PRICE_PER_NIGHT.ge(criteria.minPrice()));</span>
     }
-<span class="fc bfc" id="L144" title="All 2 branches covered.">    if (criteria.maxPrice() != null) {</span>
-<span class="fc" id="L145">      condition = condition.and(HOTELS.PRICE_PER_NIGHT.le(criteria.maxPrice()));</span>
+<span class="fc bfc" id="L131" title="All 2 branches covered.">    if (criteria.maxPrice() != null) {</span>
+<span class="fc" id="L132">      condition = condition.and(HOTELS.PRICE_PER_NIGHT.le(criteria.maxPrice()));</span>
     }
-<span class="fc bfc" id="L147" title="All 2 branches covered.">    if (criteria.minRating() != null) {</span>
-<span class="fc" id="L148">      condition = condition.and(HOTELS.RATING.ge(criteria.minRating()));</span>
+<span class="fc bfc" id="L134" title="All 2 branches covered.">    if (criteria.minRating() != null) {</span>
+<span class="fc" id="L135">      condition = condition.and(HOTELS.RATING.ge(criteria.minRating()));</span>
     }
-<span class="fc bfc" id="L150" title="All 2 branches covered.">    if (criteria.maxRating() != null) {</span>
-<span class="fc" id="L151">      condition = condition.and(HOTELS.RATING.le(criteria.maxRating()));</span>
+<span class="fc bfc" id="L137" title="All 2 branches covered.">    if (criteria.maxRating() != null) {</span>
+<span class="fc" id="L138">      condition = condition.and(HOTELS.RATING.le(criteria.maxRating()));</span>
     }
-<span class="fc bfc" id="L153" title="All 2 branches covered.">    if (!criteria.amenities().isEmpty()) {</span>
-<span class="fc" id="L154">      condition =</span>
-<span class="fc" id="L155">          condition.and(</span>
-<span class="fc" id="L156">              DSL.selectCount()</span>
-<span class="fc" id="L157">                  .from(HOTEL_AMENITIES)</span>
-<span class="fc" id="L158">                  .join(AMENITIES)</span>
-<span class="fc" id="L159">                  .on(HOTEL_AMENITIES.AMENITY_ID.eq(AMENITIES.ID))</span>
-<span class="fc" id="L160">                  .where(HOTEL_AMENITIES.HOTEL_ID.eq(HOTELS.ID))</span>
-<span class="fc" id="L161">                  .and(AMENITIES.NAME.in(criteria.amenities()))</span>
-<span class="fc" id="L162">                  .asField()</span>
-<span class="fc" id="L163">                  .eq(criteria.amenities().size()));</span>
+<span class="fc bfc" id="L140" title="All 2 branches covered.">    if (!criteria.amenities().isEmpty()) {</span>
+<span class="fc" id="L141">      condition =</span>
+<span class="fc" id="L142">          condition.and(</span>
+<span class="fc" id="L143">              DSL.select(DSL.countDistinct(AMENITIES.ID))</span>
+<span class="fc" id="L144">                  .from(ROOMS)</span>
+<span class="fc" id="L145">                  .join(ROOM_AMENITIES)</span>
+<span class="fc" id="L146">                  .on(</span>
+                      ROOM_AMENITIES
+                          .ROOM_ID
+<span class="fc" id="L149">                          .eq(ROOMS.ID)</span>
+<span class="fc" id="L150">                          .and(ROOM_AMENITIES.HOTEL_ID.eq(ROOMS.HOTEL_ID)))</span>
+<span class="fc" id="L151">                  .join(AMENITIES)</span>
+<span class="fc" id="L152">                  .on(ROOM_AMENITIES.AMENITY_ID.eq(AMENITIES.ID))</span>
+<span class="fc" id="L153">                  .where(ROOMS.HOTEL_ID.eq(HOTELS.ID))</span>
+<span class="fc" id="L154">                  .and(AMENITIES.NAME.in(criteria.amenities()))</span>
+<span class="fc" id="L155">                  .asField()</span>
+<span class="fc" id="L156">                  .eq(criteria.amenities().size()));</span>
     }
-<span class="fc" id="L165">    return condition;</span>
+<span class="fc" id="L158">    return condition;</span>
   }
 
   private static Field&lt;?&gt; sortField(HotelSortBy sortBy) {
-<span class="fc bfc" id="L169" title="All 3 branches covered.">    return switch (sortBy) {</span>
-<span class="fc" id="L170">      case Rating -&gt; HOTELS.RATING;</span>
-<span class="fc" id="L171">      case PricePerNight -&gt; HOTELS.PRICE_PER_NIGHT;</span>
-<span class="fc" id="L172">      case null -&gt; HOTELS.RATING;</span>
+<span class="fc bfc" id="L162" title="All 3 branches covered.">    return switch (sortBy) {</span>
+<span class="fc" id="L163">      case Rating -&gt; HOTELS.RATING;</span>
+<span class="fc" id="L164">      case PricePerNight -&gt; HOTELS.PRICE_PER_NIGHT;</span>
+<span class="fc" id="L165">      case null -&gt; HOTELS.RATING;</span>
     };
   }
 
   private static SortField&lt;?&gt; sortField(HotelSearchCriteria criteria) {
-<span class="fc" id="L177">    Field&lt;?&gt; field = sortField(criteria.sortBy());</span>
-<span class="fc bfc" id="L178" title="All 3 branches covered.">    return switch (criteria.order()) {</span>
-<span class="fc" id="L179">      case Desc -&gt; field.desc();</span>
-<span class="fc" id="L180">      case Asc -&gt; field.asc();</span>
-<span class="fc" id="L181">      case null -&gt; field.desc();</span>
+<span class="fc" id="L170">    Field&lt;?&gt; field = sortField(criteria.sortBy());</span>
+<span class="fc bfc" id="L171" title="All 3 branches covered.">    return switch (criteria.order()) {</span>
+<span class="fc" id="L172">      case Desc -&gt; field.desc();</span>
+<span class="fc" id="L173">      case Asc -&gt; field.asc();</span>
+<span class="fc" id="L174">      case null -&gt; field.desc();</span>
     };
   }
 
   private HotelRecord toHotel(HotelsRecord hotel, Set&lt;String&gt; amenities) {
-<span class="fc" id="L186">    return new HotelRecord(</span>
-<span class="fc" id="L187">        hotel.getId(),</span>
-<span class="fc" id="L188">        hotel.getName(),</span>
+<span class="fc" id="L179">    return new HotelRecord(</span>
+<span class="fc" id="L180">        hotel.getId(),</span>
+<span class="fc" id="L181">        hotel.getName(),</span>
         new HotelAddress(
-<span class="fc" id="L190">            hotel.getCity(), hotel.getDistrict(), hotel.getStreet(), hotel.getBuildingNumber()),</span>
-<span class="fc" id="L191">        hotel.getPictureUrl(),</span>
-<span class="fc" id="L192">        hotel.getPricePerNight(),</span>
-<span class="fc" id="L193">        hotel.getRating(),</span>
-<span class="fc bfc" id="L194" title="All 2 branches covered.">        amenities != null ? amenities : Set.of());</span>
+<span class="fc" id="L183">            hotel.getCity(), hotel.getDistrict(), hotel.getStreet(), hotel.getBuildingNumber()),</span>
+<span class="fc" id="L184">        hotel.getPictureUrl(),</span>
+<span class="fc" id="L185">        hotel.getPricePerNight(),</span>
+<span class="fc" id="L186">        hotel.getRating(),</span>
+<span class="fc bfc" id="L187" title="All 2 branches covered.">        amenities != null ? amenities : Set.of());</span>
   }
 
   private List&lt;HotelRecord&gt; toHotels(List&lt;HotelsRecord&gt; records) {
-<span class="pc bpc" id="L198" title="1 of 2 branches missed.">    if (records.isEmpty()) {</span>
-<span class="nc" id="L199">      return List.of();</span>
+<span class="pc bpc" id="L191" title="1 of 2 branches missed.">    if (records.isEmpty()) {</span>
+<span class="nc" id="L192">      return List.of();</span>
     }
-<span class="fc" id="L201">    var ids = records.stream().map(record -&gt; record.get(HOTELS.ID)).collect(Collectors.toSet());</span>
-<span class="fc" id="L202">    Map&lt;UUID, Set&lt;String&gt;&gt; amenitiesByHotel = fetchAmenities(ids);</span>
-<span class="fc" id="L203">    return records.stream()</span>
-<span class="fc" id="L204">        .map(hotel -&gt; toHotel(hotel, amenitiesByHotel.get(hotel.getId())))</span>
-<span class="fc" id="L205">        .toList();</span>
+<span class="fc" id="L194">    var ids = records.stream().map(record -&gt; record.get(HOTELS.ID)).collect(Collectors.toSet());</span>
+<span class="fc" id="L195">    Map&lt;UUID, Set&lt;String&gt;&gt; amenitiesByHotel = fetchAmenities(ids);</span>
+<span class="fc" id="L196">    return records.stream()</span>
+<span class="fc" id="L197">        .map(hotel -&gt; toHotel(hotel, amenitiesByHotel.get(hotel.getId())))</span>
+<span class="fc" id="L198">        .toList();</span>
   }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

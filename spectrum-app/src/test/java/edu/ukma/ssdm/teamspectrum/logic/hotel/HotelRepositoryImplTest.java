@@ -2,13 +2,18 @@
 package edu.ukma.ssdm.teamspectrum.logic.hotel;
 
 import static edu.ukma.ssdm.teamspectrum.db.jooq.tables.Amenities.AMENITIES;
-import static edu.ukma.ssdm.teamspectrum.db.jooq.tables.HotelAmenities.HOTEL_AMENITIES;
 import static edu.ukma.ssdm.teamspectrum.db.jooq.tables.Hotels.HOTELS;
+import static edu.ukma.ssdm.teamspectrum.db.jooq.tables.RoomAmenities.ROOM_AMENITIES;
+import static edu.ukma.ssdm.teamspectrum.db.jooq.tables.Rooms.ROOMS;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import edu.ukma.ssdm.teamspectrum.logic.common.SortOrder;
 import edu.ukma.ssdm.teamspectrum.logic.common.repository.RepositoryTestProfile;
+import edu.ukma.ssdm.teamspectrum.logic.room.CreateRoomCommand;
+import edu.ukma.ssdm.teamspectrum.logic.room.RoomRepository;
+import edu.ukma.ssdm.teamspectrum.logic.room.RoomStatus;
+import edu.ukma.ssdm.teamspectrum.logic.room.RoomType;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.junit.TestProfile;
 import jakarta.inject.Inject;
@@ -19,6 +24,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Stream;
+import org.javamoney.moneta.Money;
 import org.jooq.DSLContext;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -30,12 +36,14 @@ import org.junit.jupiter.params.provider.MethodSource;
 @TestProfile(RepositoryTestProfile.class)
 class HotelRepositoryImplTest {
   @Inject HotelRepository repository;
+  @Inject RoomRepository roomRepository;
   @Inject DSLContext dsl;
 
   @BeforeEach
   @AfterEach
   void cleanUp() {
-    dsl.deleteFrom(HOTEL_AMENITIES).execute();
+    dsl.deleteFrom(ROOM_AMENITIES).execute();
+    dsl.deleteFrom(ROOMS).execute();
     dsl.deleteFrom(HOTELS).execute();
     dsl.deleteFrom(AMENITIES).execute();
   }
@@ -47,19 +55,26 @@ class HotelRepositoryImplTest {
 
   @Test
   void addAndFindById() {
-    HotelRecord hotel = hotel("Spectrum Hotel", "Kyiv", "Podil", 120, 4.7, Set.of("wifi", "pool"));
+    HotelRecord hotel =
+        hotel("Spectrum Hotel", "Kyiv", "Podil", 120, 4.7, Set.of("hotel-only amenity"));
 
     repository.add(hotel);
+    addRoom(hotel, "101", Set.of("wifi", "pool"));
 
-    assertEquals(Optional.of(hotel), repository.findById(hotel.id()));
+    assertEquals(
+        Optional.of(withAmenities(hotel, Set.of("wifi", "pool"))), repository.findById(hotel.id()));
   }
 
   @Test
   void findByName() {
-    HotelRecord hotel = hotel("Spectrum Hotel", "Kyiv", "Podil", 120, 4.7, Set.of("wifi"));
+    HotelRecord hotel =
+        hotel("Spectrum Hotel", "Kyiv", "Podil", 120, 4.7, Set.of("hotel-only amenity"));
     repository.add(hotel);
+    addRoom(hotel, "101", Set.of("wifi"));
 
-    assertEquals(Optional.of(hotel), repository.findByName(" SpEctrum HotEl "));
+    assertEquals(
+        Optional.of(withAmenities(hotel, Set.of("wifi"))),
+        repository.findByName(" SpEctrum HotEl "));
   }
 
   @Test
@@ -73,11 +88,22 @@ class HotelRepositoryImplTest {
   @Test
   void searchFiltersByLocationPriceRatingAndAllRequestedAmenities() {
     HotelRecord matching = hotel("Matching", "Kyiv", "Podil", 120, 4.7, Set.of("wifi", "pool"));
+    HotelRecord wrongLocation =
+        hotel("Wrong location", "Lviv", "Center", 120, 4.7, Set.of("wifi", "pool"));
+    HotelRecord tooCheap = hotel("Too cheap", "Kyiv", "Podil", 80, 4.7, Set.of("wifi", "pool"));
+    HotelRecord lowRated = hotel("Low rated", "Kyiv", "Podil", 120, 3.2, Set.of("wifi", "pool"));
+    HotelRecord missingAmenity =
+        hotel("Missing amenity", "Kyiv", "Podil", 120, 4.7, Set.of("wifi"));
     repository.add(matching);
-    repository.add(hotel("Wrong location", "Lviv", "Center", 120, 4.7, Set.of("wifi", "pool")));
-    repository.add(hotel("Too cheap", "Kyiv", "Podil", 80, 4.7, Set.of("wifi", "pool")));
-    repository.add(hotel("Low rated", "Kyiv", "Podil", 120, 3.2, Set.of("wifi", "pool")));
-    repository.add(hotel("Missing amenity", "Kyiv", "Podil", 120, 4.7, Set.of("wifi")));
+    repository.add(wrongLocation);
+    repository.add(tooCheap);
+    repository.add(lowRated);
+    repository.add(missingAmenity);
+    addRoom(matching, "101", Set.of("wifi", "pool"));
+    addRoom(wrongLocation, "101", Set.of("wifi", "pool"));
+    addRoom(tooCheap, "101", Set.of("wifi", "pool"));
+    addRoom(lowRated, "101", Set.of("wifi", "pool"));
+    addRoom(missingAmenity, "101", Set.of("wifi"));
     HotelSearchCriteria criteria =
         criteria(
             " KYIV ",
@@ -187,6 +213,29 @@ class HotelRepositoryImplTest {
         "https://example.com/hotel.jpg",
         BigDecimal.valueOf(price),
         rating,
+        amenities);
+  }
+
+  private void addRoom(HotelRecord hotel, String roomNumber, Set<String> amenities) {
+    roomRepository.create(
+        hotel.id(),
+        new CreateRoomCommand(
+            UUID.randomUUID(),
+            roomNumber,
+            RoomType.DOUBLE,
+            Money.of(100, "USD"),
+            RoomStatus.ACTIVE,
+            amenities));
+  }
+
+  private static HotelRecord withAmenities(HotelRecord hotel, Set<String> amenities) {
+    return new HotelRecord(
+        hotel.id(),
+        hotel.name(),
+        hotel.address(),
+        hotel.pictureUrl(),
+        hotel.pricePerNight(),
+        hotel.rating(),
         amenities);
   }
 }
