@@ -61,3 +61,4 @@ jobs:
           -Dsonar.projectKey=ukma-fin-ssdm-2026_Spectrum-project
           -Dsonar.organization=ukma-fin-ssdm-2026
           -Dsonar.host.url=https://sonarcloud.io
+          -Dsonar.coverage.jacoco.xmlReportPaths=../docs/testing/coverage/jacoco.xml

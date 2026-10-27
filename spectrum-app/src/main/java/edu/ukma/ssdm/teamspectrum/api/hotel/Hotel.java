@@ -16,7 +16,7 @@ public record Hotel(
     @Schema(examples = {pricePerNightExample}) BigDecimal pricePerNight,
     @DecimalMin("0.0") @DecimalMax("5.0") @Schema(examples = {ratingExample}) double rating,
     @Schema(examples = {amenitiesExample}) Set<String> amenities) {
-  static final String idExample = "123e4567-e89b-12d3-a456-426614174000";
+  public static final String idExample = "123e4567-e89b-12d3-a456-426614174000";
   static final String nameExample = "Grand Budapest";
   static final String pictureUrlExample = "https://example.com/hotels/grand-budapest.jpg";
   static final String pricePerNightExample = "145.00";
