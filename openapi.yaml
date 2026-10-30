@@ -273,6 +273,16 @@ paths:
           format: int32
           minimum: 0
           default: 0
+      - name: sortBy
+        in: query
+        schema:
+          type: object
+          default: RATING
+      - name: sortOrder
+        in: query
+        schema:
+          type: object
+          default: DESC
       responses:
         "200":
           description: Successful retrieval
@@ -310,6 +320,16 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ValidationError"
+        "401":
+          description: Not authenticated
+        "403":
+          description: Only workers and administrators can create hotels
+        "409":
+          description: A hotel with this name already exists
+      security:
+      - SecurityScheme:
+        - WORKER
+        - ADMIN
   /v1/api/hotels/{hotelId}:
     get:
       summary: Fetch a hotel by ID
