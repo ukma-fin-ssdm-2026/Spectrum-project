@@ -120,8 +120,9 @@ class HotelRepositoryImplTest {
   @ParameterizedTest
   @MethodSource("sortingCases")
   void searchSortsByRequestedFieldAndOrder(HotelSortBy sortBy, SortOrder order) {
-    HotelRecord low = hotel("Low price and rating", "Kyiv", "Podil", 100, 3.0, Set.of());
-    HotelRecord high = hotel("High price and rating", "Kyiv", "Podil", 200, 5.0, Set.of());
+    // TP-16: price order and rating order differ, so sorting by the wrong field fails the test
+    HotelRecord low = hotel("Low price, high rating", "Kyiv", "Podil", 100, 5.0, Set.of());
+    HotelRecord high = hotel("High price, low rating", "Kyiv", "Podil", 200, 3.0, Set.of());
 
     repository.add(low);
     repository.add(high);
