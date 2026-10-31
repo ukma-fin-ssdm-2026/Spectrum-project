@@ -16,6 +16,8 @@ concurrency:
 jobs:
   checks:
     runs-on: [self-hosted, linux]
+    env:
+      DB_PASSWORD: ${{ secrets.DEV_DB_PASSWORD }}
     permissions:
       contents: write
     services:
@@ -24,7 +26,7 @@ jobs:
         env:
           POSTGRES_DB: spectrum
           POSTGRES_USER: spectrum
-          POSTGRES_PASSWORD: spectrum
+          POSTGRES_PASSWORD: ${{ env.DB_PASSWORD }}
         ports:
           - 5433:5432
         options: >-
@@ -69,6 +71,8 @@ jobs:
 
       - name: Commit and push OpenAPI changes
         if: github.event_name == 'pull_request'
+        env:
+          PR_HEAD_REF: ${{ github.event.pull_request.head.ref }}
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@://github.com"
@@ -79,5 +83,5 @@ jobs:
             echo "No changes to OpenAPI specification files."
           else
             git commit -m "chore: auto-generate openapi specification [skip ci]"
-            git push origin HEAD:${{ github.event.pull_request.head.ref }}
+            git push origin "HEAD:${PR_HEAD_REF}"
           fi

@@ -27,13 +27,13 @@ public class HotelServiceImpl implements HotelService {
   }
 
   @Override
-  public HotelRecord save(HotelRecord hotel) {
+  public HotelMutationResult save(HotelRecord hotel) {
 <span class="fc" id="L31">    var existing = repository.findByName(hotel.name());</span>
 <span class="fc bfc" id="L32" title="All 2 branches covered.">    if (existing.isPresent()) {</span>
-<span class="fc" id="L33">      throw new HotelAlreadyExistsException(hotel.name());</span>
+<span class="fc" id="L33">      return new HotelMutationResult.NameConflict();</span>
     } else {
 <span class="fc" id="L35">      repository.add(hotel);</span>
-<span class="fc" id="L36">      return hotel;</span>
+<span class="fc" id="L36">      return new HotelMutationResult.Success(hotel);</span>
     }
   }
 

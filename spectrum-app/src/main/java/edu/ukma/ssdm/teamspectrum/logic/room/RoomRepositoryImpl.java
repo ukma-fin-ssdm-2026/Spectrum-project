@@ -124,45 +124,59 @@ public class RoomRepositoryImpl implements RoomRepository {
   @Override
   public RoomMutationResult update(UUID hotelId, UUID roomId, UpdateRoomCommand request) {
     return dsl.transactionResult(
-        configuration -> {
-          DSLContext tx = DSL.using(configuration);
-          selectHotelById(tx, hotelId).forUpdate().fetchOptional();
-          var existing = mkFindById(tx, hotelId, roomId).forUpdate().fetchOptional();
-          if (existing.isEmpty()) {
-            return new RoomMutationResult.NotFound();
-          } else {
-            var old = existing.orElseThrow();
-            var recordToUpdate = updateRoom(request, old);
-            var roomNumberInUse =
-                tx.fetchExists(
-                    tx.selectOne()
-                        .from(ROOMS)
-                        .where(
-                            ROOMS
-                                .HOTEL_ID
-                                .eq(hotelId)
-                                .and(ROOMS.ROOM_NUMBER.eq(recordToUpdate.getRoomNumber()))
-                                .and(ROOMS.ID.ne(roomId))));
-            if (roomNumberInUse) {
-              return new RoomMutationResult.RoomNumberConflict();
-            }
-            var updated =
-                tx.update(ROOMS)
-                    .set(recordToUpdate)
-                    .where(ROOMS.HOTEL_ID.eq(hotelId).and(ROOMS.ID.eq(roomId)))
-                    .returning()
-                    .fetchAny();
-            assert updated != null;
-            if (request.amenities() != null) {
-              deleteRoomAmenities(tx, roomId, hotelId);
-              persistAmenities(tx, roomId, hotelId, request.amenities());
-              return new RoomMutationResult.Success(toRoom(updated, request.amenities()));
-            } else {
-              var amenities = fetchAmenities(tx, roomId);
-              return new RoomMutationResult.Success(toRoom(updated, amenities));
-            }
-          }
-        });
+        configuration -> updateInTransaction(DSL.using(configuration), hotelId, roomId, request));
+  }
+
+  private RoomMutationResult updateInTransaction(
+      DSLContext tx, UUID hotelId, UUID roomId, UpdateRoomCommand request) {
+    selectHotelById(tx, hotelId).forUpdate().fetchOptional();
+    var existing = mkFindById(tx, hotelId, roomId).forUpdate().fetchOptional();
+    if (existing.isEmpty()) {
+      return new RoomMutationResult.NotFound();
+    }
+
+    var recordToUpdate = updateRoom(request, existing.orElseThrow());
+    if (roomNumberInUse(tx, hotelId, roomId, recordToUpdate.getRoomNumber())) {
+      return new RoomMutationResult.RoomNumberConflict();
+    }
+
+    var updated =
+        tx.update(ROOMS)
+            .set(recordToUpdate)
+            .where(ROOMS.HOTEL_ID.eq(hotelId).and(ROOMS.ID.eq(roomId)))
+            .returning()
+            .fetchAny();
+    assert updated != null;
+    var room = updateAmenities(tx, hotelId, roomId, request.amenities(), updated);
+    return new RoomMutationResult.Success(room);
+  }
+
+  private boolean roomNumberInUse(DSLContext tx, UUID hotelId, UUID roomId, String roomNumber) {
+    return tx.fetchExists(
+        tx.selectOne()
+            .from(ROOMS)
+            .where(
+                ROOMS
+                    .HOTEL_ID
+                    .eq(hotelId)
+                    .and(ROOMS.ROOM_NUMBER.eq(roomNumber))
+                    .and(ROOMS.ID.ne(roomId))));
+  }
+
+  private RoomRecord updateAmenities(
+      DSLContext tx,
+      UUID hotelId,
+      UUID roomId,
+      Set<String> requestedAmenities,
+      RoomsRecord updated) {
+    Set<String> amenities = requestedAmenities;
+    if (amenities != null) {
+      deleteRoomAmenities(tx, roomId, hotelId);
+      persistAmenities(tx, roomId, hotelId, amenities);
+    } else {
+      amenities = fetchAmenities(tx, roomId);
+    }
+    return toRoom(updated, amenities);
   }
 
   @Override
