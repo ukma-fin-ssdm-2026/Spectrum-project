@@ -22,13 +22,15 @@ jobs:
     name: Build, test and analyze
     runs-on: [self-hosted, linux]
     timeout-minutes: 20
+    env:
+      DB_PASSWORD: ${{ secrets.DEV_DB_PASSWORD }}
     services:
       postgres:
         image: postgres:18
         env:
           POSTGRES_DB: spectrum
           POSTGRES_USER: spectrum
-          POSTGRES_PASSWORD: spectrum
+          POSTGRES_PASSWORD: ${{ env.DB_PASSWORD }}
         ports:
           - 5433:5432
         options: >-

@@ -43,7 +43,11 @@ public class HotelRepositoryImpl implements HotelRepository {
             .offset(offset)
             .limit(limit)
             .fetch();
-    return toHotels(rows);
+    if (rows.isEmpty()) {
+      return List.of();
+    }
+    var ids = rows.stream().map(HotelsRecord::getId).collect(Collectors.toSet());
+    return toHotels(rows, fetchAmenities(ids));
   }
 
   @Override
@@ -175,7 +179,7 @@ public class HotelRepositoryImpl implements HotelRepository {
     };
   }
 
-  private HotelRecord toHotel(HotelsRecord hotel, Set<String> amenities) {
+  private static HotelRecord toHotel(HotelsRecord hotel, Set<String> amenities) {
     return new HotelRecord(
         hotel.getId(),
         hotel.getName(),
@@ -187,12 +191,11 @@ public class HotelRepositoryImpl implements HotelRepository {
         amenities != null ? amenities : Set.of());
   }
 
-  private List<HotelRecord> toHotels(List<HotelsRecord> records) {
+  private static List<HotelRecord> toHotels(
+      List<HotelsRecord> records, Map<UUID, Set<String>> amenitiesByHotel) {
     if (records.isEmpty()) {
       return List.of();
     }
-    var ids = records.stream().map(record -> record.get(HOTELS.ID)).collect(Collectors.toSet());
-    Map<UUID, Set<String>> amenitiesByHotel = fetchAmenities(ids);
     return records.stream()
         .map(hotel -> toHotel(hotel, amenitiesByHotel.get(hotel.getId())))
         .toList();

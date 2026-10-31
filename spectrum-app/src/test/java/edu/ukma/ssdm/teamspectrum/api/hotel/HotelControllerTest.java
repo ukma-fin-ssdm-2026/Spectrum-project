@@ -13,7 +13,7 @@ import edu.ukma.ssdm.teamspectrum.logic.auth.Role;
 import edu.ukma.ssdm.teamspectrum.logic.auth.TokenFactoryImpl;
 import edu.ukma.ssdm.teamspectrum.logic.auth.User;
 import edu.ukma.ssdm.teamspectrum.logic.hotel.HotelAddress;
-import edu.ukma.ssdm.teamspectrum.logic.hotel.HotelAlreadyExistsException;
+import edu.ukma.ssdm.teamspectrum.logic.hotel.HotelMutationResult;
 import edu.ukma.ssdm.teamspectrum.logic.hotel.HotelRecord;
 import edu.ukma.ssdm.teamspectrum.logic.hotel.HotelService;
 import io.quarkus.test.InjectMock;
@@ -112,7 +112,8 @@ class HotelControllerTest {
   // TP-18
   @Test
   void createReturnsCreatedForWorker() {
-    when(hotelService.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
+    when(hotelService.save(any()))
+        .thenAnswer(invocation -> new HotelMutationResult.Success(invocation.getArgument(0)));
 
     given()
         .contentType(ContentType.JSON)
@@ -128,7 +129,7 @@ class HotelControllerTest {
   // TP-18
   @Test
   void createReturnsConflictWhenHotelNameExists() {
-    when(hotelService.save(any())).thenThrow(new HotelAlreadyExistsException("Grand Budapest"));
+    when(hotelService.save(any())).thenReturn(new HotelMutationResult.NameConflict());
 
     given()
         .contentType(ContentType.JSON)

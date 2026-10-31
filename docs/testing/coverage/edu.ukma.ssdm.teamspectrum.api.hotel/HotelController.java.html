@@ -5,7 +5,7 @@ import edu.ukma.ssdm.teamspectrum.api.common.error.ValidationError;
 import edu.ukma.ssdm.teamspectrum.api.common.page.PageResponse;
 import edu.ukma.ssdm.teamspectrum.api.common.page.PaginationParams;
 import edu.ukma.ssdm.teamspectrum.logic.auth.Role;
-import edu.ukma.ssdm.teamspectrum.logic.hotel.HotelRecord;
+import edu.ukma.ssdm.teamspectrum.logic.hotel.HotelMutationResult;
 import edu.ukma.ssdm.teamspectrum.logic.hotel.HotelSearchPage;
 import edu.ukma.ssdm.teamspectrum.logic.hotel.HotelService;
 import jakarta.annotation.security.RolesAllowed;
@@ -65,9 +65,16 @@ public class HotelController {
   @APIResponse(responseCode = &quot;409&quot;, description = &quot;A hotel with this name already exists&quot;)
   @RolesAllowed({Role.Values.WORKER, Role.Values.ADMIN})
   public Response create(@Valid @NotNull CreateHotel request) {
-<span class="fc" id="L68">    HotelRecord saved = hotelService.save(hotelFactory.create(request));</span>
-<span class="fc" id="L69">    Hotel created = hotelFactory.create(saved);</span>
-<span class="fc" id="L70">    return Response.status(Response.Status.CREATED).entity(created).build();</span>
+<span class="fc" id="L68">    var hotel = hotelFactory.create(request);</span>
+<span class="fc" id="L69">    var result = hotelService.save(hotel);</span>
+<span class="fc bfc" id="L70" title="All 2 branches covered.">    return switch (result) {</span>
+<span class="fc" id="L71">      case HotelMutationResult.Success success -&gt; {</span>
+<span class="fc" id="L72">        var response = hotelFactory.create(success.hotel());</span>
+<span class="fc" id="L73">        yield Response.status(Response.Status.CREATED).entity(response).build();</span>
+      }
+<span class="fc" id="L75">      case HotelMutationResult.NameConflict ignored -&gt;</span>
+<span class="fc" id="L76">          Response.status(Response.Status.CONFLICT).build();</span>
+    };
   }
 
   @GET
@@ -82,9 +89,9 @@ public class HotelController {
       content = @Content(schema = @Schema(implementation = ValidationError.class)))
   public Response getHotels(
       @BeanParam @Valid GetHotelsParams params, @BeanParam @Valid PaginationParams pagination) {
-<span class="nc" id="L85">    HotelSearchPage result = hotelService.search(searchCriteriaFactory.create(params, pagination));</span>
-<span class="nc" id="L86">    List&lt;Hotel&gt; items = result.items().stream().map(hotelFactory::create).toList();</span>
-<span class="nc" id="L87">    return Response.ok(new PageResponse&lt;&gt;(items, result.totalItems(), pagination)).build();</span>
+<span class="nc" id="L92">    HotelSearchPage result = hotelService.search(searchCriteriaFactory.create(params, pagination));</span>
+<span class="nc" id="L93">    List&lt;Hotel&gt; items = result.items().stream().map(hotelFactory::create).toList();</span>
+<span class="nc" id="L94">    return Response.ok(new PageResponse&lt;&gt;(items, result.totalItems(), pagination)).build();</span>
   }
 
   @GET
@@ -102,11 +109,11 @@ public class HotelController {
       description = &quot;Validation failed&quot;,
       content = @Content(schema = @Schema(implementation = ValidationError.class)))
   public Response getHotel(@PathParam(&quot;hotelId&quot;) UUID hotelId) {
-<span class="fc" id="L105">    return hotelService</span>
-<span class="fc" id="L106">        .findById(hotelId)</span>
-<span class="fc" id="L107">        .map(hotelFactory::create)</span>
-<span class="fc" id="L108">        .map(h -&gt; Response.ok(h).build())</span>
-<span class="fc" id="L109">        .orElse(Response.status(Response.Status.NOT_FOUND).build());</span>
+<span class="fc" id="L112">    return hotelService</span>
+<span class="fc" id="L113">        .findById(hotelId)</span>
+<span class="fc" id="L114">        .map(hotelFactory::create)</span>
+<span class="fc" id="L115">        .map(h -&gt; Response.ok(h).build())</span>
+<span class="fc" id="L116">        .orElse(Response.status(Response.Status.NOT_FOUND).build());</span>
   }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

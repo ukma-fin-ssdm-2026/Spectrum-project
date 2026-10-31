@@ -2,8 +2,6 @@
 package edu.ukma.ssdm.teamspectrum.logic.hotel;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertSame;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -40,22 +38,22 @@ class HotelServiceImplTest {
   }
 
   @Test
-  void saveAddsAndReturnsHotelWhenNameIsAvailable() {
+  void saveAddsAndReturnsSuccessWhenNameIsAvailable() {
     var hotel = mkHotel("Spectrum Hotel");
     when(repository.findByName(hotel.name())).thenReturn(java.util.Optional.empty());
 
     var result = service.save(hotel);
 
-    assertSame(hotel, result);
+    assertEquals(new HotelMutationResult.Success(hotel), result);
     verify(repository).add(hotel);
   }
 
   @Test
-  void saveThrowsAndDoesNotAddHotelWhenNameAlreadyExists() {
+  void saveReturnsNameConflictAndDoesNotAddHotelWhenNameAlreadyExists() {
     var hotel = mkHotel("Spectrum Hotel");
     when(repository.findByName(hotel.name())).thenReturn(java.util.Optional.of(hotel));
 
-    assertThrows(HotelAlreadyExistsException.class, () -> service.save(hotel));
+    assertEquals(new HotelMutationResult.NameConflict(), service.save(hotel));
 
     verify(repository, never()).add(hotel);
   }

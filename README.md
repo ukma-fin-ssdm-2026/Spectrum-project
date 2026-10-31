@@ -67,6 +67,11 @@ Roles are described in the [Team charter](TeamCharter.md); the task process is d
 - [Static analysis](docs/code-quality/static-analysis.md)
 - [Code review report](docs/code-quality/review-report.md)
 
+### Refactoring:
+
+- [SonarCloud report](docs/refactoring/sonarcloud-report.md)
+
+
 ### How to run locally:
 
 #### Prerequisites:
@@ -152,6 +157,17 @@ with [Find Security Bugs](https://find-sec-bugs.github.io/).
 
 Pre-commit runs Spotless, SpotBugs, and Gitleaks before each commit. Install Python 3,
 then install the `pre-commit` package and Git hook once after cloning the repository.
+
+The Maven hooks need `DB_PASSWORD` for database-backed code generation. To provide it
+without setting a system or user environment variable, create a repository-root `.env`
+file (it is ignored by Git) containing:
+
+```dotenv
+DB_PASSWORD=spectrum
+```
+
+Start the local PostgreSQL service before committing. The Maven hook wrapper reads
+`DB_PASSWORD` from `.env`; an already-set process environment variable takes precedence.
 
 **Linux / macOS**
 

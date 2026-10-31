@@ -5,7 +5,7 @@ import edu.ukma.ssdm.teamspectrum.api.common.error.ValidationError;
 import edu.ukma.ssdm.teamspectrum.api.common.page.PageResponse;
 import edu.ukma.ssdm.teamspectrum.api.common.page.PaginationParams;
 import edu.ukma.ssdm.teamspectrum.logic.auth.Role;
-import edu.ukma.ssdm.teamspectrum.logic.hotel.HotelRecord;
+import edu.ukma.ssdm.teamspectrum.logic.hotel.HotelMutationResult;
 import edu.ukma.ssdm.teamspectrum.logic.hotel.HotelSearchPage;
 import edu.ukma.ssdm.teamspectrum.logic.hotel.HotelService;
 import jakarta.annotation.security.RolesAllowed;
@@ -65,9 +65,16 @@ public class HotelController {
   @APIResponse(responseCode = "409", description = "A hotel with this name already exists")
   @RolesAllowed({Role.Values.WORKER, Role.Values.ADMIN})
   public Response create(@Valid @NotNull CreateHotel request) {
-    HotelRecord saved = hotelService.save(hotelFactory.create(request));
-    Hotel created = hotelFactory.create(saved);
-    return Response.status(Response.Status.CREATED).entity(created).build();
+    var hotel = hotelFactory.create(request);
+    var result = hotelService.save(hotel);
+    return switch (result) {
+      case HotelMutationResult.Success success -> {
+        var response = hotelFactory.create(success.hotel());
+        yield Response.status(Response.Status.CREATED).entity(response).build();
+      }
+      case HotelMutationResult.NameConflict ignored ->
+          Response.status(Response.Status.CONFLICT).build();
+    };
   }
 
   @GET
