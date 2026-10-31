@@ -10,14 +10,14 @@ Currently, there are ___2,219___ lines of code in [src](../../spectrum-app/src)
 
 See [screenshot from analysis panel](measures_before_7585214a.png)
 
-| Measure                | Value |
-|------------------------|-------|
-| Code Smells            | 0     |
-| Maintainability Rating | A     |
-| Technical Debt         | 0 h   |
-| Duplicated Lines       | 0%    |
-| Reliability Rating     | A     |
-| Security Rating        | C     |
+| Measure                       | Value |
+|-------------------------------|-------|
+| ___*Code Smells___            | 0     |
+| ___*Maintainability Rating___ | A     |
+| Technical Debt                | 0 h   |
+| Duplicated Lines              | 0%    |
+| ___*Reliability Rating___     | A     |
+| ___*Security Rating___        | C     |
 
 ### Refactoring:
 
@@ -97,11 +97,15 @@ chosen:
   Same issue was reported for [ci.yml](../../.github/workflows/ci.yml)
   and [sonar.yml](../../.github/workflows/sonar.yml). It isn't shown at remote analysis
   panel, due to configuration causing it to only run
-  for [spectrum-app](../../spectrum-app). These additional issues were found with IntelliJ IDEA
-  plugin "SonarQube for IDE" while connected to cloud project(ukma-fin-ssdm-2026_Spectrum-project. \
-  ___Fix:___ password is now passed from env. For workflows `DEV_DB_PASSWORD` secret was created.
+  for [spectrum-app](../../spectrum-app). These additional issues were found with IntelliJ
+  IDEA
+  plugin "SonarQube for IDE" while connected to cloud project(
+  ukma-fin-ssdm-2026_Spectrum-project. \
+  ___Fix:___ password is now passed from env. For workflows `DEV_DB_PASSWORD` secret was
+  created.
 
-  - Issue in [ci.yml](../../.github/workflows/ci.yml) that allows to inject bash script through branch name:
+    - Issue in [ci.yml](../../.github/workflows/ci.yml) that allows to inject bash script
+      through branch name:
   ```
   SonarQube: The expression github.event.pull_request.head.ref can be set by an external actor to a specially crafted value, enabling script injection. Change this workflow to not use user-controlled data directly in a run block, for example by assigning this expression to an environment variable
   ```
@@ -115,14 +119,30 @@ linter `spotbugs`, therefore no errors/warnings pass to main branch, except for 
 which are explicitly supressed with justification(
 e.g. [HotelServiceImpl at line 15](../../spectrum-app/src/main/java/edu/ukma/ssdm/teamspectrum/logic/hotel/HotelServiceImpl.java)).
 
-
 ### Regression testing:
+
 All tests passed successfully.
+
 ```terminaloutput
 [INFO] Results:
 [INFO] 
 [INFO] Tests run: 174, Failures: 0, Errors: 0, Skipped: 0
 ```
+
+### After:
+
+#### Report for `9d88f0d`
+
+See [screenshot from analysis panel](measures_after_9d88f0d.png)
+
+| Measure                       | Value |
+|-------------------------------|-------|
+| ___*Code Smells___            | 0     |
+| ___*Maintainability Rating___ | A     |
+| Technical Debt                | 0 h   |
+| Duplicated Lines              | 0%    |
+| ___*Reliability Rating___     | A     |
+| ___*Security Rating___        | A     |
 
 #### AI usage:
 
