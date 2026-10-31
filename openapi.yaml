@@ -886,7 +886,7 @@ paths:
                 $ref: "#/components/schemas/ValidationError"
 info:
   title: spectrum-app API
-  version: 1.0.0-SNAPSHOT
+  version: 0.1.1
 servers:
 - url: http://localhost:8080
   description: Auto generated value
