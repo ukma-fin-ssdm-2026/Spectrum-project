@@ -1,10 +1,5 @@
 ---
 openapi: 3.1.0
-tags:
-- name: Authentication
-  description: Account registration and login
-- name: Hotels
-  description: Hotel management
 components:
   schemas:
     Address:
@@ -64,6 +59,51 @@ components:
           maxLength: 40
         address:
           $ref: "#/components/schemas/Address"
+    CreateRoom:
+      description: Room details required to create a room
+      type: object
+      required:
+      - roomNumber
+      - roomType
+      - pricePerNight
+      - roomStatus
+      properties:
+        roomNumber:
+          type: string
+          examples:
+          - "204"
+          pattern: \S
+          minLength: 3
+          maxLength: 40
+        roomType:
+          type: string
+          examples:
+          - DOUBLE
+          enum:
+          - SINGLE
+          - DOUBLE
+          - SUITE
+          $ref: "#/components/schemas/RoomType"
+        pricePerNight:
+          $ref: "#/components/schemas/Money"
+        roomStatus:
+          type: string
+          examples:
+          - ACTIVE
+          enum:
+          - ACTIVE
+          - INACTIVE
+          $ref: "#/components/schemas/RoomStatus"
+        amenities:
+          type: array
+          uniqueItems: true
+          items:
+            type: string
+            minLength: 2
+            maxLength: 40
+          examples:
+          - Wi-Fi
+          maxItems: 20
     FieldError:
       type: object
       properties:
@@ -75,6 +115,48 @@ components:
           type: string
           examples:
           - size must be between 3 and 40
+    GetRoomsParams:
+      description: Optional filters for listing a hotel's rooms
+      type: object
+      properties:
+        roomType:
+          $ref: "#/components/schemas/RoomType"
+        roomStatus:
+          $ref: "#/components/schemas/RoomStatus"
+        checkIn:
+          type: string
+          examples:
+          - 2027-06-15
+          $ref: "#/components/schemas/LocalDate"
+        checkOut:
+          type: string
+          examples:
+          - 2027-06-20
+          $ref: "#/components/schemas/LocalDate"
+        minPrice:
+          type: number
+          examples:
+          - 100.00
+          minimum: 0.0
+        maxPrice:
+          type: number
+          examples:
+          - 300.00
+          minimum: 0.0
+        amenities:
+          type: array
+          uniqueItems: true
+          items:
+            type: string
+            minLength: 2
+            maxLength: 40
+          examples:
+          - Wi-Fi
+          maxItems: 20
+        sortBy:
+          $ref: "#/components/schemas/RoomSortBy"
+        sortOrder:
+          $ref: "#/components/schemas/SortOrder"
     Hotel:
       type: object
       properties:
@@ -130,6 +212,11 @@ components:
         limit:
           type: integer
           format: int32
+    LocalDate:
+      type: string
+      format: date
+      examples:
+      - 2022-03-10
     LoginRequest:
       type: object
       required:
@@ -146,6 +233,27 @@ components:
           examples:
           - qwerty1234567
           pattern: \S
+    Money:
+      type: object
+      description: A monetary amount and its ISO 4217 currency
+      required:
+      - amount
+      - currency
+      properties:
+        amount:
+          type: number
+          examples:
+          - 145.00
+          maximum: 1000000000
+          exclusiveMinimum: 0
+        currency:
+          type: string
+          description: A supported ISO 4217 currency code
+          examples:
+          - USD
+          pattern: \S
+          minLength: 3
+          maxLength: 3
     RegisterRequest:
       type: object
       required:
@@ -165,10 +273,139 @@ components:
           pattern: \S
           minLength: 12
           maxLength: 72
+    Room:
+      description: A room belonging to a hotel
+      type: object
+      properties:
+        roomId:
+          type: string
+          examples:
+          - 321e7564-e89b-12d3-a456-426614174000
+          $ref: "#/components/schemas/UUID"
+        hotelId:
+          type: string
+          examples:
+          - 123e4567-e89b-12d3-a456-426614174000
+          $ref: "#/components/schemas/UUID"
+        roomNumber:
+          type: string
+          examples:
+          - "204"
+        roomType:
+          type: string
+          examples:
+          - DOUBLE
+          enum:
+          - SINGLE
+          - DOUBLE
+          - SUITE
+          $ref: "#/components/schemas/RoomType"
+        pricePerNight:
+          $ref: "#/components/schemas/Money"
+        roomStatus:
+          type: string
+          examples:
+          - ACTIVE
+          enum:
+          - ACTIVE
+          - INACTIVE
+          $ref: "#/components/schemas/RoomStatus"
+        amenities:
+          type: array
+          uniqueItems: true
+          items:
+            type: string
+          examples:
+          - Wi-Fi
+    RoomPageResponse:
+      description: A page of rooms
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/Room"
+        totalItems:
+          type: integer
+          format: int64
+        totalPages:
+          type: integer
+          format: int32
+        currentPage:
+          type: integer
+          format: int32
+        limit:
+          type: integer
+          format: int32
+    RoomSortBy:
+      description: Room field used to sort search results
+      type: string
+      enum:
+      - ROOM_NUMBER
+      - PRICE_PER_NIGHT
+    RoomStatus:
+      description: Room availability status
+      type: string
+      enum:
+      - ACTIVE
+      - INACTIVE
+    RoomType:
+      description: Room accommodation type
+      type: string
+      enum:
+      - SINGLE
+      - DOUBLE
+      - SUITE
+    SortOrder:
+      type: string
+      enum:
+      - Asc
+      - Desc
     UUID:
       type: string
       format: uuid
       pattern: "[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}"
+    UpdateRoom:
+      description: Optional room fields to update
+      type: object
+      properties:
+        roomNumber:
+          type: string
+          examples:
+          - "204"
+          pattern: (?s).*\S.*
+          minLength: 3
+          maxLength: 40
+        roomType:
+          type: string
+          examples:
+          - DOUBLE
+          enum:
+          - SINGLE
+          - DOUBLE
+          - SUITE
+          $ref: "#/components/schemas/RoomType"
+        pricePerNight:
+          $ref: "#/components/schemas/Money"
+        roomStatus:
+          type: string
+          examples:
+          - ACTIVE
+          enum:
+          - ACTIVE
+          - INACTIVE
+          $ref: "#/components/schemas/RoomStatus"
+        amenities:
+          type: array
+          uniqueItems: true
+          items:
+            type: string
+            pattern: \S
+            minLength: 2
+            maxLength: 40
+          examples:
+          - Wi-Fi
+          maxItems: 20
     ValidationError:
       type: object
       properties:
@@ -182,6 +419,13 @@ components:
       scheme: bearer
       bearerFormat: JWT
       description: Authentication
+tags:
+- name: Authentication
+  description: Account registration and login
+- name: Hotels
+  description: Hotel management
+- name: Rooms
+  description: Hotel room management
 paths:
   /v1/api/hotels:
     get:
@@ -351,6 +595,237 @@ paths:
                 $ref: "#/components/schemas/Hotel"
         "404":
           description: Hotel not found
+        "400":
+          description: Validation failed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationError"
+  /v1/api/hotels/{hotelId}/rooms:
+    get:
+      summary: Fetch rooms
+      description: Returns a paginated list of rooms for the hotel
+      tags:
+      - Rooms
+      parameters:
+      - name: hotelId
+        in: path
+        required: true
+        schema:
+          $ref: "#/components/schemas/UUID"
+      - example: Wi-Fi
+        name: amenity
+        in: query
+        schema:
+          type: object
+          examples:
+          - Wi-Fi
+      - example: 2027-06-15
+        name: checkIn
+        in: query
+        schema:
+          format: date
+          type: string
+          examples:
+          - 2027-06-15
+      - example: 2027-06-20
+        name: checkOut
+        in: query
+        schema:
+          format: date
+          type: string
+          examples:
+          - 2027-06-20
+      - name: limit
+        in: query
+        schema:
+          type: integer
+          format: int32
+          maximum: 100
+          minimum: 1
+          default: 10
+      - example: 300.00
+        name: maxPrice
+        in: query
+        schema:
+          type: number
+          examples:
+          - 300.00
+          minimum: 0.0
+      - example: 100.00
+        name: minPrice
+        in: query
+        schema:
+          type: number
+          examples:
+          - 100.00
+          minimum: 0.0
+      - name: page
+        in: query
+        schema:
+          type: integer
+          format: int32
+          minimum: 0
+          default: 0
+      - example: ACTIVE
+        in: query
+        name: roomStatus
+        schema:
+          enum:
+          - ACTIVE
+          - INACTIVE
+          $ref: "#/components/schemas/RoomStatus"
+      - example: DOUBLE
+        in: query
+        name: roomType
+        schema:
+          enum:
+          - SINGLE
+          - DOUBLE
+          - SUITE
+          $ref: "#/components/schemas/RoomType"
+      - example: ROOM_NUMBER
+        in: query
+        name: sortBy
+        schema:
+          enum:
+          - ROOM_NUMBER
+          - PRICE_PER_NIGHT
+          $ref: "#/components/schemas/RoomSortBy"
+      - example: ASC
+        in: query
+        name: sortOrder
+        schema:
+          enum:
+          - ASC
+          - DESC
+          $ref: "#/components/schemas/SortOrder"
+      responses:
+        "200":
+          description: Successful retrieval
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RoomPageResponse"
+        "400":
+          description: Validation failed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationError"
+    post:
+      summary: Create a room
+      description: Creates a room for the specified hotel
+      tags:
+      - Rooms
+      parameters:
+      - name: hotelId
+        in: path
+        required: true
+        schema:
+          $ref: "#/components/schemas/UUID"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateRoom"
+        required: true
+      responses:
+        "201":
+          description: Room created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Room"
+        "400":
+          description: Validation failed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationError"
+        "404":
+          description: Hotel not found
+        "409":
+          description: Room with such number already exists
+        "401":
+          description: Login required
+        "403":
+          description: Insufficient permissions
+      security:
+      - SecurityScheme:
+        - WORKER
+  /v1/api/hotels/{hotelId}/rooms/{roomId}:
+    put:
+      summary: Update a room
+      description: Updates the supplied fields of a room
+      tags:
+      - Rooms
+      parameters:
+      - name: hotelId
+        in: path
+        required: true
+        schema:
+          $ref: "#/components/schemas/UUID"
+      - name: roomId
+        in: path
+        required: true
+        schema:
+          $ref: "#/components/schemas/UUID"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateRoom"
+        required: true
+      responses:
+        "200":
+          description: Room updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Room"
+        "400":
+          description: Validation failed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationError"
+        "404":
+          description: Room or hotel not found
+        "409":
+          description: Room with such number already exists
+        "401":
+          description: Login required
+        "403":
+          description: Insufficient permissions
+      security:
+      - SecurityScheme:
+        - WORKER
+    get:
+      summary: Fetch a room by ID
+      description: Returns one room by its unique identifier
+      tags:
+      - Rooms
+      parameters:
+      - name: hotelId
+        in: path
+        required: true
+        schema:
+          $ref: "#/components/schemas/UUID"
+      - name: roomId
+        in: path
+        required: true
+        schema:
+          $ref: "#/components/schemas/UUID"
+      responses:
+        "200":
+          description: Successful retrieval
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Room"
+        "404":
+          description: Room or hotel not found
         "400":
           description: Validation failed
           content:
