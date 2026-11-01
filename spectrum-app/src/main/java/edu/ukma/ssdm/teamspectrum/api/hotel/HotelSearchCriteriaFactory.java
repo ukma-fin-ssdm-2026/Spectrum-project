@@ -12,11 +12,21 @@ import java.util.Set;
 public class HotelSearchCriteriaFactory {
 
   public SortOrder mkSortOrder(edu.ukma.ssdm.teamspectrum.api.common.SortOrder sortOrder) {
-    return sortOrder == null ? SortOrder.Desc : SortOrder.valueOf(sortOrder.name());
+    return sortOrder == null
+        ? SortOrder.DESC
+        : sortOrder == edu.ukma.ssdm.teamspectrum.api.common.SortOrder.Asc
+            ? SortOrder.ASC
+            : SortOrder.DESC;
   }
 
   public HotelSortBy mkSortBy(edu.ukma.ssdm.teamspectrum.api.hotel.HotelSortBy sortBy) {
-    return sortBy == null ? HotelSortBy.Rating : HotelSortBy.valueOf(sortBy.name());
+    if (sortBy == null) {
+      return HotelSortBy.RATING;
+    }
+    return switch (sortBy) {
+      case Rating -> HotelSortBy.RATING;
+      case PricePerNight -> HotelSortBy.PRICE_PER_NIGHT;
+    };
   }
 
   public HotelSearchCriteria create(GetHotelsParams params, PaginationParams pagination) {

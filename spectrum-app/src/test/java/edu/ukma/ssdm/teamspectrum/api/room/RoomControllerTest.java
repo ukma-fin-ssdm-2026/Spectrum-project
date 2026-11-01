@@ -280,8 +280,8 @@ class RoomControllerTest {
             null,
             null,
             Set.of(),
-            RoomSortBy.PricePerNight,
-            edu.ukma.ssdm.teamspectrum.logic.common.SortOrder.Asc,
+            RoomSortBy.PRICE_PER_NIGHT,
+            edu.ukma.ssdm.teamspectrum.logic.common.SortOrder.ASC,
             pagination.page(),
             pagination.limit());
     when(searchCriteriaFactory.create(getRoomsParams, pagination)).thenReturn(searchCriteria);

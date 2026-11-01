@@ -164,8 +164,8 @@ public class HotelRepositoryImpl implements HotelRepository {
 
   private static Field&lt;?&gt; sortField(HotelSortBy sortBy) {
 <span class="fc bfc" id="L166" title="All 3 branches covered.">    return switch (sortBy) {</span>
-<span class="fc" id="L167">      case Rating -&gt; HOTELS.RATING;</span>
-<span class="fc" id="L168">      case PricePerNight -&gt; HOTELS.PRICE_PER_NIGHT;</span>
+<span class="fc" id="L167">      case RATING -&gt; HOTELS.RATING;</span>
+<span class="fc" id="L168">      case PRICE_PER_NIGHT -&gt; HOTELS.PRICE_PER_NIGHT;</span>
 <span class="fc" id="L169">      case null -&gt; HOTELS.RATING;</span>
     };
   }
@@ -173,8 +173,8 @@ public class HotelRepositoryImpl implements HotelRepository {
   private static SortField&lt;?&gt; sortField(HotelSearchCriteria criteria) {
 <span class="fc" id="L174">    Field&lt;?&gt; field = sortField(criteria.sortBy());</span>
 <span class="fc bfc" id="L175" title="All 3 branches covered.">    return switch (criteria.order()) {</span>
-<span class="fc" id="L176">      case Desc -&gt; field.desc();</span>
-<span class="fc" id="L177">      case Asc -&gt; field.asc();</span>
+<span class="fc" id="L176">      case DESC -&gt; field.desc();</span>
+<span class="fc" id="L177">      case ASC -&gt; field.asc();</span>
 <span class="fc" id="L178">      case null -&gt; field.desc();</span>
     };
   }

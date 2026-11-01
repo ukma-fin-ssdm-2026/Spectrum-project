@@ -55,6 +55,22 @@ You can then execute your native executable with: `./target/spectrum-app-1.0.0-S
 
 If you want to learn more about building native executables, please consult <https://quarkus.io/guides/maven-tooling>.
 
+## Regenerating jOOQ sources
+
+The generated jOOQ classes are checked into `src/generated/java`, so normal builds do not need a
+database connection during compilation. When database migrations change, update the generated
+classes against the local development database with:
+
+```shell script
+./mvnw -Pgenerate-jooq generate-sources
+```
+
+On Windows, use `mvnw.cmd -Pgenerate-jooq generate-sources`. This profile runs the Flyway migration
+and jOOQ code generation against the database configured by `jooq.codegen.*` in `pom.xml` (by
+default, the local `spectrum` database on port `5433`). Review and commit the resulting changes in
+`src/generated/java` along with the migration changes. Do not point this code-generation profile at
+the production database.
+
 ## Provided Code
 
 ### REST

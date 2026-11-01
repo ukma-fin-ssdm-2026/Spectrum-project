@@ -206,8 +206,8 @@ class RoomRepositoryTest {
             PRICE_100,
             PRICE_200,
             WIFI_AND_POOL_AMENITIES,
-            RoomSortBy.RoomNumber,
-            SortOrder.Asc,
+            RoomSortBy.ROOM_NUMBER,
+            SortOrder.ASC,
             FIRST_PAGE,
             FIRST_ROOM_PER_PAGE);
 
@@ -246,20 +246,20 @@ class RoomRepositoryTest {
   private static Stream<Arguments> sortingCases() {
     return Stream.of(
         Arguments.of(
-            RoomSortBy.RoomNumber,
-            SortOrder.Asc,
+            RoomSortBy.ROOM_NUMBER,
+            SortOrder.ASC,
             List.of(ROOM_NUMBER_101, ROOM_NUMBER_201, ROOM_NUMBER_301)),
         Arguments.of(
-            RoomSortBy.RoomNumber,
-            SortOrder.Desc,
+            RoomSortBy.ROOM_NUMBER,
+            SortOrder.DESC,
             List.of(ROOM_NUMBER_301, ROOM_NUMBER_201, ROOM_NUMBER_101)),
         Arguments.of(
-            RoomSortBy.PricePerNight,
-            SortOrder.Asc,
+            RoomSortBy.PRICE_PER_NIGHT,
+            SortOrder.ASC,
             List.of(ROOM_NUMBER_101, ROOM_NUMBER_301, ROOM_NUMBER_201)),
         Arguments.of(
-            RoomSortBy.PricePerNight,
-            SortOrder.Desc,
+            RoomSortBy.PRICE_PER_NIGHT,
+            SortOrder.DESC,
             List.of(ROOM_NUMBER_201, ROOM_NUMBER_301, ROOM_NUMBER_101)));
   }
 

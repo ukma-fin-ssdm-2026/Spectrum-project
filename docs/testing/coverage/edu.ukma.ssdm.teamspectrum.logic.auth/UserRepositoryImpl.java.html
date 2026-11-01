@@ -31,24 +31,33 @@ public class UserRepositoryImpl implements UserRepository {
   }
 
   @Override
+  public boolean existsByRole(Role role) {
+<span class="nc" id="L35">    return dsl.selectOne()</span>
+<span class="nc" id="L36">        .from(USERS)</span>
+<span class="nc" id="L37">        .where(USERS.ROLE.eq(UserRole.valueOf(role.name())))</span>
+<span class="nc" id="L38">        .fetchOptional()</span>
+<span class="nc" id="L39">        .isPresent();</span>
+  }
+
+  @Override
   public boolean add(User user) {
-<span class="fc" id="L35">    return dsl.insertInto(USERS)</span>
-<span class="fc" id="L36">            .set(USERS.ID, user.id())</span>
-<span class="fc" id="L37">            .set(USERS.EMAIL, user.email())</span>
-<span class="fc" id="L38">            .set(USERS.PASSWORD_HASH, user.passwordHash())</span>
-<span class="fc" id="L39">            .set(USERS.ROLE, UserRole.valueOf(user.role().name()))</span>
-<span class="fc" id="L40">            .onConflict(USERS.EMAIL)</span>
-<span class="fc" id="L41">            .doNothing()</span>
-<span class="fc bfc" id="L42" title="All 2 branches covered.">            .execute()</span>
+<span class="fc" id="L44">    return dsl.insertInto(USERS)</span>
+<span class="fc" id="L45">            .set(USERS.ID, user.id())</span>
+<span class="fc" id="L46">            .set(USERS.EMAIL, user.email())</span>
+<span class="fc" id="L47">            .set(USERS.PASSWORD_HASH, user.passwordHash())</span>
+<span class="fc" id="L48">            .set(USERS.ROLE, UserRole.valueOf(user.role().name()))</span>
+<span class="fc" id="L49">            .onConflict(USERS.EMAIL)</span>
+<span class="fc" id="L50">            .doNothing()</span>
+<span class="fc bfc" id="L51" title="All 2 branches covered.">            .execute()</span>
         == 1;
   }
 
   private static User toUser(UsersRecord record) {
-<span class="fc" id="L47">    return new User(</span>
-<span class="fc" id="L48">        record.getId(),</span>
-<span class="fc" id="L49">        record.getEmail(),</span>
-<span class="fc" id="L50">        record.getPasswordHash(),</span>
-<span class="fc" id="L51">        Role.valueOf(record.getRole().getLiteral()));</span>
+<span class="fc" id="L56">    return new User(</span>
+<span class="fc" id="L57">        record.getId(),</span>
+<span class="fc" id="L58">        record.getEmail(),</span>
+<span class="fc" id="L59">        record.getPasswordHash(),</span>
+<span class="fc" id="L60">        Role.valueOf(record.getRole().getLiteral()));</span>
   }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

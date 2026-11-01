@@ -9,7 +9,13 @@ import java.util.Map;
 public class RepositoryTestProfile implements QuarkusTestProfile {
   @Override
   public Map<String, String> getConfigOverrides() {
-    return Map.of("JWT_SECRET", "test-secret-for-user-repository");
+    return Map.of(
+        "JWT_SECRET",
+        "test-secret-for-user-repository",
+        "bootstrap.admin.email",
+        "test@example.com",
+        "bootstrap.admin.password",
+        "test-secret-for-user-repository");
   }
 
   @Override
