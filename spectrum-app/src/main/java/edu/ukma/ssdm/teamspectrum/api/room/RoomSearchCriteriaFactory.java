@@ -33,14 +33,18 @@ public class RoomSearchCriteriaFactory {
   }
 
   public edu.ukma.ssdm.teamspectrum.logic.room.RoomSortBy mkSortBy(RoomSortBy sortBy) {
-    return sortBy == null
-        ? edu.ukma.ssdm.teamspectrum.logic.room.RoomSortBy.PricePerNight
-        : edu.ukma.ssdm.teamspectrum.logic.room.RoomSortBy.valueOf(sortBy.name());
+    return switch (sortBy) {
+      case null -> edu.ukma.ssdm.teamspectrum.logic.room.RoomSortBy.PRICE_PER_NIGHT;
+      case RoomNumber -> edu.ukma.ssdm.teamspectrum.logic.room.RoomSortBy.ROOM_NUMBER;
+      case PricePerNight -> edu.ukma.ssdm.teamspectrum.logic.room.RoomSortBy.PRICE_PER_NIGHT;
+    };
   }
 
   public edu.ukma.ssdm.teamspectrum.logic.common.SortOrder mkSortOrder(SortOrder sortOrder) {
     return sortOrder == null
-        ? edu.ukma.ssdm.teamspectrum.logic.common.SortOrder.Asc
-        : edu.ukma.ssdm.teamspectrum.logic.common.SortOrder.valueOf(sortOrder.name());
+        ? edu.ukma.ssdm.teamspectrum.logic.common.SortOrder.ASC
+        : sortOrder == SortOrder.Asc
+            ? edu.ukma.ssdm.teamspectrum.logic.common.SortOrder.ASC
+            : edu.ukma.ssdm.teamspectrum.logic.common.SortOrder.DESC;
   }
 }

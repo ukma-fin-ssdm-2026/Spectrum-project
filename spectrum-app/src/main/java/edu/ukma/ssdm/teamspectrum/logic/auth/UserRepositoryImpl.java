@@ -46,6 +46,18 @@ public class UserRepositoryImpl implements UserRepository {
   @Retry
   @ExponentialBackoff
   @RetryWhen(exception = DatabaseTimeoutPredicate.class)
+  public boolean existsByRole(Role role) {
+    return dsl.selectOne()
+        .from(USERS)
+        .where(USERS.ROLE.eq(UserRole.valueOf(role.name())))
+        .fetchOptional()
+        .isPresent();
+  }
+
+  @Override
+  @Retry
+  @ExponentialBackoff
+  @RetryWhen(exception = DatabaseTimeoutPredicate.class)
   public boolean add(User user) {
     return dsl.insertInto(USERS)
             .set(USERS.ID, user.id())
