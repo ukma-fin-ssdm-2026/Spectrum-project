@@ -18,6 +18,7 @@ Go back to the [Main README](../../README.md).
 | **Deactivation**     | The act of making room non-eligible for booking, after room deactivation                 |
 | **Permission Grant** | A scoped set of rights given to a Worker for a specific Hotel                            |
 | **Room Scope**       | The subset of rooms within a hotel a Worker is allowed to act on                         |
+| **Rating**           | An evaluation left by guest after end of his booking                                     |
 
  
 ---
@@ -29,6 +30,7 @@ Go back to the [Main README](../../README.md).
 | **Identity & Access Context** | Users, roles, authentication, permission grants     | `User`, `PermissionGrant`                           |
 | **Hotel Management Context**  | Hotels and their rooms                              | `Hotel` (aggregate root containing `Room` entities) |
 | **Booking Context**           | Booking lifecycle: creation, approval, cancellation | `Booking`                                           |
+| **Rating Context**            | Reviews left by guest, rating aggregation for hotel | `Review`                                            |
 
  
 ---
@@ -104,19 +106,35 @@ Go back to the [Main README](../../README.md).
           transition.
         - `Booking` can only reference `User` with `Role` = `CLIENT`
 
+### 3.4 Rating Context
+
+**Aggregate Root: `Review`**
+
+- Entity: `Review` — **public data** (hotel evaluation by guest)
+    - `ReviewId`(identity)
+    - `BookingId`
+    - `ClientId` (reference to `User`)
+    - `DateRange` (value object: `CheckIn`, `CheckOut`, with validation
+      `CheckOut > CheckIn`)
+    - `CreatedAt`
+    - *Invariants:*
+        - Can only reference `APPROVED` `Booking`.
+        - `CreatedAt` > `CheckOut`
+        - Can only reference `User` with `Role` = `CLIENT`
+
 ---
 
 ## 4. Personal and sensitive data
 
 Marked fields are the starting point of the [Threat model](threat-model.md).
 
-| Data                                        | Classification | Why                                                    |
-|---------------------------------------------|----------------|--------------------------------------------------------|
-| `User.Name`, `User.Email`                   | Personal       | Identify a person                                      |
-| `User.PasswordHash`                         | Sensitive      | Credential; stored only as a salted hash (SEC-002)     |
-| `PermissionGrant` (all fields)              | Sensitive      | Controls what a worker may do (SEC-003)                |
-| `Booking` (`ClientId`, `RoomId`, `DateRange`) | Personal     | Shows who stays where and when (SEC-001)               |
-| `Hotel`, `Room`                             | Public         | Shown to every visitor in search results               |
+| Data                                          | Classification | Why                                                |
+|-----------------------------------------------|----------------|----------------------------------------------------|
+| `User.Name`, `User.Email`                     | Personal       | Identify a person                                  |
+| `User.PasswordHash`                           | Sensitive      | Credential; stored only as a salted hash (SEC-002) |
+| `PermissionGrant` (all fields)                | Sensitive      | Controls what a worker may do (SEC-003)            |
+| `Booking` (`ClientId`, `RoomId`, `DateRange`) | Personal       | Shows who stays where and when (SEC-001)           |
+| `Hotel`, `Room`, `Review`                     | Public         | Shown to every visitor in search results           |
 
 ---
 
@@ -130,15 +148,15 @@ See [Data model diagram](uml/data_model.puml)
 
 Key features are taken from the project description.
 
-| # | Key feature                                   | Model elements                                   | Covered                                                  |
-|---|-----------------------------------------------|--------------------------------------------------|----------------------------------------------------------|
-| 1 | Hotel and room search with filters            | `Hotel`, `Room`, `Booking.DateRange`             | Partly: rating and amenities are not modelled yet        |
-| 2 | Room details with availability for dates      | `Room`, `Booking`                                | Yes                                                      |
-| 3 | Room booking and cancellation                 | `Booking`, `User`                                | Yes                                                      |
-| 4 | Room inventory management by hotel workers    | `Hotel`, `Room`, `PermissionGrant`               | Yes                                                      |
-| 5 | Booking and cancellation notifications        | `Booking`, `User.Email`                          | Yes: notifications are derived, not stored               |
-| 6 | Hotel ratings after a stay                    | —                                                | No: a rating entity is not modelled yet                  |
-| 7 | Worker permission management by administrator | `User.Role`, `PermissionGrant`                   | Yes                                                      |
+| # | Key feature                                   | Model elements                       | Covered                                                                                                                                             |
+|---|-----------------------------------------------|--------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------|
+| 1 | Hotel and room search with filters            | `Hotel`, `Room`, `Booking.DateRange` | Partly: location, price, and room amenities are represented and searchable; dates are accepted but not applied because bookings are not implemented |
+| 2 | Room details with availability for dates      | `Room`, `Booking`                    | Partly: room details are available; date-based availability needs the unimplemented booking data                                                    |
+| 3 | Room booking and cancellation                 | `Booking`, `User`                    | Planned: no booking storage or API is implemented yet                                                                                               |
+| 4 | Room inventory management by hotel workers    | `Hotel`, `Room`, `PermissionGrant`   | Partly: hotel/room creation, viewing, and room updates exist; deletion and scoped permission grants are not implemented                             |
+| 5 | Booking and cancellation notifications        | `Booking`, `User.Email`              | Planned: booking and notification flows are not implemented                                                                                         |
+| 6 | Hotel ratings after a stay                    | `Review`, `Hotel`                    | Planned: depends on `Booking`, `Rating` for hotel will be aggregated from `Review`                                                                  |
+| 7 | Worker permission management by administrator | `User.Role`, `PermissionGrant`       | Partly: roles exist, but administrator-managed permission grants are not implemented                                                                |
 
 ---
 

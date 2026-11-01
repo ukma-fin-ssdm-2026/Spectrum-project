@@ -1,22 +1,22 @@
 # Spectrum-project
 
 [![CI](https://github.com/ukma-fin-ssdm-2026/Spectrum-project/actions/workflows/ci.yml/badge.svg)](https://github.com/ukma-fin-ssdm-2026/Spectrum-project/actions/workflows/ci.yml)
+[![SonarQube Cloud](https://github.com/ukma-fin-ssdm-2026/Spectrum-project/actions/workflows/sonar.yml/badge.svg)](https://github.com/ukma-fin-ssdm-2026/Spectrum-project/actions/workflows/sonar.yml)
 
 ## Team
 
 **Spectrum team**
 
-| Member | GitHub | Role(s) |
-|---|---|---|
-| Данило | [@Demon4ort](https://github.com/Demon4ort) | CI Maintainer, Requirements Lead, FR Lead, Quality Lead |
+| Member   | GitHub                                                           | Role(s)                                                                         |
+|----------|------------------------------------------------------------------|---------------------------------------------------------------------------------|
+| Данило   | [@Demon4ort](https://github.com/Demon4ort)                       | CI Maintainer, Requirements Lead, FR Lead, Quality Lead                         |
 | Вероніка | [@VeronikaGovorischeva](https://github.com/VeronikaGovorischeva) | Repo Maintainer, Traceability Lead, Documentation Lead (requirements artifacts) |
-| Павло | [@FalsePromisee](https://github.com/FalsePromisee) | Issue Tracker Lead |
-| Роман | [@Roman19122006](https://github.com/Roman19122006) | Documentation Lead (README, team charter), Project Brief Lead |
+| Павло    | [@FalsePromisee](https://github.com/FalsePromisee)               | Issue Tracker Lead                                                              |
+| Роман    | [@Roman19122006](https://github.com/Roman19122006)               | Documentation Lead (README, team charter), Project Brief Lead                   |
 
 Roles are described in the [Team charter](TeamCharter.md); the task process is described in
 [Task workflow](docs/process/task-workflow.md).
 
-[Project Description](./Project-Description.md)
 
 ### Team charter document:
 
@@ -24,6 +24,7 @@ Roles are described in the [Team charter](TeamCharter.md); the task process is d
 
 ## Requirements artefacts:
 
+- [Project Description](./Project-Description.md)
 - [Requirements](docs/requirements/requirements.md)
 - [User stories](docs/requirements/user-stories.md)
 - [Requirements traceability matrix](docs/requirements/rtm.md)
@@ -89,7 +90,7 @@ The app uses PostgreSQL in Docker Compose.
 
 App expects next env variables to be provided:
 
-- DB_URL="jdbc:postgresql://localhost:5433/spectrum
+- DB_URL="jdbc:postgresql://localhost:5433/spectrum"
 - DB_USERNAME="spectrum"
 - DB_PASSWORD="spectrum"
 - JWT_SECRET="local-dev-only-secret-change-this-123456"

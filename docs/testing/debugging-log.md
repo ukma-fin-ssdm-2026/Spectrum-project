@@ -18,3 +18,7 @@ See `saveAddsAndReturnsHotelWhenNameIsAvailable` and `saveThrowsAndDoesNotAddHot
 
 This bug is quite small in a sense of changes needed to fix it. It could have been avoided if project had mandatory coverage level requirement in pre-commit as well as corresponding workflow at GitHub. 
 Now with two test cases in [HotelServiceImplTest](../../spectrum-app/src/test/java/edu/ukma/ssdm/teamspectrum/logic/hotel/HotelServiceImplTest.java) it will be flagged even when someone from our team breaks business logic when implementing other features.
+
+#### AI usage
+
+No LLM was used.
