@@ -2,6 +2,6 @@
 package edu.ukma.ssdm.teamspectrum.logic.hotel;
 
 public enum HotelSortBy {
-  PricePerNight,
-  Rating
+  PRICE_PER_NIGHT,
+  RATING
 }

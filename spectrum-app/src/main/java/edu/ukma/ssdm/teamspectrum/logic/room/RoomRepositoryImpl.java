@@ -312,13 +312,13 @@ public class RoomRepositoryImpl implements RoomRepository {
   private static SortField<?> sortField(RoomSearchCriteria criteria) {
     Field<?> field =
         switch (criteria.sortBy()) {
-          case RoomNumber -> ROOMS.ROOM_NUMBER;
-          case PricePerNight -> ROOMS.PRICE_PER_NIGHT;
+          case ROOM_NUMBER -> ROOMS.ROOM_NUMBER;
+          case PRICE_PER_NIGHT -> ROOMS.PRICE_PER_NIGHT;
           case null -> ROOMS.PRICE_PER_NIGHT;
         };
     return switch (criteria.order()) {
-      case Asc -> field.asc();
-      case Desc -> field.desc();
+      case ASC -> field.asc();
+      case DESC -> field.desc();
       case null -> field.asc();
     };
   }

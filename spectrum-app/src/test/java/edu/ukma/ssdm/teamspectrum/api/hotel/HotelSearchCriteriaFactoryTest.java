@@ -35,26 +35,26 @@ class HotelSearchCriteriaFactoryTest {
             null,
             2,
             20,
-            HotelSortBy.Rating,
-            SortOrder.Desc),
+            HotelSortBy.RATING,
+            SortOrder.DESC),
         criteria);
   }
 
   @Test
   void mapsGetHotelsSortOrder() {
     assertEquals(
-        SortOrder.Asc, factory.mkSortOrder(edu.ukma.ssdm.teamspectrum.api.common.SortOrder.Asc));
+        SortOrder.ASC, factory.mkSortOrder(edu.ukma.ssdm.teamspectrum.api.common.SortOrder.Asc));
     assertEquals(
-        SortOrder.Desc, factory.mkSortOrder(edu.ukma.ssdm.teamspectrum.api.common.SortOrder.Desc));
+        SortOrder.DESC, factory.mkSortOrder(edu.ukma.ssdm.teamspectrum.api.common.SortOrder.Desc));
   }
 
   @Test
   void mapsGetHotelsSortBy() {
     assertEquals(
-        HotelSortBy.Rating,
+        HotelSortBy.RATING,
         factory.mkSortBy(edu.ukma.ssdm.teamspectrum.api.hotel.HotelSortBy.Rating));
     assertEquals(
-        HotelSortBy.PricePerNight,
+        HotelSortBy.PRICE_PER_NIGHT,
         factory.mkSortBy(edu.ukma.ssdm.teamspectrum.api.hotel.HotelSortBy.PricePerNight));
   }
 
@@ -86,8 +86,8 @@ class HotelSearchCriteriaFactoryTest {
             Set.of("wifi", "parking"),
             2,
             20,
-            HotelSortBy.Rating,
-            SortOrder.Desc),
+            HotelSortBy.RATING,
+            SortOrder.DESC),
         criteria);
   }
 }

@@ -8,6 +8,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import edu.ukma.ssdm.teamspectrum.api.ControllerTestProfile;
 import edu.ukma.ssdm.teamspectrum.api.auth.AuthController;
 import edu.ukma.ssdm.teamspectrum.logic.auth.Role;
 import edu.ukma.ssdm.teamspectrum.logic.auth.TokenFactoryImpl;
@@ -18,7 +19,6 @@ import edu.ukma.ssdm.teamspectrum.logic.hotel.HotelRecord;
 import edu.ukma.ssdm.teamspectrum.logic.hotel.HotelService;
 import io.quarkus.test.InjectMock;
 import io.quarkus.test.junit.QuarkusTest;
-import io.quarkus.test.junit.QuarkusTestProfile;
 import io.quarkus.test.junit.TestProfile;
 import io.restassured.http.ContentType;
 import java.math.BigDecimal;
@@ -41,17 +41,20 @@ class HotelControllerTest {
        "address":{"city":"Kyiv","district":"Podil","street":"Skovorody","buildingNumber":34}}
       """;
 
-  public static class HotelTestProfile implements QuarkusTestProfile {
+  public static class HotelTestProfile extends ControllerTestProfile {
     @Override
     public Map<String, String> getConfigOverrides() {
-      return Map.of(
-          "DB_URL", "jdbc:postgresql://127.0.0.1:1/hotel_controller_test",
-          "DB_USERNAME", "test",
-          "DB_PASSWORD", "test",
-          "JWT_SECRET", jwtSecret,
-          "quarkus.flyway.migrate-at-start", "false",
-          "quarkus.datasource.jdbc.initial-size", "0",
-          "quarkus.datasource.jdbc.min-size", "0");
+      var overrides = new java.util.HashMap<>(super.getConfigOverrides());
+      overrides.putAll(
+          Map.of(
+              "DB_URL", "jdbc:postgresql://127.0.0.1:1/hotel_controller_test",
+              "DB_USERNAME", "test",
+              "DB_PASSWORD", "test",
+              "JWT_SECRET", jwtSecret,
+              "quarkus.flyway.migrate-at-start", "false",
+              "quarkus.datasource.jdbc.initial-size", "0",
+              "quarkus.datasource.jdbc.min-size", "0"));
+      return overrides;
     }
   }
 

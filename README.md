@@ -3,6 +3,10 @@
 [![CI](https://github.com/ukma-fin-ssdm-2026/Spectrum-project/actions/workflows/ci.yml/badge.svg)](https://github.com/ukma-fin-ssdm-2026/Spectrum-project/actions/workflows/ci.yml)
 [![SonarQube Cloud](https://github.com/ukma-fin-ssdm-2026/Spectrum-project/actions/workflows/sonar.yml/badge.svg)](https://github.com/ukma-fin-ssdm-2026/Spectrum-project/actions/workflows/sonar.yml)
 
+Service deployed at `https://spectrum-app-manual.onrender.com`
+
+See [Request examples](docs/api/curl-requests.md)
+
 ## Team
 
 **Spectrum team**

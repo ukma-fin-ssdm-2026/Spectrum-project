@@ -86,6 +86,6 @@ class RoomServiceTest {
 
   private static RoomSearchCriteria criteria(int page, int limit) {
     return new RoomSearchCriteria(
-        null, null, null, null, BigDecimal.ZERO, null, Set.of(), null, SortOrder.Asc, page, limit);
+        null, null, null, null, BigDecimal.ZERO, null, Set.of(), null, SortOrder.ASC, page, limit);
   }
 }

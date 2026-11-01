@@ -31,6 +31,15 @@ public class UserRepositoryImpl implements UserRepository {
   }
 
   @Override
+  public boolean existsByRole(Role role) {
+    return dsl.selectOne()
+        .from(USERS)
+        .where(USERS.ROLE.eq(UserRole.valueOf(role.name())))
+        .fetchOptional()
+        .isPresent();
+  }
+
+  @Override
   public boolean add(User user) {
     return dsl.insertInto(USERS)
             .set(USERS.ID, user.id())

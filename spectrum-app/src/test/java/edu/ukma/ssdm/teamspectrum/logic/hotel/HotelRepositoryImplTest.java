@@ -137,8 +137,8 @@ class HotelRepositoryImplTest {
             Set.of(),
             0,
             10,
-            HotelSortBy.PricePerNight,
-            SortOrder.Asc);
+            HotelSortBy.PRICE_PER_NIGHT,
+            SortOrder.ASC);
 
     assertEquals(List.of(second), repository.search(criteria, 1, 1));
   }
@@ -155,14 +155,14 @@ class HotelRepositoryImplTest {
 
     Comparator<HotelRecord> comparator =
         switch (sortBy) {
-          case Rating -> Comparator.comparingDouble(HotelRecord::rating);
-          case PricePerNight -> Comparator.comparing(HotelRecord::pricePerNight);
+          case RATING -> Comparator.comparingDouble(HotelRecord::rating);
+          case PRICE_PER_NIGHT -> Comparator.comparing(HotelRecord::pricePerNight);
         };
 
     comparator =
         switch (order) {
-          case Desc -> comparator.reversed();
-          case Asc -> comparator;
+          case DESC -> comparator.reversed();
+          case ASC -> comparator;
         };
 
     List<String> expected = Stream.of(low, high).sorted(comparator).map(HotelRecord::name).toList();
@@ -177,10 +177,10 @@ class HotelRepositoryImplTest {
 
   private static Stream<org.junit.jupiter.params.provider.Arguments> sortingCases() {
     return Stream.of(
-        org.junit.jupiter.params.provider.Arguments.of(HotelSortBy.PricePerNight, SortOrder.Asc),
-        org.junit.jupiter.params.provider.Arguments.of(HotelSortBy.PricePerNight, SortOrder.Desc),
-        org.junit.jupiter.params.provider.Arguments.of(HotelSortBy.Rating, SortOrder.Asc),
-        org.junit.jupiter.params.provider.Arguments.of(HotelSortBy.Rating, SortOrder.Desc));
+        org.junit.jupiter.params.provider.Arguments.of(HotelSortBy.PRICE_PER_NIGHT, SortOrder.ASC),
+        org.junit.jupiter.params.provider.Arguments.of(HotelSortBy.PRICE_PER_NIGHT, SortOrder.DESC),
+        org.junit.jupiter.params.provider.Arguments.of(HotelSortBy.RATING, SortOrder.ASC),
+        org.junit.jupiter.params.provider.Arguments.of(HotelSortBy.RATING, SortOrder.DESC));
   }
 
   @Test

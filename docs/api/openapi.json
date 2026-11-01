@@ -45,6 +45,23 @@
           }
         }
       },
+      "CompleteWorkerRegistrationRequest" : {
+        "type" : "object",
+        "required" : [ "token", "password" ],
+        "properties" : {
+          "token" : {
+            "type" : "string",
+            "pattern" : "\\S",
+            "maxLength" : 128
+          },
+          "password" : {
+            "type" : "string",
+            "pattern" : "\\S",
+            "minLength" : 12,
+            "maxLength" : 72
+          }
+        }
+      },
       "CreateHotel" : {
         "type" : "object",
         "required" : [ "name", "address" ],
@@ -98,6 +115,17 @@
             },
             "examples" : [ "Wi-Fi" ],
             "maxItems" : 20
+          }
+        }
+      },
+      "CreateWorkerInvitationRequest" : {
+        "type" : "object",
+        "required" : [ "email" ],
+        "properties" : {
+          "email" : {
+            "type" : "string",
+            "pattern" : "\\S",
+            "maxLength" : 254
           }
         }
       },
@@ -229,6 +257,11 @@
             "format" : "int32"
           }
         }
+      },
+      "Instant" : {
+        "type" : "string",
+        "format" : "date-time",
+        "examples" : [ "2022-03-10T16:15:50Z" ]
       },
       "LocalDate" : {
         "type" : "string",
@@ -436,6 +469,17 @@
             }
           }
         }
+      },
+      "WorkerInvitationResponse" : {
+        "type" : "object",
+        "properties" : {
+          "registrationUrl" : {
+            "type" : "string"
+          },
+          "expiresAt" : {
+            "$ref" : "#/components/schemas/Instant"
+          }
+        }
       }
     },
     "securitySchemes" : {
@@ -456,8 +500,61 @@
   }, {
     "name" : "Rooms",
     "description" : "Hotel room management"
+  }, {
+    "name" : "Worker invitations",
+    "description" : "Administrator-managed worker onboarding"
   } ],
   "paths" : {
+    "/v1/api/admin/worker-invitations" : {
+      "post" : {
+        "summary" : "Create a one-time worker registration link",
+        "tags" : [ "Worker invitations" ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/CreateWorkerInvitationRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "201" : {
+            "description" : "Worker invitation created",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/WorkerInvitationResponse"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "Validation failed",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ValidationError"
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "Not authenticated"
+          },
+          "403" : {
+            "description" : "Only administrators can invite workers"
+          },
+          "409" : {
+            "description" : "Email is already registered"
+          }
+        },
+        "security" : [ {
+          "SecurityScheme" : [ "ADMIN" ]
+        } ]
+      }
+    },
     "/v1/api/hotels" : {
       "get" : {
         "summary" : "Fetch all hotels",
@@ -1073,11 +1170,55 @@
           }
         }
       }
+    },
+    "/v1/auth/register/worker" : {
+      "post" : {
+        "summary" : "Complete worker registration using a one-time invitation",
+        "tags" : [ "Authentication" ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/CompleteWorkerRegistrationRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "201" : {
+            "description" : "Worker account registered",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/AuthResponse"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "Validation failed",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ValidationError"
+                }
+              }
+            }
+          },
+          "409" : {
+            "description" : "Email is already registered"
+          },
+          "410" : {
+            "description" : "Invitation is invalid, expired, or already used"
+          }
+        }
+      }
     }
   },
   "info" : {
     "title" : "spectrum-app API",
-    "version" : "1.0.0-SNAPSHOT"
+    "version" : "0.1.1"
   },
   "servers" : [ {
     "url" : "http://localhost:8080",
