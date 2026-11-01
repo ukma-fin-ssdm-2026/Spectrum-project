@@ -71,7 +71,7 @@ public class AuthController {
     }
   }
 
-  private static Response authResponse(Response.Status status, IssuedToken token) {
+  static Response authResponse(Response.Status status, IssuedToken token) {
     NewCookie cookie =
         new NewCookie.Builder(authTokenName)
             .value(token.value())
