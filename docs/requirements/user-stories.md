@@ -83,7 +83,7 @@ As a client, I want to view detailed information about a specific hotel (policie
 
 1. ***Given***: I am on a hotel's page \
    ***When***: The page loads \
-   ***Then***: I should see the hotel's check-in/check-out policies, available amenities, and description
+   ***Then***: I should see the hotel's photos, check-in/check-out policies, available amenities, and description
 2. ***Given***: I am on a hotel's page \
    ***When***: I scroll to the reviews section \
    ***Then***: I should see previous clients' ratings and text reviews

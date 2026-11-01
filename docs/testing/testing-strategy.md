@@ -4,21 +4,11 @@ Go back to the [Main README](../../README.md).
 
 ### Current state
 
-At the moment, project is only tested with unit tests. As there are neither database nor
-cache, it is hard to justify adding anything else ___currently___.
+At the moment, project is only tested with unit and integration tests (for repositories).
 
 ### Coverage summary
 
-Project has 63% test coverage. Critical places that must be tested as soon
-as possible are:
-
-- [HotelController](../../spectrum-app/src/main/java/edu/ukma/ssdm/teamspectrum/api/hotel/HotelController.java) -
-  to be able to make changes to corresponding service and check correctness with
-  regression
-- [HotelSortBy](../../spectrum-app/src/main/java/edu/ukma/ssdm/teamspectrum/api/hotel/HotelSortBy.java) -
-  to avoid introducing bugs as this realization isn't typesafe
-- [SortOrder](../../spectrum-app/src/main/java/edu/ukma/ssdm/teamspectrum/api/common/SortOrder.java) -
-  to avoid introducing bugs as this realization isn't typesafe
+Project has 89% test coverage.
 
 Rest don't need to be covered at the moment:
 
@@ -29,8 +19,6 @@ Rest don't need to be covered at the moment:
   added for correct openapi generation)
 - unused methods ( e.g. `hashCode`
   in [ValidationError](../../spectrum-app/src/main/java/edu/ukma/ssdm/teamspectrum/api/common/error/ValidationError.java) )
-- stubs which will be replaced with real implementation (
-  e.g. [UserRepositoryStub](../../spectrum-app/src/main/java/edu/ukma/ssdm/teamspectrum/logic/auth/UserRepositoryStub.java) )
 
 ### Plans
 

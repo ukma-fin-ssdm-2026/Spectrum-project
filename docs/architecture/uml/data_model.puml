@@ -47,11 +47,28 @@ package "Booking Context" {
   }
 }
 
+package "Rating Context" {
+  class Review <<aggregate root>> <<public data>> {
+    ReviewId <<identity>>
+    BookingId
+    ClientId
+    DateRange : CheckIn, CheckOut
+    CreatedAt
+  }
+}
+
 User "1" *-- "0..*" PermissionGrant : granted to worker
 PermissionGrant "0..*" --> "1" Hotel : scoped to
 Hotel "1" *-- "0..*" Room : contains
 Booking "0..*" --> "1" Room : reserves
 Booking "0..*" --> "1" User : made by client
+Review "1" --> "1" Booking : evaluates stay
+Review "0..*" --> "1" User : written by client
+
+note right of Review
+  Hotel rating is aggregated from reviews
+  through each booking's room and hotel.
+end note
 
 note bottom of User
   Invariant: no two users
@@ -77,6 +94,13 @@ note bottom of Booking
   no two APPROVED bookings of one room
   overlap; the client must have
   Role = CLIENT
+end note
+
+note bottom of Review
+  Invariants:
+  Booking must be APPROVED;
+  CreatedAt > CheckOut;
+  client must have Role = CLIENT
 end note
 
 legend right

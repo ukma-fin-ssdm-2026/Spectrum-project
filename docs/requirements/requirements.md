@@ -59,6 +59,11 @@ time runs out (see R-004).
 - FR-020 (Must): The system shall reject registration when submitted credentials are invalid or incomplete
 - FR-021 (Must): The system shall authenticate a registered user when they submit valid login credentials
 - FR-022 (Must): The system shall reject login attempts with invalid credentials
+- FR-023 (Should): The system shall allow a client to sort search results by price
+- FR-024 (Should): The system shall allow a client to sort search results by rating
+- FR-025 (Must): The system shall allow a client to view hotel page
+- FR-026 (Should): The system shall allow a hotel worker to approve/reject booking
+- FR-027 (Should): The system shall notify a client about approval/rejection of his booking
 
 ## Non-Functional Requirements(NFR)
 
@@ -93,6 +98,19 @@ verified.
   scope, access level). 100% of room- and booking-management endpoints return `403` to a
   worker without the required permission. \
   *Verification:* automated authorization tests for every protected endpoint.
+
+### Maintainability
+
+- MAINT-001: Every pull request shall pass the project's automated tests and configured
+  static analysis, with no new critical or high-severity findings. \
+  *Verification:* corresponding workflows successful runs must be required for pull-request to main branch
+
+### Usability
+
+- USB-001: At least 4 out of 5 first-time users shall be able to search for a room and
+  complete a booking without assistance within 5 minutes. \
+  *Verification:* observe five representative users completing the task and record
+  completion and time.
 
 ## Assumptions and limitations
 

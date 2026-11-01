@@ -132,20 +132,20 @@ Because the analyzer found nothing, we take a threat from the
 
 #### How the code counters T-01
 
-| Measure | Where in the code | Effect |
-|---------|-------------------|--------|
-| Passwords are stored only as bcrypt hashes | [`UserFactoryImpl.java:18`](../../spectrum-app/src/main/java/edu/ukma/ssdm/teamspectrum/logic/auth/UserFactoryImpl.java#L18): `BcryptUtil.bcryptHash(password)` | A leak of user data does not reveal passwords; bcrypt is slow, so offline guessing is expensive (SEC-002) |
-| Login compares the password with the hash | [`AuthServiceImpl.java:51`](../../spectrum-app/src/main/java/edu/ukma/ssdm/teamspectrum/logic/auth/AuthServiceImpl.java#L51): `BcryptUtil.matches(...)` | The plain password is never stored or compared directly |
-| The same `401` for an unknown email and a wrong password | [`AuthController.java:69-70`](../../spectrum-app/src/main/java/edu/ukma/ssdm/teamspectrum/api/auth/AuthController.java#L69-L70) | The response does not tell an attacker which emails are registered |
-| Passwords of 12–72 characters | [`RegisterRequest.java:11`](../../spectrum-app/src/main/java/edu/ukma/ssdm/teamspectrum/api/auth/RegisterRequest.java#L11): `@Size(min = 12, max = 72)` | Short passwords are rejected; 72 is the bcrypt input limit |
-| Short-lived token in a protected cookie | [`TokenFactoryImpl.java:15`](../../spectrum-app/src/main/java/edu/ukma/ssdm/teamspectrum/logic/auth/TokenFactoryImpl.java#L15) (15 minutes), [`AuthController.java:80-82`](../../spectrum-app/src/main/java/edu/ukma/ssdm/teamspectrum/api/auth/AuthController.java#L80-L82) (`Secure`, `HttpOnly`, `SameSite=Lax`) | A stolen token works for at most 15 minutes and cannot be read by JavaScript (also T-02) |
+| Measure                                                  | Where in the code                                                                                                                                                                                                                                                                                                   | Effect                                                                                                    |
+|----------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------|
+| Passwords are stored only as bcrypt hashes               | [`UserFactoryImpl.java:18`](../../spectrum-app/src/main/java/edu/ukma/ssdm/teamspectrum/logic/auth/UserFactoryImpl.java#L18): `BcryptUtil.bcryptHash(password)`                                                                                                                                                     | A leak of user data does not reveal passwords; bcrypt is slow, so offline guessing is expensive (SEC-002) |
+| Login compares the password with the hash                | [`AuthServiceImpl.java:51`](../../spectrum-app/src/main/java/edu/ukma/ssdm/teamspectrum/logic/auth/AuthServiceImpl.java#L51): `BcryptUtil.matches(...)`                                                                                                                                                             | The plain password is never stored or compared directly                                                   |
+| The same `401` for an unknown email and a wrong password | [`AuthController.java:69-70`](../../spectrum-app/src/main/java/edu/ukma/ssdm/teamspectrum/api/auth/AuthController.java#L69-L70)                                                                                                                                                                                     | The response does not tell an attacker which emails are registered                                        |
+| Passwords of 12–72 characters                            | [`RegisterRequest.java:11`](../../spectrum-app/src/main/java/edu/ukma/ssdm/teamspectrum/api/auth/RegisterRequest.java#L11): `@Size(min = 12, max = 72)`                                                                                                                                                             | Short passwords are rejected; 72 is the bcrypt input limit                                                |
+| Short-lived token in a protected cookie                  | [`TokenFactoryImpl.java:15`](../../spectrum-app/src/main/java/edu/ukma/ssdm/teamspectrum/logic/auth/TokenFactoryImpl.java#L15) (15 minutes), [`AuthController.java:80-82`](../../spectrum-app/src/main/java/edu/ukma/ssdm/teamspectrum/api/auth/AuthController.java#L80-L82) (`Secure`, `HttpOnly`, `SameSite=Lax`) | A stolen token works for at most 15 minutes and cannot be read by JavaScript (also T-02)                  |
 
 #### Not countered yet
 
-| Gap | Risk | Rating | Planned action |
-|-----|------|--------|----------------|
-| No limit on login attempts | Online password guessing is not slowed down | High | Rate limiting of the login endpoint in Nginx, as planned in the threat model |
-| bcrypt runs only when the email exists | The response time shows whether an email is registered | Low | Compare against a fixed dummy hash when the user is not found |
+| Gap                                    | Risk                                                   | Rating | Planned action                                                               |
+|----------------------------------------|--------------------------------------------------------|--------|------------------------------------------------------------------------------|
+| No limit on login attempts             | Online password guessing is not slowed down            | High   | Rate limiting of the login endpoint in Nginx, as planned in the threat model |
+| bcrypt runs only when the email exists | The response time shows whether an email is registered | Low    | Compare against a fixed dummy hash when the user is not found                |
 
 #### Finding from manual review
 
@@ -161,11 +161,12 @@ Reading the code for T-01 revealed a problem that SpotBugs does not report:
   configuration change exposes every new password.
 - **Decision:** fix it by logging only the normalised email (as `login` already does),
   in a separate pull request with a regression test.
+- **Resolution:** fixed in pr [#81](https://github.com/ukma-fin-ssdm-2026/Spectrum-project/pull/81)
 
 A second gap from the same review: `POST /v1/api/hotels`
 ([`HotelController.java:59`](../../spectrum-app/src/main/java/edu/ukma/ssdm/teamspectrum/api/hotel/HotelController.java#L59)) requires no
 authentication, so anyone can create a hotel. This is threat T-09 / SEC-003; authorization
-for hotel and room management is in progress (see [progress](progress.md)).
+for hotel and room management is implemented.
 
 #### AI usage:
 

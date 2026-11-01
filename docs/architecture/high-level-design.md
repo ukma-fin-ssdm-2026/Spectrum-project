@@ -73,6 +73,15 @@ See [Data model document](data-model.md)
 
 ---
 
+## Current state
+Currently single Quarkus application with Postgres database. Valkey and Nginx support haven't been implemented.
+
+- **Hotel and Room Service:** is partially implemented \
+  For full completion price per night and rating aggregation for hotels needs to be done.
+- **Auth Service:** is partially done. \
+  For full completion permission management needs to be done.
+---
+
 ### AI usage note:
 
 Initial skeleton was generated with LLM. **System Architecture** block was edited with
