@@ -6,12 +6,14 @@ import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.not;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import edu.ukma.ssdm.teamspectrum.api.ControllerTestProfile;
 import edu.ukma.ssdm.teamspectrum.api.auth.AuthController;
+import edu.ukma.ssdm.teamspectrum.api.common.SortOrder;
 import edu.ukma.ssdm.teamspectrum.api.common.page.PaginationParams;
 import edu.ukma.ssdm.teamspectrum.logic.auth.Role;
 import edu.ukma.ssdm.teamspectrum.logic.auth.TokenFactoryImpl;
@@ -34,6 +36,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 @QuarkusTest
 @TestProfile(ControllerTestProfile.class)
@@ -317,6 +321,52 @@ class RoomControllerTest {
         .body("fields", not(empty()));
   }
 
+  @ParameterizedTest
+  @ValueSource(
+      strings = {
+        edu.ukma.ssdm.teamspectrum.api.room.RoomSortBy.Values.RoomNumber,
+        edu.ukma.ssdm.teamspectrum.api.room.RoomSortBy.Values.PricePerNight
+      })
+  void getRoomsAcceptsRoomSortByValues(String value) {
+    stubSuccessfulRoomSearch();
+
+    given().queryParam("sortBy", value).get(BASE_PATH).then().statusCode(200);
+
+    final edu.ukma.ssdm.teamspectrum.api.room.RoomSortBy expectedSortBy =
+        value.equals(edu.ukma.ssdm.teamspectrum.api.room.RoomSortBy.Values.RoomNumber)
+            ? edu.ukma.ssdm.teamspectrum.api.room.RoomSortBy.RoomNumber
+            : edu.ukma.ssdm.teamspectrum.api.room.RoomSortBy.PricePerNight;
+    verify(searchCriteriaFactory)
+        .create(
+            argThat((GetRoomsParams params) -> params.sortBy() == expectedSortBy),
+            any(PaginationParams.class));
+  }
+
+  @ParameterizedTest
+  @ValueSource(strings = {SortOrder.Values.Asc, SortOrder.Values.Desc})
+  void getRoomsAcceptsSortOrderValues(String value) {
+    stubSuccessfulRoomSearch();
+
+    given().queryParam("sortOrder", value).get(BASE_PATH).then().statusCode(200);
+
+    final SortOrder expectedSortOrder =
+        value.equals(SortOrder.Values.Asc) ? SortOrder.Asc : SortOrder.Desc;
+    verify(searchCriteriaFactory)
+        .create(
+            argThat((GetRoomsParams params) -> params.sortOrder() == expectedSortOrder),
+            any(PaginationParams.class));
+  }
+
+  @Test
+  void getRoomsReturnsBadRequestForInvalidRoomSortBy() {
+    given().queryParam("sortBy", "UNKNOWN").get(BASE_PATH).then().statusCode(400);
+  }
+
+  @Test
+  void getRoomsReturnsBadRequestForInvalidSortOrder() {
+    given().queryParam("sortOrder", "UNKNOWN").get(BASE_PATH).then().statusCode(400);
+  }
+
   @Test
   void getRoomReturnsOk() {
     when(roomService.findById(HOTEL_ID, ROOM_ID)).thenReturn(Optional.of(ROOM_RECORD));
@@ -339,6 +389,28 @@ class RoomControllerTest {
   void getRoomReturnsNotFoundWhenRoomDoesNotExist() {
     when(roomService.findById(HOTEL_ID, ROOM_ID)).thenReturn(Optional.empty());
     given().get(BASE_PATH + "/" + ROOM_ID).then().statusCode(404).body(equalTo(""));
+  }
+
+  private void stubSuccessfulRoomSearch() {
+    final PaginationParams pagination = new PaginationParams(0, 10);
+    final RoomSearchCriteria searchCriteria =
+        new RoomSearchCriteria(
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            Set.of(),
+            RoomSortBy.PricePerNight,
+            edu.ukma.ssdm.teamspectrum.logic.common.SortOrder.Asc,
+            pagination.page(),
+            pagination.limit());
+    when(searchCriteriaFactory.create(any(GetRoomsParams.class), any(PaginationParams.class)))
+        .thenReturn(searchCriteria);
+    when(roomService.findPage(HOTEL_ID, searchCriteria))
+        .thenReturn(new RoomPage(List.of(ROOM_RECORD), 1));
+    when(roomFactory.toApi(ROOM_RECORD)).thenReturn(API_ROOM);
   }
 
   private static String token(Role role) {
