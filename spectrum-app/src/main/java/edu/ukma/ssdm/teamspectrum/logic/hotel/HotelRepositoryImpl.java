@@ -82,11 +82,11 @@ public class HotelRepositoryImpl implements HotelRepository {
   }
 
   @Override
-  public void add(HotelRecord hotel) {
-    dsl.transaction(
+  public boolean add(HotelRecord hotel) {
+    return dsl.transactionResult(
         configuration -> {
           DSLContext tx = DSL.using(configuration);
-          tx.insertInto(HOTELS)
+          return tx.insertInto(HOTELS)
               .set(HOTELS.ID, hotel.id())
               .set(HOTELS.NAME, hotel.name())
               .set(HOTELS.CITY, hotel.address().city())
@@ -96,8 +96,11 @@ public class HotelRepositoryImpl implements HotelRepository {
               .set(HOTELS.PICTURE_URL, hotel.pictureUrl())
               .set(HOTELS.PRICE_PER_NIGHT, hotel.pricePerNight())
               .set(HOTELS.RATING, hotel.rating())
+              .onConflictDoNothing()
+              .returning()
               .queryTimeout(QUERY_TIMEOUT_SECONDS)
-              .execute();
+              .fetchOptional()
+              .isPresent();
         });
   }
 
