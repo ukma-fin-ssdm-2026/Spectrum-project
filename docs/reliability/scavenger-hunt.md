@@ -1,5 +1,7 @@
 ## Scavenger hunt
 
+Go back to the [Main README](../../README.md).
+
 ### UserRepositoryImpl
 
 #### No timeout set for any query in `UserRepositoryImpl`
@@ -11,7 +13,6 @@ __Code:__
   public Optional<User> findByEmail(String email) {
     return dsl.selectFrom(USERS)
             .where(USERS.EMAIL.eq(email))
-            .queryTimeout(QUERY_TIMEOUT_SECONDS)
             .fetchOptional(UserRepositoryImpl::toUser);
 }
 ```
@@ -38,7 +39,6 @@ __Code:__
   public Optional<HotelRecord> findById(UUID id) {
     return dsl.selectFrom(HOTELS)
             .where(HOTELS.ID.eq(id))
-            .queryTimeout(QUERY_TIMEOUT_SECONDS)
             .fetchOptional(record -> toHotel(record, fetchAmenities(id)));
 }
 ```
@@ -74,7 +74,6 @@ __Code:__
                         .set(HOTELS.PICTURE_URL, hotel.pictureUrl())
                         .set(HOTELS.PRICE_PER_NIGHT, hotel.pricePerNight())
                         .set(HOTELS.RATING, hotel.rating())
-                        .queryTimeout(QUERY_TIMEOUT_SECONDS)
                         .execute();
             });
 }
@@ -110,7 +109,6 @@ __Code:__
             .join(AMENITIES)
             .on(ROOM_AMENITIES.AMENITY_ID.eq(AMENITIES.ID))
             .where(ROOM_AMENITIES.ROOM_ID.eq(roomId))
-            .queryTimeout(QUERY_TIMEOUT_SECONDS)
             .fetchSet(AMENITIES.NAME);
 }
 ```
