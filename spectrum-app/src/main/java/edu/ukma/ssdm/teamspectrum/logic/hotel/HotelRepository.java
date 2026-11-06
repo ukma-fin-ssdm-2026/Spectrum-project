@@ -14,5 +14,5 @@ public interface HotelRepository {
 
   Optional<HotelRecord> findByName(String name);
 
-  void add(HotelRecord hotel);
+  boolean add(HotelRecord hotel);
 }

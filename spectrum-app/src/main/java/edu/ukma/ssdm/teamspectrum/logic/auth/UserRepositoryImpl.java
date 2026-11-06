@@ -13,6 +13,8 @@ import org.jooq.DSLContext;
 
 @ApplicationScoped
 public class UserRepositoryImpl implements UserRepository {
+  private static final int QUERY_TIMEOUT_SECONDS = 5;
+
   private final DSLContext dsl;
 
   @Inject
@@ -27,6 +29,7 @@ public class UserRepositoryImpl implements UserRepository {
   public Optional<User> findByEmail(String email) {
     return dsl.selectFrom(USERS)
         .where(USERS.EMAIL.eq(email))
+        .queryTimeout(QUERY_TIMEOUT_SECONDS)
         .fetchOptional(UserRepositoryImpl::toUser);
   }
 
@@ -39,6 +42,7 @@ public class UserRepositoryImpl implements UserRepository {
             .set(USERS.ROLE, UserRole.valueOf(user.role().name()))
             .onConflict(USERS.EMAIL)
             .doNothing()
+            .queryTimeout(QUERY_TIMEOUT_SECONDS)
             .execute()
         == 1;
   }

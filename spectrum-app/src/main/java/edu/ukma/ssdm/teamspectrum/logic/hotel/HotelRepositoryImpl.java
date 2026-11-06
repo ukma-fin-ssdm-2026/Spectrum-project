@@ -24,6 +24,8 @@ import org.jooq.impl.DSL;
 
 @ApplicationScoped
 public class HotelRepositoryImpl implements HotelRepository {
+  private static final int QUERY_TIMEOUT_SECONDS = 5;
+
   private final DSLContext dsl;
 
   @Inject
@@ -42,6 +44,7 @@ public class HotelRepositoryImpl implements HotelRepository {
             .orderBy(sortField(criteria))
             .offset(offset)
             .limit(limit)
+            .queryTimeout(QUERY_TIMEOUT_SECONDS)
             .fetch();
     if (rows.isEmpty()) {
       return List.of();
@@ -52,13 +55,18 @@ public class HotelRepositoryImpl implements HotelRepository {
 
   @Override
   public long count(HotelSearchCriteria criteria) {
-    return dsl.fetchCount(dsl.selectFrom(HOTELS).where(matching(criteria)));
+    return dsl.selectCount()
+        .from(dsl.selectFrom(HOTELS).where(matching(criteria)).asTable())
+        .queryTimeout(QUERY_TIMEOUT_SECONDS)
+        .fetchOptional(0, Long.class)
+        .orElse(0L);
   }
 
   @Override
   public Optional<HotelRecord> findById(UUID id) {
     return dsl.selectFrom(HOTELS)
         .where(HOTELS.ID.eq(id))
+        .queryTimeout(QUERY_TIMEOUT_SECONDS)
         .fetchOptional(record -> toHotel(record, fetchAmenities(id)));
   }
 
@@ -69,15 +77,16 @@ public class HotelRepositoryImpl implements HotelRepository {
     }
     return dsl.selectFrom(HOTELS)
         .where(DSL.lower(HOTELS.NAME).eq(name.trim().toLowerCase()))
+        .queryTimeout(QUERY_TIMEOUT_SECONDS)
         .fetchOptional(record -> toHotel(record, fetchAmenities(record.getId())));
   }
 
   @Override
-  public void add(HotelRecord hotel) {
-    dsl.transaction(
+  public boolean add(HotelRecord hotel) {
+    return dsl.transactionResult(
         configuration -> {
           DSLContext tx = DSL.using(configuration);
-          tx.insertInto(HOTELS)
+          return tx.insertInto(HOTELS)
               .set(HOTELS.ID, hotel.id())
               .set(HOTELS.NAME, hotel.name())
               .set(HOTELS.CITY, hotel.address().city())
@@ -87,7 +96,11 @@ public class HotelRepositoryImpl implements HotelRepository {
               .set(HOTELS.PICTURE_URL, hotel.pictureUrl())
               .set(HOTELS.PRICE_PER_NIGHT, hotel.pricePerNight())
               .set(HOTELS.RATING, hotel.rating())
-              .execute();
+              .onConflictDoNothing()
+              .returning()
+              .queryTimeout(QUERY_TIMEOUT_SECONDS)
+              .fetchOptional()
+              .isPresent();
         });
   }
 
@@ -99,6 +112,7 @@ public class HotelRepositoryImpl implements HotelRepository {
         .join(AMENITIES)
         .on(ROOM_AMENITIES.AMENITY_ID.eq(AMENITIES.ID))
         .where(ROOMS.HOTEL_ID.in(hotelIds))
+        .queryTimeout(QUERY_TIMEOUT_SECONDS)
         .fetch()
         .collect(
             Collectors.groupingBy(
@@ -115,6 +129,7 @@ public class HotelRepositoryImpl implements HotelRepository {
         .join(AMENITIES)
         .on(ROOM_AMENITIES.AMENITY_ID.eq(AMENITIES.ID))
         .where(ROOMS.HOTEL_ID.eq(hotelId))
+        .queryTimeout(QUERY_TIMEOUT_SECONDS)
         .fetch()
         .stream()
         .map(r -> r.get(AMENITIES.NAME))

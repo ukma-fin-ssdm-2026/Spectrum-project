@@ -21,6 +21,8 @@ import org.jooq.impl.DSL;
 
 @ApplicationScoped
 public class RoomRepositoryImpl implements RoomRepository {
+  private static final int QUERY_TIMEOUT_SECONDS = 5;
+
   private final DSLContext dsl;
 
   @Inject
@@ -78,7 +80,12 @@ public class RoomRepositoryImpl implements RoomRepository {
     return dsl.transactionResult(
         configuration -> {
           DSLContext tx = DSL.using(configuration);
-          var hotelExists = selectHotelById(tx, hotelId).forKeyShare().fetchOptional().isPresent();
+          var hotelExists =
+              selectHotelById(tx, hotelId)
+                  .forKeyShare()
+                  .queryTimeout(QUERY_TIMEOUT_SECONDS)
+                  .fetchOptional()
+                  .isPresent();
           if (!hotelExists) {
             return new RoomMutationResult.NotFound();
           }
@@ -88,6 +95,7 @@ public class RoomRepositoryImpl implements RoomRepository {
                   .onConflict(ROOMS.HOTEL_ID, ROOMS.ROOM_NUMBER)
                   .doNothing()
                   .returning()
+                  .queryTimeout(QUERY_TIMEOUT_SECONDS)
                   .fetchOptional();
           if (inserted.isEmpty()) {
             return new RoomMutationResult.RoomNumberConflict();
@@ -101,6 +109,7 @@ public class RoomRepositoryImpl implements RoomRepository {
   private void deleteRoomAmenities(DSLContext ctx, UUID roomId, UUID hotelId) {
     ctx.deleteFrom(ROOM_AMENITIES)
         .where(ROOM_AMENITIES.ROOM_ID.eq(roomId).and(ROOM_AMENITIES.HOTEL_ID.eq(hotelId)))
+        .queryTimeout(QUERY_TIMEOUT_SECONDS)
         .execute();
   }
 
@@ -129,8 +138,12 @@ public class RoomRepositoryImpl implements RoomRepository {
 
   private RoomMutationResult updateInTransaction(
       DSLContext tx, UUID hotelId, UUID roomId, UpdateRoomCommand request) {
-    selectHotelById(tx, hotelId).forUpdate().fetchOptional();
-    var existing = mkFindById(tx, hotelId, roomId).forUpdate().fetchOptional();
+    selectHotelById(tx, hotelId).forUpdate().queryTimeout(QUERY_TIMEOUT_SECONDS).fetchOptional();
+    var existing =
+        mkFindById(tx, hotelId, roomId)
+            .forUpdate()
+            .queryTimeout(QUERY_TIMEOUT_SECONDS)
+            .fetchOptional();
     if (existing.isEmpty()) {
       return new RoomMutationResult.NotFound();
     }
@@ -145,6 +158,7 @@ public class RoomRepositoryImpl implements RoomRepository {
             .set(recordToUpdate)
             .where(ROOMS.HOTEL_ID.eq(hotelId).and(ROOMS.ID.eq(roomId)))
             .returning()
+            .queryTimeout(QUERY_TIMEOUT_SECONDS)
             .fetchAny();
     assert updated != null;
     var room = updateAmenities(tx, hotelId, roomId, request.amenities(), updated);
@@ -152,15 +166,18 @@ public class RoomRepositoryImpl implements RoomRepository {
   }
 
   private boolean roomNumberInUse(DSLContext tx, UUID hotelId, UUID roomId, String roomNumber) {
-    return tx.fetchExists(
-        tx.selectOne()
-            .from(ROOMS)
-            .where(
-                ROOMS
-                    .HOTEL_ID
-                    .eq(hotelId)
-                    .and(ROOMS.ROOM_NUMBER.eq(roomNumber))
-                    .and(ROOMS.ID.ne(roomId))));
+    return tx.selectOne()
+        .from(ROOMS)
+        .where(
+            ROOMS
+                .HOTEL_ID
+                .eq(hotelId)
+                .and(ROOMS.ROOM_NUMBER.eq(roomNumber))
+                .and(ROOMS.ID.ne(roomId)))
+        .limit(1)
+        .queryTimeout(QUERY_TIMEOUT_SECONDS)
+        .fetchOptional()
+        .isPresent();
   }
 
   private RoomRecord updateAmenities(
@@ -185,12 +202,18 @@ public class RoomRepositoryImpl implements RoomRepository {
         configuration -> {
           DSLContext tx = DSL.using(configuration);
 
-          long count = tx.fetchCount(selectMatchingRooms(tx, hotelId, criteria));
+          long count =
+              tx.selectCount()
+                  .from(selectMatchingRooms(tx, hotelId, criteria).asTable())
+                  .queryTimeout(QUERY_TIMEOUT_SECONDS)
+                  .fetchOptional(0, Long.class)
+                  .orElse(0L);
           List<RoomRecord> rooms =
               selectMatchingRooms(tx, hotelId, criteria)
                   .orderBy(sortField(criteria))
                   .offset(offset)
                   .limit(limit)
+                  .queryTimeout(QUERY_TIMEOUT_SECONDS)
                   .fetch(record -> toRoom(record, fetchAmenities(tx, record.getId())));
 
           return new RoomPage(rooms, count);
@@ -215,12 +238,14 @@ public class RoomRepositoryImpl implements RoomRepository {
 
   private Optional<RoomRecord> findById(DSLContext ctx, UUID hotelId, UUID roomId) {
     return mkFindById(ctx, hotelId, roomId)
+        .queryTimeout(QUERY_TIMEOUT_SECONDS)
         .fetchOptional(record -> toRoom(record, fetchAmenities(ctx, roomId)));
   }
 
   private Optional<RoomRecord> findByIdForUpdate(DSLContext ctx, UUID hotelId, UUID roomId) {
     return mkFindById(ctx, hotelId, roomId)
         .forUpdate()
+        .queryTimeout(QUERY_TIMEOUT_SECONDS)
         .fetchOptional(record -> toRoom(record, fetchAmenities(ctx, roomId)));
   }
 
@@ -231,6 +256,7 @@ public class RoomRepositoryImpl implements RoomRepository {
         .join(AMENITIES)
         .on(ROOM_AMENITIES.AMENITY_ID.eq(AMENITIES.ID))
         .where(ROOM_AMENITIES.ROOM_ID.eq(roomId))
+        .queryTimeout(QUERY_TIMEOUT_SECONDS)
         .fetchSet(AMENITIES.NAME);
   }
 
@@ -248,6 +274,7 @@ public class RoomRepositoryImpl implements RoomRepository {
             .doUpdate()
             .set(AMENITIES.NAME, DSL.excluded(AMENITIES.NAME))
             .returning(AMENITIES.ID)
+            .queryTimeout(QUERY_TIMEOUT_SECONDS)
             .fetch(AMENITIES.ID);
     var joins = amenities.stream().map(id -> new RoomAmenitiesRecord(roomId, hotelId, id)).toList();
     context
@@ -255,6 +282,7 @@ public class RoomRepositoryImpl implements RoomRepository {
         .set(joins)
         .onConflict(ROOM_AMENITIES.ROOM_ID, ROOM_AMENITIES.AMENITY_ID)
         .doNothing()
+        .queryTimeout(QUERY_TIMEOUT_SECONDS)
         .execute();
   }
 

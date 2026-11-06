@@ -22,10 +22,12 @@ import io.quarkus.test.junit.QuarkusTestProfile;
 import io.quarkus.test.junit.TestProfile;
 import io.restassured.http.ContentType;
 import java.math.BigDecimal;
+import java.sql.SQLTimeoutException;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import org.jooq.exception.DataAccessException;
 import org.junit.jupiter.api.Test;
 
 @QuarkusTest
@@ -78,6 +80,19 @@ class HotelControllerTest {
     when(hotelService.findById(unknownId)).thenReturn(Optional.empty());
 
     given().when().get(hotelsPath + "/" + unknownId).then().statusCode(404);
+  }
+
+  @Test
+  void getHotelReturnsInternalServerErrorWhenServiceTimesOut() {
+    var hotelId = UUID.randomUUID();
+    when(hotelService.findById(hotelId))
+        .thenThrow(
+            new DataAccessException(
+                "Hotel lookup timed out", new SQLTimeoutException("Query timed out")));
+
+    given().when().get(hotelsPath + "/" + hotelId).then().statusCode(500);
+
+    verify(hotelService).findById(hotelId);
   }
 
   // TP-18

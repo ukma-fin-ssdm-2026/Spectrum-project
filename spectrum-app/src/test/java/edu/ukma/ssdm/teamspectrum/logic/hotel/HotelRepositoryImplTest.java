@@ -5,8 +5,7 @@ import static edu.ukma.ssdm.teamspectrum.db.jooq.tables.Amenities.AMENITIES;
 import static edu.ukma.ssdm.teamspectrum.db.jooq.tables.Hotels.HOTELS;
 import static edu.ukma.ssdm.teamspectrum.db.jooq.tables.RoomAmenities.ROOM_AMENITIES;
 import static edu.ukma.ssdm.teamspectrum.db.jooq.tables.Rooms.ROOMS;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 import edu.ukma.ssdm.teamspectrum.logic.common.SortOrder;
 import edu.ukma.ssdm.teamspectrum.logic.common.repository.RepositoryTestProfile;
@@ -63,6 +62,18 @@ class HotelRepositoryImplTest {
 
     assertEquals(
         Optional.of(withAmenities(hotel, Set.of("wifi", "pool"))), repository.findById(hotel.id()));
+  }
+
+  @Test
+  void addExistingReturnsFalse() {
+    HotelRecord hotel =
+        hotel("Spectrum Hotel", "Kyiv", "Podil", 120, 4.7, Set.of("hotel-only amenity"));
+
+    var actualCreated = repository.add(hotel);
+    var actualAlreadyExists = repository.add(hotel);
+
+    assertTrue(actualCreated);
+    assertFalse(actualAlreadyExists);
   }
 
   @Test

@@ -1,0 +1,112 @@
+# Reliability report
+
+Go back to the [Main README](../../README.md).
+
+## Issues and criticality
+
+| Issue                                           | Category | Criticality and reason                               | Current status                                               |
+|-------------------------------------------------|----------|------------------------------------------------------|--------------------------------------------------------------|
+| User queries without timeouts                   | B, E     | __High:__ blocked requests can exhaust threads       | Fixed: five-second query timeouts                            |
+| Hotel queries without timeouts                  | B, E     | __High:__ blocked requests can exhaust threads       | Fixed: five-second query timeouts                            |
+| Room queries without timeouts                   | B, E     | __High:__ blocked requests can exhaust threads       | Fixed: five-second query timeouts                            |
+| Hotel name conflict during concurrent insertion | A        | __Medium:__ expected conflict becomes HTTP 500       | Open                                                         |
+| Room query enum conversion/error response       | C, A     | __Medium:__ invalid values receive misleading errors | Fixed: custom conversion covers `RoomSortBy` and `SortOrder` |
+| Registration ignores unsuccessful insertion     | D        | __High:__ token issued for an unpersisted user ID    | Open                                                         |
+| Room pagination offset overflow                 | C, A     | __Medium:__ client input triggers HTTP 500           | Open                                                         |
+| Hotel pagination offset overflow                | C, A     | __Medium:__ client input triggers HTTP 500           | Open                                                         |
+
+## Before/after and applied patterns
+
+### Bounded database execution
+
+All three repositories apply the same 5 second statement timeout.
+
+#### Before:
+
+```java
+  public Optional<User> findByEmail(String email) {
+    return dsl.selectFrom(USERS)
+            .where(USERS.EMAIL.eq(email))
+            .fetchOptional(UserRepositoryImpl::toUser);
+}
+```
+
+After:
+
+```java
+private static final int QUERY_TIMEOUT_SECONDS = 5;
+
+public Optional<User> findByEmail(String email) {
+    return dsl.selectFrom(USERS)
+            .where(USERS.EMAIL.eq(email))
+            .queryTimeout(QUERY_TIMEOUT_SECONDS)
+            .fetchOptional(UserRepositoryImpl::toUser);
+}
+```
+
+### Validation at the API boundary
+
+An [explicit parameter converter](../../spectrum-app/src/main/java/edu/ukma/ssdm/teamspectrum/api/common/param/EnumParamConverterProvider.java)
+matches public
+enum values and throws `BadRequestException` for unsupported values.
+
+#### Before:
+
+Existing enum declaration; no custom converter
+
+```java
+
+@QueryParam("sortBy")
+RoomSortBy sortBy,
+```
+
+#### After:
+
+Converter fragment
+
+```java
+    public E fromString(String value) {
+    if (value == null) {
+        return null;
+    }
+
+    return Arrays.stream(values)
+            .filter(candidate -> candidate.toString().equals(value))
+            .findFirst()
+            .orElseThrow(
+                    () ->
+                            new BadRequestException(
+                                    "Invalid value '%s' for %s. Allowed values: %s"
+                                            .formatted(value, enumType.getSimpleName(), allowedValues())));
+}
+
+```
+
+The provider registers only `RoomSortBy` and `SortOrder`.
+Existing [RoomControllerTest](../../spectrum-app/src/test/java/edu/ukma/ssdm/teamspectrum/api/room/RoomControllerTest.java)
+tests cover their valid values and HTTP 400 for `UNKNOWN`;
+
+## Failure and recovery modes
+
+| Resolved issue                    | Behavior                                                | What the user sees                                                | Recovery                 |
+|-----------------------------------|---------------------------------------------------------|-------------------------------------------------------------------|--------------------------|
+| User query timeout                | Fail-fast when the statement exceeds five seconds       | Failed request; no dedicated timeout mapper, so normally HTTP 500 | Retry after recovery;    |
+| Hotel query timeout               | Fail-fast; transactional inserts roll back on failure   | Failed request, normally HTTP 500                                 | Retry after recovery;    |
+| Room query timeout                | Fail-fast; transactional mutations roll back on failure | Failed request, normally HTTP 500                                 | Retry after recovery;    |
+| Supported sorting enum conversion | Fail-fast for unsupported values                        | HTTP 400 for invalid `sortBy`/`sortOrder`                         | Retry with correct value |
+
+## Remaining open issues
+
+- **Registration:** check `add(user)` before logging success or issuing a token;
+  translate `false` into the existing email-conflict response.
+- **Hotel creation:** handle the database uniqueness conflict atomically and return
+  HTTP 409, including when concurrent requests pass the preliminary lookup.
+- **Pagination in both services:** validate that `page * limit` fits the supported
+  offset range and return HTTP 400 instead of an uncaught arithmetic exception.
+- **Other enum parameters:** `RoomType` and `RoomStatus` still use framework
+  conversion.
+- **Timeout responses:** add explicit timeout error mapping and retrial inside the
+  program(currently users have to do themselves )
+
+AI usage:
+Initial draft was made with LLM.
