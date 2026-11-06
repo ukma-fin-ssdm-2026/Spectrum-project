@@ -19,11 +19,9 @@ public class EnumParamConverterProvider implements ParamConverterProvider {
       Class<T> rawType, java.lang.reflect.Type genericType, Annotation[] annotations) {
     if (rawType == RoomSortBy.class) {
       return (ParamConverter<T>) new EnumParamConverter<>(RoomSortBy.class);
-    }
-    if (rawType == SortOrder.class) {
+    } else if (rawType == SortOrder.class) {
       return (ParamConverter<T>) new EnumParamConverter<>(SortOrder.class);
-    }
-    return null;
+    } else return null;
   }
 
   private static final class EnumParamConverter<E extends Enum<E>> implements ParamConverter<E> {
