@@ -6,8 +6,9 @@ import edu.ukma.ssdm.teamspectrum.config.AppConfig.JwtConfig;
 import edu.ukma.ssdm.teamspectrum.config.AppConfig.RetryConfig;
 import edu.ukma.ssdm.teamspectrum.logic.common.NonNegativeDuration;
 import edu.ukma.ssdm.teamspectrum.logic.common.PositiveDuration;
-import io.quarkus.runtime.Startup;
+import io.quarkus.runtime.StartupEvent;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.event.Observes;
 import jakarta.enterprise.inject.Produces;
 import jakarta.inject.Singleton;
 import java.time.Duration;
@@ -15,9 +16,12 @@ import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 @ApplicationScoped
 public class AppConfigProducer {
+  void initialize(@Observes StartupEvent event, AppConfig config) {
+    // Injecting the singleton creates and validates AppConfig before startup completes.
+  }
+
   @Produces
   @Singleton
-  @Startup
   AppConfig appConfig(
       @ConfigProperty(name = "app.jwt.secret") String secret,
       @ConfigProperty(name = "app.jwt.issuer") String issuer,
