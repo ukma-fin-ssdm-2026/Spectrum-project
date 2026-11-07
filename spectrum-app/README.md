@@ -34,6 +34,16 @@ transaction timeout, and three retries with a 200 ms initial delay, 100 ms jitte
 and exponential backoff (factor 2, capped at 1000 ms).
 
 
+## Health checks
+
+`GET /q/health/ready` checks database connectivity by executing `SELECT 1` through
+the JDBC connection pool. The validation query has a five-second timeout. The
+endpoint returns HTTP 200 with status `UP` when the database responds, or HTTP 503
+with status `DOWN` when validation fails.
+
+`GET /q/health/live` provides liveness independently of database availability.
+`GET /q/health` combines all health checks.
+
 ## Running the application in dev mode
 
 You can run your application in dev mode that enables live coding using:

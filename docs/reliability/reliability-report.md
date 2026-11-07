@@ -130,7 +130,63 @@ public Optional<User> findByEmail(String email) {
 
 ```
 
+### Healthcheck
 
+#### Liveness check
+
+Same for when db `up` or `down`:
+```json
+{
+    "status": "UP",
+    "checks": [
+        {
+            "name": "Database connections health check",
+            "status": "UP",
+            "data": {
+                "<default>": "UP"
+            }
+        }
+    ]
+}
+```
+
+#### Readiness check
+
+`GET` http://localhost:8080/q/health/ready
+
+##### DB is up
+
+```json
+{
+    "status": "UP",
+    "checks": [
+        {
+            "name": "Database connections health check",
+            "status": "UP",
+            "data": {
+                "<default>": "UP"
+            }
+        }
+    ]
+}
+```
+
+##### DB is down:
+
+```json
+{
+    "status": "DOWN",
+    "checks": [
+        {
+            "name": "Database connections health check",
+            "status": "DOWN",
+            "data": {
+                "<default>": "validation check failed for the default DataSource"
+            }
+        }
+    ]
+}
+```
 
 AI usage:
 Initial draft was made with LLM.
