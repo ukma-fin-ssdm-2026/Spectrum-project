@@ -12,6 +12,12 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 class PositiveDurationTest {
   @Test
+  void acceptsDurationsBeyondIntegerMilliseconds() {
+    Duration value = Duration.ofDays(30);
+    assertEquals(value, new PositiveDuration(value).value());
+  }
+
+  @Test
   void preservesPositiveDurationsIncludingNanoseconds() {
     Duration value = Duration.ofMillis(1);
     assertEquals(value, new PositiveDuration(value).value());

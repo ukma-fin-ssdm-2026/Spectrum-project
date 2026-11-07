@@ -9,9 +9,12 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import edu.ukma.ssdm.teamspectrum.api.auth.AuthController;
+import edu.ukma.ssdm.teamspectrum.config.AppConfig.JwtConfig;
 import edu.ukma.ssdm.teamspectrum.logic.auth.Role;
+import edu.ukma.ssdm.teamspectrum.logic.auth.TokenFactory;
 import edu.ukma.ssdm.teamspectrum.logic.auth.TokenFactoryImpl;
 import edu.ukma.ssdm.teamspectrum.logic.auth.User;
+import edu.ukma.ssdm.teamspectrum.logic.common.PositiveDuration;
 import edu.ukma.ssdm.teamspectrum.logic.hotel.HotelAddress;
 import edu.ukma.ssdm.teamspectrum.logic.hotel.HotelMutationResult;
 import edu.ukma.ssdm.teamspectrum.logic.hotel.HotelRecord;
@@ -23,6 +26,7 @@ import io.quarkus.test.junit.TestProfile;
 import io.restassured.http.ContentType;
 import java.math.BigDecimal;
 import java.sql.SQLTimeoutException;
+import java.time.Duration;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -36,6 +40,9 @@ class HotelControllerTest {
   @InjectMock HotelService hotelService;
 
   static final String jwtSecret = "test-secret-for-hotel-controller-0123456789";
+  TokenFactory tokenFactory =
+      new TokenFactoryImpl(
+          new JwtConfig(jwtSecret, "spectrum-app", new PositiveDuration(Duration.ofMinutes(15))));
   final String hotelsPath = "/v1/api/hotels";
   final String createBody =
       """
@@ -157,9 +164,9 @@ class HotelControllerTest {
   }
 
   // Issued by the same factory as login, so the test also checks that login tokens are accepted
-  private static String token(Role role) {
+  private String token(Role role) {
     var user = new User(UUID.randomUUID(), "staff@example.com", "hash", role);
-    return new TokenFactoryImpl(jwtSecret).create(user).value();
+    return tokenFactory.create(user).value();
   }
 
   private static HotelRecord hotel(String name) {
