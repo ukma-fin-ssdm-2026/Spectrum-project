@@ -1,5 +1,5 @@
 /* (C)2026 */
-package edu.ukma.ssdm.teamspectrum.logic.common.db;
+package edu.ukma.ssdm.teamspectrum.reliability;
 
 import static edu.ukma.ssdm.teamspectrum.db.jooq.tables.Hotels.HOTELS;
 import static edu.ukma.ssdm.teamspectrum.db.jooq.tables.Rooms.ROOMS;
@@ -7,7 +7,6 @@ import static edu.ukma.ssdm.teamspectrum.db.jooq.tables.Users.USERS;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -120,7 +119,9 @@ class DatabaseRetryTest {
 
     assertSame(expected, rooms.findPage(UUID.randomUUID(), null, 0, 10));
     verify(dsl, times(2))
-        .transactionResult(any(TransactionalCallable.class), eq(Isolation.REPEATABLE_READ));
+        .transactionResult(
+            org.mockito.ArgumentMatchers.<TransactionalCallable<RoomPage>>any(),
+            eq(Isolation.REPEATABLE_READ));
   }
 
   @Test
