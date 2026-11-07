@@ -10,7 +10,10 @@ import edu.ukma.ssdm.teamspectrum.db.jooq.tables.records.RoomAmenitiesRecord;
 import edu.ukma.ssdm.teamspectrum.db.jooq.tables.records.RoomsRecord;
 import edu.ukma.ssdm.teamspectrum.logic.common.PositiveDuration;
 import edu.ukma.ssdm.teamspectrum.logic.common.db.DBUtils;
+import edu.ukma.ssdm.teamspectrum.logic.common.db.DatabaseTimeoutPredicate;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import io.smallrye.faulttolerance.api.ExponentialBackoff;
+import io.smallrye.faulttolerance.api.RetryWhen;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import java.math.BigDecimal;
@@ -19,6 +22,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import org.eclipse.microprofile.faulttolerance.Retry;
 import org.jooq.*;
 import org.jooq.impl.DSL;
 
@@ -80,6 +84,9 @@ public class RoomRepositoryImpl implements RoomRepository {
   }
 
   @Override
+  @Retry(maxRetries = 3, delay = 200, jitter = 100)
+  @ExponentialBackoff(factor = 2, maxDelay = 1000)
+  @RetryWhen(exception = DatabaseTimeoutPredicate.class)
   public RoomMutationResult create(UUID hotelId, CreateRoomCommand request) {
     var record = mkRoomsRecord(hotelId, request);
     return dsl.transactionResult(
@@ -137,6 +144,9 @@ public class RoomRepositoryImpl implements RoomRepository {
   }
 
   @Override
+  @Retry(maxRetries = 3, delay = 200, jitter = 100)
+  @ExponentialBackoff(factor = 2, maxDelay = 1000)
+  @RetryWhen(exception = DatabaseTimeoutPredicate.class)
   public RoomMutationResult update(UUID hotelId, UUID roomId, UpdateRoomCommand request) {
     return dsl.transactionResult(
         configuration -> {
@@ -207,6 +217,9 @@ public class RoomRepositoryImpl implements RoomRepository {
   }
 
   @Override
+  @Retry(maxRetries = 3, delay = 200, jitter = 100)
+  @ExponentialBackoff(factor = 2, maxDelay = 1000)
+  @RetryWhen(exception = DatabaseTimeoutPredicate.class)
   public RoomPage findPage(UUID hotelId, RoomSearchCriteria criteria, int offset, int limit) {
     return dsl.transactionResult(
         configuration -> {
@@ -233,6 +246,9 @@ public class RoomRepositoryImpl implements RoomRepository {
   }
 
   @Override
+  @Retry(maxRetries = 3, delay = 200, jitter = 100)
+  @ExponentialBackoff(factor = 2, maxDelay = 1000)
+  @RetryWhen(exception = DatabaseTimeoutPredicate.class)
   public Optional<RoomRecord> findById(UUID hotelId, UUID roomId) {
     return findById(dsl, hotelId, roomId);
   }

@@ -5,10 +5,14 @@ import static edu.ukma.ssdm.teamspectrum.db.jooq.tables.Users.USERS;
 
 import edu.ukma.ssdm.teamspectrum.db.jooq.enums.UserRole;
 import edu.ukma.ssdm.teamspectrum.db.jooq.tables.records.UsersRecord;
+import edu.ukma.ssdm.teamspectrum.logic.common.db.DatabaseTimeoutPredicate;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import io.smallrye.faulttolerance.api.ExponentialBackoff;
+import io.smallrye.faulttolerance.api.RetryWhen;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import java.util.Optional;
+import org.eclipse.microprofile.faulttolerance.Retry;
 import org.jooq.DSLContext;
 
 @ApplicationScoped
@@ -26,6 +30,9 @@ public class UserRepositoryImpl implements UserRepository {
   }
 
   @Override
+  @Retry(maxRetries = 3, delay = 200, jitter = 100)
+  @ExponentialBackoff(factor = 2, maxDelay = 1000)
+  @RetryWhen(exception = DatabaseTimeoutPredicate.class)
   public Optional<User> findByEmail(String email) {
     return dsl.selectFrom(USERS)
         .where(USERS.EMAIL.eq(email))
@@ -34,6 +41,9 @@ public class UserRepositoryImpl implements UserRepository {
   }
 
   @Override
+  @Retry(maxRetries = 3, delay = 200, jitter = 100)
+  @ExponentialBackoff(factor = 2, maxDelay = 1000)
+  @RetryWhen(exception = DatabaseTimeoutPredicate.class)
   public boolean add(User user) {
     return dsl.insertInto(USERS)
             .set(USERS.ID, user.id())
