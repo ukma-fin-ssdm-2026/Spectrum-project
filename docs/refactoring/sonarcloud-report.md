@@ -17,6 +17,7 @@ See [screenshot from analysis panel](measures_before_7585214a.png)
 | Technical Debt                | 0 h   |
 | Duplicated Lines              | 0%    |
 | ___*Reliability Rating___     | A     |
+| Congnitive complexity         | 73    |
 | ___*Security Rating___        | C     |
 
 ### Refactoring:
@@ -142,8 +143,31 @@ See [screenshot from analysis panel](measures_after_9d88f0d.png)
 | Technical Debt                | 0 h   |
 | Duplicated Lines              | 0%    |
 | ___*Reliability Rating___     | A     |
+| Congnitive complexity         | 68    |
 | ___*Security Rating___        | A     |
+
+#### Bonuses:
+
+##### Quality Gate:
+
+[Failed](https://sonarcloud.io/project/issues?id=ukma-fin-ssdm-2026_Spectrum-project&pullRequest=104&s=IMPACT_RANK&open=AaG3Lr19tqj7RNvsZzSE)
+at [pull-request](https://github.com/ukma-fin-ssdm-2026/Spectrum-project/pull/104).
+
+Problem was with `@Startup` annotation usage
+in [AppConfigProducer](../../spectrum-app/src/main/java/edu/ukma/ssdm/teamspectrum/config/AppConfigProducer.java),
+because it produces dependencies. Was fixed by changing annotation for it to listen to
+`StartupEvent`.
+
+[Succeeded](https://github.com/ukma-fin-ssdm-2026/Spectrum-project/pull/104#issuecomment-6711283838)
+after [fix](https://github.com/ukma-fin-ssdm-2026/Spectrum-project/commit/9dc1754571e1be7ac96563603b9e15365a3d4a10)
 
 #### AI usage:
 
-Refactoring was performed with LLM. Descriptions for code smells were drafted with LLM.
+#### Refactoring was performed with LLM.
+
+All [Refactoring](#refactoring) was performed with LLM. After initial analysis, LLM was
+instructed what to change in corresponding features. All changes were reviewed. Tests were
+run after each change, when it was finalized(e.g. when `toHotels` started taking amenities
+as argument).
+
+##### Descriptions for code smells were drafted with LLM.

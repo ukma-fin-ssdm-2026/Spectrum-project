@@ -208,6 +208,8 @@ e.g. for `reliability` tests:
 See [ci workflow](../../.github/workflows/ci.yml)
 `Run reliability tests` step for reliability tests run.
 
+See [successful run](https://github.com/ukma-fin-ssdm-2026/Spectrum-project/actions/runs/42400630906/job/128487398504?pr=104)
+
 #### AI usage:
 
 Initial draft was made with LLM.
