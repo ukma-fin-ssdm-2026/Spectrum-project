@@ -11,10 +11,12 @@ import io.quarkus.test.junit.TestProfile;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 @QuarkusTest
 @TestProfile(DatabaseUnavailableHealthCheckTest.UnavailableDatabaseProfile.class)
+@Tag("integration")
 class DatabaseUnavailableHealthCheckTest {
   public static class UnavailableDatabaseProfile extends ControllerTestProfile {
     @Override

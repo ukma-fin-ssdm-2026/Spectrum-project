@@ -15,10 +15,12 @@ import java.util.UUID;
 import org.jooq.DSLContext;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 @QuarkusTest
 @TestProfile(RepositoryTestProfile.class)
+@Tag("integration")
 class UserRepositoryImplTest {
   @Inject UserRepository repository;
   @Inject DSLContext dsl;

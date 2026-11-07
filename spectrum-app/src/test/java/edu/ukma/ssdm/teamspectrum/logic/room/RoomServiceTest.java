@@ -14,9 +14,11 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
+@Tag("unit")
 class RoomServiceTest {
   private static final UUID HOTEL_ID = UUID.randomUUID();
   private static final UUID ROOM_ID = UUID.randomUUID();

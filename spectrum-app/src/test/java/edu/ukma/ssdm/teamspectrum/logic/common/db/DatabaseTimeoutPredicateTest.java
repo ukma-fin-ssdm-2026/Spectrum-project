@@ -7,8 +7,10 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.sql.SQLException;
 import java.sql.SQLTimeoutException;
 import org.jooq.exception.DataAccessException;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
+@Tag("unit")
 class DatabaseTimeoutPredicateTest {
   private final DatabaseTimeoutPredicate predicate = new DatabaseTimeoutPredicate();
 

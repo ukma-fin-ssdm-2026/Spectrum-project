@@ -30,10 +30,12 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 @QuarkusTest
 @TestProfile(HotelControllerTest.HotelTestProfile.class)
+@Tag("integration")
 class HotelControllerTest {
   @InjectMock HotelService hotelService;
 

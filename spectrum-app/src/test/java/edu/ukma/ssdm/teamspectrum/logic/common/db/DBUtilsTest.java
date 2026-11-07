@@ -11,8 +11,10 @@ import org.jooq.SQLDialect;
 import org.jooq.impl.DSL;
 import org.jooq.tools.jdbc.MockConnection;
 import org.jooq.tools.jdbc.MockResult;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
+@Tag("unit")
 class DBUtilsTest {
   @Test
   void executesLocalTimeoutInMillisecondsWithoutBindParameters() {

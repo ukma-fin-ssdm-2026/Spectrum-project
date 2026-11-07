@@ -4,8 +4,10 @@ package edu.ukma.ssdm.teamspectrum.api.common.page;
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.List;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
+@Tag("unit")
 class PageResponseTest {
   List<String> items = List.of("one", "two");
   int totalItems = 11;

@@ -9,9 +9,11 @@ import static org.mockito.Mockito.when;
 import java.math.BigDecimal;
 import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
+@Tag("unit")
 class HotelServiceImplTest {
   private HotelRepository repository;
   private HotelServiceImpl service;

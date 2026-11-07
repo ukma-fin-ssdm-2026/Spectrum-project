@@ -34,10 +34,12 @@ import org.jooq.DSLContext;
 import org.jooq.Isolation;
 import org.jooq.TransactionalCallable;
 import org.jooq.exception.DataAccessException;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 @QuarkusTest
 @TestProfile(DatabaseRetryTest.Profile.class)
+@Tag("reliability")
 class DatabaseRetryTest {
   @Inject AppConfig config;
   @Inject JwtConfig jwtConfig;

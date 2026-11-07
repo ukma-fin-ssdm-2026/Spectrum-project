@@ -10,10 +10,12 @@ import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.junit.TestProfile;
 import java.util.List;
 import java.util.Map;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 @QuarkusTest
 @TestProfile(RepositoryTestProfile.class)
+@Tag("integration")
 class DatabaseHealthCheckTest {
   @Test
   void readinessIsUpWhenDatabaseResponds() {

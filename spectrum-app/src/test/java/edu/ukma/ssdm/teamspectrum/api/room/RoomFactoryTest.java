@@ -14,8 +14,10 @@ import jakarta.ws.rs.core.Response;
 import java.math.BigDecimal;
 import java.util.Set;
 import java.util.UUID;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
+@Tag("unit")
 class RoomFactoryTest {
   private static final String CREATE_ROOM_NUMBER = "204";
   private static final BigDecimal CREATE_PRICE_AMOUNT = new BigDecimal("145.15");

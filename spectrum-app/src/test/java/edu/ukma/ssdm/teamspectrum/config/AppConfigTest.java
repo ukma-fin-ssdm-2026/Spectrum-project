@@ -11,8 +11,10 @@ import edu.ukma.ssdm.teamspectrum.config.AppConfig.RetryConfig;
 import edu.ukma.ssdm.teamspectrum.logic.common.NonNegativeDuration;
 import edu.ukma.ssdm.teamspectrum.logic.common.PositiveDuration;
 import java.time.Duration;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
+@Tag("unit")
 class AppConfigTest {
   @Test
   void permitsZeroRetryDelaysAndLongTokenLifetimes() {

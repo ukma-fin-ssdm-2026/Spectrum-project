@@ -135,18 +135,19 @@ public Optional<User> findByEmail(String email) {
 #### Liveness check
 
 Same for when db `up` or `down`:
+
 ```json
 {
-    "status": "UP",
-    "checks": [
-        {
-            "name": "Database connections health check",
-            "status": "UP",
-            "data": {
-                "<default>": "UP"
-            }
-        }
-    ]
+  "status": "UP",
+  "checks": [
+    {
+      "name": "Database connections health check",
+      "status": "UP",
+      "data": {
+        "<default>": "UP"
+      }
+    }
+  ]
 }
 ```
 
@@ -158,16 +159,16 @@ Same for when db `up` or `down`:
 
 ```json
 {
-    "status": "UP",
-    "checks": [
-        {
-            "name": "Database connections health check",
-            "status": "UP",
-            "data": {
-                "<default>": "UP"
-            }
-        }
-    ]
+  "status": "UP",
+  "checks": [
+    {
+      "name": "Database connections health check",
+      "status": "UP",
+      "data": {
+        "<default>": "UP"
+      }
+    }
+  ]
 }
 ```
 
@@ -175,18 +176,38 @@ Same for when db `up` or `down`:
 
 ```json
 {
-    "status": "DOWN",
-    "checks": [
-        {
-            "name": "Database connections health check",
-            "status": "DOWN",
-            "data": {
-                "<default>": "validation check failed for the default DataSource"
-            }
-        }
-    ]
+  "status": "DOWN",
+  "checks": [
+    {
+      "name": "Database connections health check",
+      "status": "DOWN",
+      "data": {
+        "<default>": "validation check failed for the default DataSource"
+      }
+    }
+  ]
 }
 ```
 
-AI usage:
+### Reliability tests
+
+All tests were tagged with next categories:
+
+- `unit`
+- `integration`
+- `reliability`
+
+To be able to run them separately.
+
+e.g. for `reliability` tests:
+```shell
+./mvnw -B test -Dgroups=reliability
+```
+
+
+See [ci workflow](../../.github/workflows/ci.yml)
+`Run reliability tests` step for reliability tests run.
+
+#### AI usage:
+
 Initial draft was made with LLM.

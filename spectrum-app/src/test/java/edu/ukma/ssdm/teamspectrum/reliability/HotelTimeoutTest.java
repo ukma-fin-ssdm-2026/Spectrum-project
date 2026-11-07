@@ -14,10 +14,12 @@ import java.sql.SQLTimeoutException;
 import java.util.Map;
 import java.util.UUID;
 import org.jooq.exception.DataAccessException;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 @QuarkusTest
 @TestProfile(HotelTimeoutTest.Profile.class)
+@Tag("reliability")
 class HotelTimeoutTest {
   @InjectMock HotelService hotelService;
 

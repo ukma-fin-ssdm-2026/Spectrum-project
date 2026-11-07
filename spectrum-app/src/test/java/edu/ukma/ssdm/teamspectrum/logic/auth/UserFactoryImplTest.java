@@ -4,8 +4,10 @@ package edu.ukma.ssdm.teamspectrum.logic.auth;
 import static org.junit.jupiter.api.Assertions.*;
 
 import io.quarkus.elytron.security.common.BcryptUtil;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
+@Tag("unit")
 class UserFactoryImplTest {
 
   @Test

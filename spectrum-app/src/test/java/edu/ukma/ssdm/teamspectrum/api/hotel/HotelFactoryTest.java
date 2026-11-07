@@ -13,8 +13,10 @@ import java.math.BigDecimal;
 import java.util.Set;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
+@Tag("unit")
 class HotelFactoryTest {
   private HotelAddressFactory addressFactory;
   private HotelFactory hotelFactory;
