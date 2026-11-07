@@ -15,9 +15,12 @@ import edu.ukma.ssdm.teamspectrum.api.ControllerTestProfile;
 import edu.ukma.ssdm.teamspectrum.api.auth.AuthController;
 import edu.ukma.ssdm.teamspectrum.api.common.SortOrder;
 import edu.ukma.ssdm.teamspectrum.api.common.page.PaginationParams;
+import edu.ukma.ssdm.teamspectrum.config.AppConfig.JwtConfig;
 import edu.ukma.ssdm.teamspectrum.logic.auth.Role;
+import edu.ukma.ssdm.teamspectrum.logic.auth.TokenFactory;
 import edu.ukma.ssdm.teamspectrum.logic.auth.TokenFactoryImpl;
 import edu.ukma.ssdm.teamspectrum.logic.auth.User;
+import edu.ukma.ssdm.teamspectrum.logic.common.PositiveDuration;
 import edu.ukma.ssdm.teamspectrum.logic.room.CreateRoomCommand;
 import edu.ukma.ssdm.teamspectrum.logic.room.RoomMutationResult;
 import edu.ukma.ssdm.teamspectrum.logic.room.RoomPage;
@@ -31,22 +34,28 @@ import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.junit.TestProfile;
 import io.restassured.http.ContentType;
 import java.math.BigDecimal;
+import java.time.Duration;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
 @QuarkusTest
 @TestProfile(ControllerTestProfile.class)
+@Tag("integration")
 class RoomControllerTest {
   private static final String JWT_SECRET = "test-secret-for-controller-tests";
 
   @InjectMock RoomService roomService;
   @InjectMock RoomFactory roomFactory;
   @InjectMock RoomSearchCriteriaFactory searchCriteriaFactory;
+  TokenFactory tokenFactory =
+      new TokenFactoryImpl(
+          new JwtConfig(JWT_SECRET, "spectrum-app", new PositiveDuration(Duration.ofMinutes(15))));
 
   private static final UUID HOTEL_ID = UUID.randomUUID();
   private static final UUID ROOM_ID = UUID.randomUUID();
@@ -413,8 +422,8 @@ class RoomControllerTest {
     when(roomFactory.toApi(ROOM_RECORD)).thenReturn(API_ROOM);
   }
 
-  private static String token(Role role) {
+  private String token(Role role) {
     var user = new User(UUID.randomUUID(), "person@example.com", "hash", role);
-    return new TokenFactoryImpl(JWT_SECRET).create(user).value();
+    return tokenFactory.create(user).value();
   }
 }

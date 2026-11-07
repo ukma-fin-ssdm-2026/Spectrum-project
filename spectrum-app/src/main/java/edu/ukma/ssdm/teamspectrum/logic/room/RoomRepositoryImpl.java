@@ -6,9 +6,14 @@ import static edu.ukma.ssdm.teamspectrum.db.jooq.tables.Hotels.HOTELS;
 import static edu.ukma.ssdm.teamspectrum.db.jooq.tables.RoomAmenities.ROOM_AMENITIES;
 import static edu.ukma.ssdm.teamspectrum.db.jooq.tables.Rooms.ROOMS;
 
+import edu.ukma.ssdm.teamspectrum.config.AppConfig.DbConfig;
 import edu.ukma.ssdm.teamspectrum.db.jooq.tables.records.RoomAmenitiesRecord;
 import edu.ukma.ssdm.teamspectrum.db.jooq.tables.records.RoomsRecord;
+import edu.ukma.ssdm.teamspectrum.logic.common.db.DBUtils;
+import edu.ukma.ssdm.teamspectrum.logic.common.db.DatabaseTimeoutPredicate;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import io.smallrye.faulttolerance.api.ExponentialBackoff;
+import io.smallrye.faulttolerance.api.RetryWhen;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import java.math.BigDecimal;
@@ -16,21 +21,23 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import org.eclipse.microprofile.faulttolerance.Retry;
 import org.jooq.*;
 import org.jooq.impl.DSL;
 
 @ApplicationScoped
 public class RoomRepositoryImpl implements RoomRepository {
-  private static final int QUERY_TIMEOUT_SECONDS = 5;
 
   private final DSLContext dsl;
+  private final DbConfig dbConfig;
 
   @Inject
   @SuppressFBWarnings(
       value = "EI_EXPOSE_REP2",
       justification = "DSLContext is an intentionally shared injected database dependency.")
-  public RoomRepositoryImpl(DSLContext dsl) {
+  public RoomRepositoryImpl(DSLContext dsl, DbConfig dbConfig) {
     this.dsl = dsl;
+    this.dbConfig = dbConfig;
   }
 
   private static RoomsRecord mkRoomsRecord(UUID hotelId, CreateRoomCommand request) {
@@ -75,15 +82,19 @@ public class RoomRepositoryImpl implements RoomRepository {
   }
 
   @Override
+  @Retry
+  @ExponentialBackoff
+  @RetryWhen(exception = DatabaseTimeoutPredicate.class)
   public RoomMutationResult create(UUID hotelId, CreateRoomCommand request) {
     var record = mkRoomsRecord(hotelId, request);
     return dsl.transactionResult(
         configuration -> {
           DSLContext tx = DSL.using(configuration);
+          DBUtils.setTransactionTimeout(tx, dbConfig.transactionTimeout());
           var hotelExists =
               selectHotelById(tx, hotelId)
                   .forKeyShare()
-                  .queryTimeout(QUERY_TIMEOUT_SECONDS)
+                  .queryTimeout(dbConfig.queryTimeoutSeconds())
                   .fetchOptional()
                   .isPresent();
           if (!hotelExists) {
@@ -95,7 +106,7 @@ public class RoomRepositoryImpl implements RoomRepository {
                   .onConflict(ROOMS.HOTEL_ID, ROOMS.ROOM_NUMBER)
                   .doNothing()
                   .returning()
-                  .queryTimeout(QUERY_TIMEOUT_SECONDS)
+                  .queryTimeout(dbConfig.queryTimeoutSeconds())
                   .fetchOptional();
           if (inserted.isEmpty()) {
             return new RoomMutationResult.RoomNumberConflict();
@@ -109,7 +120,7 @@ public class RoomRepositoryImpl implements RoomRepository {
   private void deleteRoomAmenities(DSLContext ctx, UUID roomId, UUID hotelId) {
     ctx.deleteFrom(ROOM_AMENITIES)
         .where(ROOM_AMENITIES.ROOM_ID.eq(roomId).and(ROOM_AMENITIES.HOTEL_ID.eq(hotelId)))
-        .queryTimeout(QUERY_TIMEOUT_SECONDS)
+        .queryTimeout(dbConfig.queryTimeoutSeconds())
         .execute();
   }
 
@@ -131,18 +142,28 @@ public class RoomRepositoryImpl implements RoomRepository {
   }
 
   @Override
+  @Retry
+  @ExponentialBackoff
+  @RetryWhen(exception = DatabaseTimeoutPredicate.class)
   public RoomMutationResult update(UUID hotelId, UUID roomId, UpdateRoomCommand request) {
     return dsl.transactionResult(
-        configuration -> updateInTransaction(DSL.using(configuration), hotelId, roomId, request));
+        configuration -> {
+          DSLContext tx = DSL.using(configuration);
+          DBUtils.setTransactionTimeout(tx, dbConfig.transactionTimeout());
+          return updateInTransaction(tx, hotelId, roomId, request);
+        });
   }
 
   private RoomMutationResult updateInTransaction(
       DSLContext tx, UUID hotelId, UUID roomId, UpdateRoomCommand request) {
-    selectHotelById(tx, hotelId).forUpdate().queryTimeout(QUERY_TIMEOUT_SECONDS).fetchOptional();
+    selectHotelById(tx, hotelId)
+        .forUpdate()
+        .queryTimeout(dbConfig.queryTimeoutSeconds())
+        .fetchOptional();
     var existing =
         mkFindById(tx, hotelId, roomId)
             .forUpdate()
-            .queryTimeout(QUERY_TIMEOUT_SECONDS)
+            .queryTimeout(dbConfig.queryTimeoutSeconds())
             .fetchOptional();
     if (existing.isEmpty()) {
       return new RoomMutationResult.NotFound();
@@ -158,7 +179,7 @@ public class RoomRepositoryImpl implements RoomRepository {
             .set(recordToUpdate)
             .where(ROOMS.HOTEL_ID.eq(hotelId).and(ROOMS.ID.eq(roomId)))
             .returning()
-            .queryTimeout(QUERY_TIMEOUT_SECONDS)
+            .queryTimeout(dbConfig.queryTimeoutSeconds())
             .fetchAny();
     assert updated != null;
     var room = updateAmenities(tx, hotelId, roomId, request.amenities(), updated);
@@ -175,7 +196,7 @@ public class RoomRepositoryImpl implements RoomRepository {
                 .and(ROOMS.ROOM_NUMBER.eq(roomNumber))
                 .and(ROOMS.ID.ne(roomId)))
         .limit(1)
-        .queryTimeout(QUERY_TIMEOUT_SECONDS)
+        .queryTimeout(dbConfig.queryTimeoutSeconds())
         .fetchOptional()
         .isPresent();
   }
@@ -197,15 +218,19 @@ public class RoomRepositoryImpl implements RoomRepository {
   }
 
   @Override
+  @Retry
+  @ExponentialBackoff
+  @RetryWhen(exception = DatabaseTimeoutPredicate.class)
   public RoomPage findPage(UUID hotelId, RoomSearchCriteria criteria, int offset, int limit) {
     return dsl.transactionResult(
         configuration -> {
           DSLContext tx = DSL.using(configuration);
+          DBUtils.setTransactionTimeout(tx, dbConfig.transactionTimeout());
 
           long count =
               tx.selectCount()
                   .from(selectMatchingRooms(tx, hotelId, criteria).asTable())
-                  .queryTimeout(QUERY_TIMEOUT_SECONDS)
+                  .queryTimeout(dbConfig.queryTimeoutSeconds())
                   .fetchOptional(0, Long.class)
                   .orElse(0L);
           List<RoomRecord> rooms =
@@ -213,7 +238,7 @@ public class RoomRepositoryImpl implements RoomRepository {
                   .orderBy(sortField(criteria))
                   .offset(offset)
                   .limit(limit)
-                  .queryTimeout(QUERY_TIMEOUT_SECONDS)
+                  .queryTimeout(dbConfig.queryTimeoutSeconds())
                   .fetch(record -> toRoom(record, fetchAmenities(tx, record.getId())));
 
           return new RoomPage(rooms, count);
@@ -222,6 +247,9 @@ public class RoomRepositoryImpl implements RoomRepository {
   }
 
   @Override
+  @Retry
+  @ExponentialBackoff
+  @RetryWhen(exception = DatabaseTimeoutPredicate.class)
   public Optional<RoomRecord> findById(UUID hotelId, UUID roomId) {
     return findById(dsl, hotelId, roomId);
   }
@@ -238,14 +266,14 @@ public class RoomRepositoryImpl implements RoomRepository {
 
   private Optional<RoomRecord> findById(DSLContext ctx, UUID hotelId, UUID roomId) {
     return mkFindById(ctx, hotelId, roomId)
-        .queryTimeout(QUERY_TIMEOUT_SECONDS)
+        .queryTimeout(dbConfig.queryTimeoutSeconds())
         .fetchOptional(record -> toRoom(record, fetchAmenities(ctx, roomId)));
   }
 
   private Optional<RoomRecord> findByIdForUpdate(DSLContext ctx, UUID hotelId, UUID roomId) {
     return mkFindById(ctx, hotelId, roomId)
         .forUpdate()
-        .queryTimeout(QUERY_TIMEOUT_SECONDS)
+        .queryTimeout(dbConfig.queryTimeoutSeconds())
         .fetchOptional(record -> toRoom(record, fetchAmenities(ctx, roomId)));
   }
 
@@ -256,12 +284,11 @@ public class RoomRepositoryImpl implements RoomRepository {
         .join(AMENITIES)
         .on(ROOM_AMENITIES.AMENITY_ID.eq(AMENITIES.ID))
         .where(ROOM_AMENITIES.ROOM_ID.eq(roomId))
-        .queryTimeout(QUERY_TIMEOUT_SECONDS)
+        .queryTimeout(dbConfig.queryTimeoutSeconds())
         .fetchSet(AMENITIES.NAME);
   }
 
-  private static void persistAmenities(
-      DSLContext context, UUID roomId, UUID hotelId, Set<String> names) {
+  private void persistAmenities(DSLContext context, UUID roomId, UUID hotelId, Set<String> names) {
     if (names.isEmpty()) {
       return;
     }
@@ -274,7 +301,7 @@ public class RoomRepositoryImpl implements RoomRepository {
             .doUpdate()
             .set(AMENITIES.NAME, DSL.excluded(AMENITIES.NAME))
             .returning(AMENITIES.ID)
-            .queryTimeout(QUERY_TIMEOUT_SECONDS)
+            .queryTimeout(dbConfig.queryTimeoutSeconds())
             .fetch(AMENITIES.ID);
     var joins = amenities.stream().map(id -> new RoomAmenitiesRecord(roomId, hotelId, id)).toList();
     context
@@ -282,7 +309,7 @@ public class RoomRepositoryImpl implements RoomRepository {
         .set(joins)
         .onConflict(ROOM_AMENITIES.ROOM_ID, ROOM_AMENITIES.AMENITY_ID)
         .doNothing()
-        .queryTimeout(QUERY_TIMEOUT_SECONDS)
+        .queryTimeout(dbConfig.queryTimeoutSeconds())
         .execute();
   }
 

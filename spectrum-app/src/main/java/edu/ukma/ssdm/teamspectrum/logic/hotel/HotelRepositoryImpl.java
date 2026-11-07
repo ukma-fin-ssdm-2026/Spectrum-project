@@ -6,8 +6,13 @@ import static edu.ukma.ssdm.teamspectrum.db.jooq.tables.Hotels.HOTELS;
 import static edu.ukma.ssdm.teamspectrum.db.jooq.tables.RoomAmenities.ROOM_AMENITIES;
 import static edu.ukma.ssdm.teamspectrum.db.jooq.tables.Rooms.ROOMS;
 
+import edu.ukma.ssdm.teamspectrum.config.AppConfig.DbConfig;
 import edu.ukma.ssdm.teamspectrum.db.jooq.tables.records.HotelsRecord;
+import edu.ukma.ssdm.teamspectrum.logic.common.db.DBUtils;
+import edu.ukma.ssdm.teamspectrum.logic.common.db.DatabaseTimeoutPredicate;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import io.smallrye.faulttolerance.api.ExponentialBackoff;
+import io.smallrye.faulttolerance.api.RetryWhen;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import java.util.List;
@@ -16,6 +21,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import org.eclipse.microprofile.faulttolerance.Retry;
 import org.jooq.Condition;
 import org.jooq.DSLContext;
 import org.jooq.Field;
@@ -24,19 +30,23 @@ import org.jooq.impl.DSL;
 
 @ApplicationScoped
 public class HotelRepositoryImpl implements HotelRepository {
-  private static final int QUERY_TIMEOUT_SECONDS = 5;
 
   private final DSLContext dsl;
+  private final DbConfig config;
 
   @Inject
   @SuppressFBWarnings(
       value = "EI_EXPOSE_REP2",
       justification = "DSLContext is an intentionally shared injected database dependency.")
-  public HotelRepositoryImpl(DSLContext dsl) {
+  public HotelRepositoryImpl(DSLContext dsl, DbConfig config) {
     this.dsl = dsl;
+    this.config = config;
   }
 
   @Override
+  @Retry
+  @ExponentialBackoff
+  @RetryWhen(exception = DatabaseTimeoutPredicate.class)
   public List<HotelRecord> search(HotelSearchCriteria criteria, int offset, int limit) {
     var rows =
         dsl.selectFrom(HOTELS)
@@ -44,7 +54,7 @@ public class HotelRepositoryImpl implements HotelRepository {
             .orderBy(sortField(criteria))
             .offset(offset)
             .limit(limit)
-            .queryTimeout(QUERY_TIMEOUT_SECONDS)
+            .queryTimeout(config.queryTimeoutSeconds())
             .fetch();
     if (rows.isEmpty()) {
       return List.of();
@@ -54,38 +64,51 @@ public class HotelRepositoryImpl implements HotelRepository {
   }
 
   @Override
+  @Retry
+  @ExponentialBackoff
+  @RetryWhen(exception = DatabaseTimeoutPredicate.class)
   public long count(HotelSearchCriteria criteria) {
     return dsl.selectCount()
         .from(dsl.selectFrom(HOTELS).where(matching(criteria)).asTable())
-        .queryTimeout(QUERY_TIMEOUT_SECONDS)
+        .queryTimeout(config.queryTimeoutSeconds())
         .fetchOptional(0, Long.class)
         .orElse(0L);
   }
 
   @Override
+  @Retry
+  @ExponentialBackoff
+  @RetryWhen(exception = DatabaseTimeoutPredicate.class)
   public Optional<HotelRecord> findById(UUID id) {
     return dsl.selectFrom(HOTELS)
         .where(HOTELS.ID.eq(id))
-        .queryTimeout(QUERY_TIMEOUT_SECONDS)
+        .queryTimeout(config.queryTimeoutSeconds())
         .fetchOptional(record -> toHotel(record, fetchAmenities(id)));
   }
 
   @Override
+  @Retry
+  @ExponentialBackoff
+  @RetryWhen(exception = DatabaseTimeoutPredicate.class)
   public Optional<HotelRecord> findByName(String name) {
     if (name == null) {
       return Optional.empty();
     }
     return dsl.selectFrom(HOTELS)
         .where(DSL.lower(HOTELS.NAME).eq(name.trim().toLowerCase()))
-        .queryTimeout(QUERY_TIMEOUT_SECONDS)
+        .queryTimeout(config.queryTimeoutSeconds())
         .fetchOptional(record -> toHotel(record, fetchAmenities(record.getId())));
   }
 
   @Override
+  @Retry
+  @ExponentialBackoff
+  @RetryWhen(exception = DatabaseTimeoutPredicate.class)
   public boolean add(HotelRecord hotel) {
     return dsl.transactionResult(
         configuration -> {
           DSLContext tx = DSL.using(configuration);
+          DBUtils.setTransactionTimeout(tx, config.transactionTimeout());
           return tx.insertInto(HOTELS)
               .set(HOTELS.ID, hotel.id())
               .set(HOTELS.NAME, hotel.name())
@@ -98,7 +121,7 @@ public class HotelRepositoryImpl implements HotelRepository {
               .set(HOTELS.RATING, hotel.rating())
               .onConflictDoNothing()
               .returning()
-              .queryTimeout(QUERY_TIMEOUT_SECONDS)
+              .queryTimeout(config.queryTimeoutSeconds())
               .fetchOptional()
               .isPresent();
         });
@@ -112,7 +135,7 @@ public class HotelRepositoryImpl implements HotelRepository {
         .join(AMENITIES)
         .on(ROOM_AMENITIES.AMENITY_ID.eq(AMENITIES.ID))
         .where(ROOMS.HOTEL_ID.in(hotelIds))
-        .queryTimeout(QUERY_TIMEOUT_SECONDS)
+        .queryTimeout(config.queryTimeoutSeconds())
         .fetch()
         .collect(
             Collectors.groupingBy(
@@ -129,7 +152,7 @@ public class HotelRepositoryImpl implements HotelRepository {
         .join(AMENITIES)
         .on(ROOM_AMENITIES.AMENITY_ID.eq(AMENITIES.ID))
         .where(ROOMS.HOTEL_ID.eq(hotelId))
-        .queryTimeout(QUERY_TIMEOUT_SECONDS)
+        .queryTimeout(config.queryTimeoutSeconds())
         .fetch()
         .stream()
         .map(r -> r.get(AMENITIES.NAME))

@@ -3,37 +3,49 @@ package edu.ukma.ssdm.teamspectrum.logic.auth;
 
 import static edu.ukma.ssdm.teamspectrum.db.jooq.tables.Users.USERS;
 
+import edu.ukma.ssdm.teamspectrum.config.AppConfig.DbConfig;
 import edu.ukma.ssdm.teamspectrum.db.jooq.enums.UserRole;
 import edu.ukma.ssdm.teamspectrum.db.jooq.tables.records.UsersRecord;
+import edu.ukma.ssdm.teamspectrum.logic.common.db.DatabaseTimeoutPredicate;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import io.smallrye.faulttolerance.api.ExponentialBackoff;
+import io.smallrye.faulttolerance.api.RetryWhen;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import java.util.Optional;
+import org.eclipse.microprofile.faulttolerance.Retry;
 import org.jooq.DSLContext;
 
 @ApplicationScoped
 public class UserRepositoryImpl implements UserRepository {
-  private static final int QUERY_TIMEOUT_SECONDS = 5;
 
   private final DSLContext dsl;
+  private final DbConfig config;
 
   @Inject
   @SuppressFBWarnings(
       value = "EI_EXPOSE_REP2",
       justification = "DSLContext is an intentionally shared injected database dependency.")
-  public UserRepositoryImpl(DSLContext dsl) {
+  public UserRepositoryImpl(DSLContext dsl, DbConfig config) {
     this.dsl = dsl;
+    this.config = config;
   }
 
   @Override
+  @Retry
+  @ExponentialBackoff
+  @RetryWhen(exception = DatabaseTimeoutPredicate.class)
   public Optional<User> findByEmail(String email) {
     return dsl.selectFrom(USERS)
         .where(USERS.EMAIL.eq(email))
-        .queryTimeout(QUERY_TIMEOUT_SECONDS)
+        .queryTimeout(config.queryTimeoutSeconds())
         .fetchOptional(UserRepositoryImpl::toUser);
   }
 
   @Override
+  @Retry
+  @ExponentialBackoff
+  @RetryWhen(exception = DatabaseTimeoutPredicate.class)
   public boolean add(User user) {
     return dsl.insertInto(USERS)
             .set(USERS.ID, user.id())
@@ -42,7 +54,7 @@ public class UserRepositoryImpl implements UserRepository {
             .set(USERS.ROLE, UserRole.valueOf(user.role().name()))
             .onConflict(USERS.EMAIL)
             .doNothing()
-            .queryTimeout(QUERY_TIMEOUT_SECONDS)
+            .queryTimeout(config.queryTimeoutSeconds())
             .execute()
         == 1;
   }

@@ -49,9 +49,25 @@ jobs:
         working-directory: spectrum-app
         run: chmod +x mvnw
 
-      - name: Check formatting, tests, and static analysis
+      - name: Check formatting
         working-directory: spectrum-app
-        run: ./mvnw -B spotless:check verify spotbugs:check
+        run: ./mvnw -B spotless:check
+
+      - name: Run unit tests
+        working-directory: spectrum-app
+        run: ./mvnw -B test -Dgroups=unit
+
+      - name: Run integration tests
+        working-directory: spectrum-app
+        run: ./mvnw -B test -Dgroups=integration
+
+      - name: Run reliability tests
+        working-directory: spectrum-app
+        run: ./mvnw -B test -Dgroups=reliability
+
+      - name: Check static analysis and coverage
+        working-directory: spectrum-app
+        run: ./mvnw -B spotbugs:check jacoco:check
 
       - name: Checkout PR head for OpenAPI generation
         if: github.event_name == 'pull_request'

@@ -2,34 +2,30 @@
 package edu.ukma.ssdm.teamspectrum.logic.auth;
 
 import edu.ukma.ssdm.teamspectrum.api.auth.IssuedToken;
+import edu.ukma.ssdm.teamspectrum.config.AppConfig.JwtConfig;
 import io.smallrye.jwt.build.Jwt;
 import jakarta.enterprise.context.ApplicationScoped;
-import java.time.Duration;
 import java.util.Set;
-import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 @ApplicationScoped
 public class TokenFactoryImpl implements TokenFactory {
 
-  private static final String issuer = "spectrum-app";
-  private static final Duration TOKEN_LIFETIME = Duration.ofMinutes(15);
+  private final JwtConfig config;
 
-  private final String jwtSecret;
-
-  public TokenFactoryImpl(@ConfigProperty(name = "JWT_SECRET") String jwtSecret) {
-    this.jwtSecret = jwtSecret;
+  public TokenFactoryImpl(JwtConfig config) {
+    this.config = config;
   }
 
   @Override
   public IssuedToken create(User user) {
     String token =
-        Jwt.issuer(issuer)
+        Jwt.issuer(config.issuer())
             .subject(user.id().toString())
             .upn(user.email())
             .groups(Set.of(user.role().toString()))
-            .expiresIn(TOKEN_LIFETIME)
+            .expiresIn(config.tokenLifetime().value())
             .jws()
-            .signWithSecret(jwtSecret);
-    return new IssuedToken(token, TOKEN_LIFETIME.toSeconds());
+            .signWithSecret(config.secret());
+    return new IssuedToken(token, config.tokenLifetime().value().toSeconds());
   }
 }

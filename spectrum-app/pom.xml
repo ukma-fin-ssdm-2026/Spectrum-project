@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>edu.ukma.ssdm.teamspectrum</groupId>
     <artifactId>spectrum-app</artifactId>
-    <version>0.1.1</version>
+    <version>0.2.0</version>
     <packaging>quarkus</packaging>
 
     <properties>
@@ -50,6 +50,14 @@
         <dependency>
             <groupId>io.quarkus</groupId>
             <artifactId>quarkus-arc</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.quarkus</groupId>
+            <artifactId>quarkus-smallrye-fault-tolerance</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.quarkus</groupId>
+            <artifactId>quarkus-smallrye-health</artifactId>
         </dependency>
         <dependency>
             <groupId>io.quarkus</groupId>

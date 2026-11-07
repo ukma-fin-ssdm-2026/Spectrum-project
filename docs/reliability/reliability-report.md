@@ -4,22 +4,23 @@ Go back to the [Main README](../../README.md).
 
 ## Issues and criticality
 
-| Issue                                           | Category | Criticality and reason                               | Current status                                               |
-|-------------------------------------------------|----------|------------------------------------------------------|--------------------------------------------------------------|
-| User queries without timeouts                   | B, E     | __High:__ blocked requests can exhaust threads       | Fixed: five-second query timeouts                            |
-| Hotel queries without timeouts                  | B, E     | __High:__ blocked requests can exhaust threads       | Fixed: five-second query timeouts                            |
-| Room queries without timeouts                   | B, E     | __High:__ blocked requests can exhaust threads       | Fixed: five-second query timeouts                            |
-| Hotel name conflict during concurrent insertion | A        | __Medium:__ expected conflict becomes HTTP 500       | Open                                                         |
-| Room query enum conversion/error response       | C, A     | __Medium:__ invalid values receive misleading errors | Fixed: custom conversion covers `RoomSortBy` and `SortOrder` |
-| Registration ignores unsuccessful insertion     | D        | __High:__ token issued for an unpersisted user ID    | Open                                                         |
-| Room pagination offset overflow                 | C, A     | __Medium:__ client input triggers HTTP 500           | Open                                                         |
-| Hotel pagination offset overflow                | C, A     | __Medium:__ client input triggers HTTP 500           | Open                                                         |
+| Issue                                           | Category | Criticality and reason                               | Current status                                                                         |
+|-------------------------------------------------|----------|------------------------------------------------------|----------------------------------------------------------------------------------------|
+| User queries without timeouts                   | B, E     | __High:__ blocked requests can exhaust threads       | Fixed: five-second query timeouts                                                      |
+| Hotel queries without timeouts                  | B, E     | __High:__ blocked requests can exhaust threads       | Fixed: five-second query timeouts                                                      |
+| Room queries without timeouts                   | B, E     | __High:__ blocked requests can exhaust threads       | Fixed: five-second query timeouts                                                      |
+| Hotel name conflict during concurrent insertion | A        | __Medium:__ expected conflict becomes HTTP 500       | Partially fixed: conflict won't fail, but will report successful creation despite noop |
+| Room query enum conversion/error response       | C, A     | __Medium:__ invalid values receive misleading errors | Fixed: custom conversion covers `RoomSortBy` and `SortOrder`                           |
+| Registration ignores unsuccessful insertion     | D        | __High:__ token issued for an unpersisted user ID    | Open                                                                                   |
+| Room pagination offset overflow                 | C, A     | __Medium:__ client input triggers HTTP 500           | Open                                                                                   |
+| Hotel pagination offset overflow                | C, A     | __Medium:__ client input triggers HTTP 500           | Open                                                                                   |
 
 ## Before/after and applied patterns
 
 ### Bounded database execution
 
-All three repositories apply the same 5 second statement timeout.
+All three repositories apply the same 5 seconds statement timeout and retry with backoff
+on timeout exceptions.
 
 #### Before:
 
@@ -88,12 +89,12 @@ tests cover their valid values and HTTP 400 for `UNKNOWN`;
 
 ## Failure and recovery modes
 
-| Resolved issue                    | Behavior                                                | What the user sees                                                | Recovery                 |
-|-----------------------------------|---------------------------------------------------------|-------------------------------------------------------------------|--------------------------|
-| User query timeout                | Fail-fast when the statement exceeds five seconds       | Failed request; no dedicated timeout mapper, so normally HTTP 500 | Retry after recovery;    |
-| Hotel query timeout               | Fail-fast; transactional inserts roll back on failure   | Failed request, normally HTTP 500                                 | Retry after recovery;    |
-| Room query timeout                | Fail-fast; transactional mutations roll back on failure | Failed request, normally HTTP 500                                 | Retry after recovery;    |
-| Supported sorting enum conversion | Fail-fast for unsupported values                        | HTTP 400 for invalid `sortBy`/`sortOrder`                         | Retry with correct value |
+| Resolved issue                    | Behavior                                                | What the user sees                        | Recovery                 |
+|-----------------------------------|---------------------------------------------------------|-------------------------------------------|--------------------------|
+| User query timeout                | Fail-fast when the statement exceeds five seconds       | Failed request; HTTP 500                  | Retry after recovery;    |
+| Hotel query timeout               | Fail-fast; transactional inserts roll back on failure   | Failed request, HTTP 500                  | Retry after recovery;    |
+| Room query timeout                | Fail-fast; transactional mutations roll back on failure | Failed request, HTTP 500                  | Retry after recovery;    |
+| Supported sorting enum conversion | Fail-fast for unsupported values                        | HTTP 400 for invalid `sortBy`/`sortOrder` | Retry with correct value |
 
 ## Remaining open issues
 
@@ -105,8 +106,110 @@ tests cover their valid values and HTTP 400 for `UNKNOWN`;
   offset range and return HTTP 400 instead of an uncaught arithmetic exception.
 - **Other enum parameters:** `RoomType` and `RoomStatus` still use framework
   conversion.
-- **Timeout responses:** add explicit timeout error mapping and retrial inside the
-  program(currently users have to do themselves )
 
-AI usage:
+## Bonuses:
+
+### Backoff with jitter:
+
+Added [configurable](../../spectrum-app/src/main/resources/application.properties)
+back-off with jitter for
+[timeout exceptions](../../spectrum-app/src/main/java/edu/ukma/ssdm/teamspectrum/logic/common/db/DatabaseTimeoutPredicate.java)
+thrown by db calls.
+
+```java
+
+@Retry
+@ExponentialBackoff
+@RetryWhen(exception = DatabaseTimeoutPredicate.class)
+public Optional<User> findByEmail(String email) {
+    return dsl.selectFrom(USERS)
+            .where(USERS.EMAIL.eq(email))
+            .queryTimeout(config.queryTimeoutSeconds())
+            .fetchOptional(UserRepositoryImpl::toUser);
+}
+
+```
+
+### Healthcheck
+
+#### Liveness check
+
+Same for when db `up` or `down`:
+
+```json
+{
+  "status": "UP",
+  "checks": [
+    {
+      "name": "Database connections health check",
+      "status": "UP",
+      "data": {
+        "<default>": "UP"
+      }
+    }
+  ]
+}
+```
+
+#### Readiness check
+
+`GET` http://localhost:8080/q/health/ready
+
+##### DB is up
+
+```json
+{
+  "status": "UP",
+  "checks": [
+    {
+      "name": "Database connections health check",
+      "status": "UP",
+      "data": {
+        "<default>": "UP"
+      }
+    }
+  ]
+}
+```
+
+##### DB is down:
+
+```json
+{
+  "status": "DOWN",
+  "checks": [
+    {
+      "name": "Database connections health check",
+      "status": "DOWN",
+      "data": {
+        "<default>": "validation check failed for the default DataSource"
+      }
+    }
+  ]
+}
+```
+
+### Reliability tests
+
+All tests were tagged with next categories:
+
+- `unit`
+- `integration`
+- `reliability`
+
+To be able to run them separately.
+
+e.g. for `reliability` tests:
+```shell
+./mvnw -B test -Dgroups=reliability
+```
+
+
+See [ci workflow](../../.github/workflows/ci.yml)
+`Run reliability tests` step for reliability tests run.
+
+See [successful run](https://github.com/ukma-fin-ssdm-2026/Spectrum-project/actions/runs/42400630906/job/128487398504?pr=104)
+
+#### AI usage:
+
 Initial draft was made with LLM.

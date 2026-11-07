@@ -72,6 +72,11 @@ Roles are described in the [Team charter](TeamCharter.md); the task process is d
 
 - [SonarCloud report](docs/refactoring/sonarcloud-report.md)
 
+### Reliability:
+
+- [Reliability report](docs/reliability/reliability-report.md)
+- [Scavenger hunt](docs/reliability/scavenger-hunt.md)
+
 
 ### How to run locally:
 

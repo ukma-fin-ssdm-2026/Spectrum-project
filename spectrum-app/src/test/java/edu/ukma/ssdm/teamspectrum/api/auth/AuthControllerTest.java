@@ -14,10 +14,12 @@ import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.junit.TestProfile;
 import io.restassured.http.ContentType;
 import io.restassured.response.Response;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 @QuarkusTest
 @TestProfile(ControllerTestProfile.class)
+@Tag("integration")
 class AuthControllerTest {
   @InjectMock AuthService authService;
 
