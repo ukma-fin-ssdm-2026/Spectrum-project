@@ -8,10 +8,13 @@ import static edu.ukma.ssdm.teamspectrum.db.jooq.tables.Rooms.ROOMS;
 
 import edu.ukma.ssdm.teamspectrum.db.jooq.tables.records.RoomAmenitiesRecord;
 import edu.ukma.ssdm.teamspectrum.db.jooq.tables.records.RoomsRecord;
+import edu.ukma.ssdm.teamspectrum.logic.common.PositiveDuration;
+import edu.ukma.ssdm.teamspectrum.logic.common.db.DBUtils;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import java.math.BigDecimal;
+import java.time.Duration;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -22,6 +25,8 @@ import org.jooq.impl.DSL;
 @ApplicationScoped
 public class RoomRepositoryImpl implements RoomRepository {
   private static final int QUERY_TIMEOUT_SECONDS = 5;
+  private static final PositiveDuration TRANSACTION_TIMEOUT =
+      new PositiveDuration(Duration.ofSeconds(10));
 
   private final DSLContext dsl;
 
@@ -80,6 +85,7 @@ public class RoomRepositoryImpl implements RoomRepository {
     return dsl.transactionResult(
         configuration -> {
           DSLContext tx = DSL.using(configuration);
+          DBUtils.setTransactionTimeout(tx, TRANSACTION_TIMEOUT);
           var hotelExists =
               selectHotelById(tx, hotelId)
                   .forKeyShare()
@@ -133,7 +139,11 @@ public class RoomRepositoryImpl implements RoomRepository {
   @Override
   public RoomMutationResult update(UUID hotelId, UUID roomId, UpdateRoomCommand request) {
     return dsl.transactionResult(
-        configuration -> updateInTransaction(DSL.using(configuration), hotelId, roomId, request));
+        configuration -> {
+          DSLContext tx = DSL.using(configuration);
+          DBUtils.setTransactionTimeout(tx, TRANSACTION_TIMEOUT);
+          return updateInTransaction(tx, hotelId, roomId, request);
+        });
   }
 
   private RoomMutationResult updateInTransaction(
@@ -201,6 +211,7 @@ public class RoomRepositoryImpl implements RoomRepository {
     return dsl.transactionResult(
         configuration -> {
           DSLContext tx = DSL.using(configuration);
+          DBUtils.setTransactionTimeout(tx, TRANSACTION_TIMEOUT);
 
           long count =
               tx.selectCount()

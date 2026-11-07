@@ -7,9 +7,12 @@ import static edu.ukma.ssdm.teamspectrum.db.jooq.tables.RoomAmenities.ROOM_AMENI
 import static edu.ukma.ssdm.teamspectrum.db.jooq.tables.Rooms.ROOMS;
 
 import edu.ukma.ssdm.teamspectrum.db.jooq.tables.records.HotelsRecord;
+import edu.ukma.ssdm.teamspectrum.logic.common.PositiveDuration;
+import edu.ukma.ssdm.teamspectrum.logic.common.db.DBUtils;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -25,6 +28,8 @@ import org.jooq.impl.DSL;
 @ApplicationScoped
 public class HotelRepositoryImpl implements HotelRepository {
   private static final int QUERY_TIMEOUT_SECONDS = 5;
+  private static final PositiveDuration TRANSACTION_TIMEOUT =
+      new PositiveDuration(Duration.ofSeconds(10));
 
   private final DSLContext dsl;
 
@@ -86,6 +91,7 @@ public class HotelRepositoryImpl implements HotelRepository {
     return dsl.transactionResult(
         configuration -> {
           DSLContext tx = DSL.using(configuration);
+          DBUtils.setTransactionTimeout(tx, TRANSACTION_TIMEOUT);
           return tx.insertInto(HOTELS)
               .set(HOTELS.ID, hotel.id())
               .set(HOTELS.NAME, hotel.name())
