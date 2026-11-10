@@ -41,10 +41,10 @@ public class RoomSearchCriteriaFactory {
   }
 
   public edu.ukma.ssdm.teamspectrum.logic.common.SortOrder mkSortOrder(SortOrder sortOrder) {
-    return sortOrder == null
-        ? edu.ukma.ssdm.teamspectrum.logic.common.SortOrder.ASC
-        : sortOrder == SortOrder.Asc
-            ? edu.ukma.ssdm.teamspectrum.logic.common.SortOrder.ASC
-            : edu.ukma.ssdm.teamspectrum.logic.common.SortOrder.DESC;
+    return switch (sortOrder) {
+      case null -> edu.ukma.ssdm.teamspectrum.logic.common.SortOrder.ASC;
+      case SortOrder.Asc -> edu.ukma.ssdm.teamspectrum.logic.common.SortOrder.ASC;
+      case SortOrder.Desc -> edu.ukma.ssdm.teamspectrum.logic.common.SortOrder.DESC;
+    };
   }
 }

@@ -22,11 +22,11 @@ import edu.ukma.ssdm.teamspectrum.logic.room.RoomPage;
 import edu.ukma.ssdm.teamspectrum.logic.room.RoomRepository;
 import io.quarkus.test.InjectMock;
 import io.quarkus.test.junit.QuarkusTest;
-import io.quarkus.test.junit.QuarkusTestProfile;
 import io.quarkus.test.junit.TestProfile;
 import jakarta.inject.Inject;
 import java.sql.SQLException;
 import java.sql.SQLTimeoutException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -50,20 +50,19 @@ class DatabaseRetryTest {
   @Inject HotelRepository hotels;
   @Inject RoomRepository rooms;
 
-  public static class Profile implements QuarkusTestProfile {
+  public static class Profile extends BaseTestProfile {
     @Override
     public Map<String, String> getConfigOverrides() {
-      return Map.of(
-          "DB_URL", "jdbc:postgresql://127.0.0.1:1/retry_test",
-          "DB_USERNAME", "test",
-          "DB_PASSWORD", "test",
-          "JWT_SECRET", "test-secret-for-database-retry-0123456789",
-          "quarkus.flyway.migrate-at-start", "false",
-          "quarkus.datasource.jdbc.initial-size", "0",
-          "quarkus.datasource.jdbc.min-size", "0",
-          "app.db.retry.max-retries", "2",
-          "app.db.query-timeout-seconds", "7",
-          "app.db.transaction-timeout", "PT12S");
+      var base = new HashMap<>(super.getConfigOverrides());
+      base.putAll(
+          Map.of(
+              "app.db.retry.max-retries",
+              "2",
+              "app.db.query-timeout-seconds",
+              "7",
+              "app.db.transaction-timeout",
+              "PT12S"));
+      return base;
     }
   }
 
