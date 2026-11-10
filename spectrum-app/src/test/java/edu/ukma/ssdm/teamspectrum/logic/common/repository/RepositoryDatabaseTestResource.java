@@ -37,6 +37,7 @@ public class RepositoryDatabaseTestResource implements QuarkusTestResourceLifecy
         "DB_URL", databaseUrl + separator + "currentSchema=" + schema,
         "DB_USERNAME", username,
         "DB_PASSWORD", password,
+        "app.jooq.schema", schema,
         "quarkus.flyway.schemas", schema,
         "quarkus.flyway.default-schema", schema);
   }
