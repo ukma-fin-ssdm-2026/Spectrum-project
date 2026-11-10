@@ -59,8 +59,9 @@ public class WorkerInvitationService {
     }
 
     String token = generateToken();
-    Instant expiresAt = Instant.now().plus(INVITATION_LIFETIME);
-    invitationRepository.create(normalizedEmail, hashToken(token), expiresAt);
+    Instant createdAt = Instant.now();
+    Instant expiresAt = createdAt.plus(INVITATION_LIFETIME);
+    invitationRepository.create(normalizedEmail, hashToken(token), createdAt, expiresAt);
     String url =
         UriBuilder.fromUri(URI.create(registrationUrl))
             .queryParam("token", token)
@@ -72,12 +73,12 @@ public class WorkerInvitationService {
 
   public IssuedToken completeRegistration(String token, String password) {
     String tokenHash = hashToken(token);
-    if (!invitationRepository.isActive(tokenHash)) {
+    if (!invitationRepository.isActive(tokenHash, Instant.now())) {
       throw new InvalidWorkerInvitationException();
     }
     User user =
         invitationRepository.consumeAndRegister(
-            tokenHash, UUID.randomUUID(), BcryptUtil.bcryptHash(password));
+            tokenHash, UUID.randomUUID(), BcryptUtil.bcryptHash(password), Instant.now());
     logger.info("Registered worker account: {}", user.email());
     return tokenFactory.create(user);
   }

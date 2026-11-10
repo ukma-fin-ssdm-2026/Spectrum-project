@@ -5,9 +5,9 @@ import java.time.Instant;
 import java.util.UUID;
 
 public interface WorkerInvitationRepository {
-  void create(String email, String tokenHash, Instant expiresAt);
+  void create(String email, String tokenHash, Instant createdAt, Instant expiresAt);
 
-  boolean isActive(String tokenHash);
+  boolean isActive(String tokenHash, Instant now);
 
-  User consumeAndRegister(String tokenHash, UUID userId, String passwordHash);
+  User consumeAndRegister(String tokenHash, UUID userId, String passwordHash, Instant now);
 }
