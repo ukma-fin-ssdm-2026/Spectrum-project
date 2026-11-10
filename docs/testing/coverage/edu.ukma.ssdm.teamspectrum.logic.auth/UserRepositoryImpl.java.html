@@ -46,25 +46,37 @@ public class UserRepositoryImpl implements UserRepository {
   @Retry
   @ExponentialBackoff
   @RetryWhen(exception = DatabaseTimeoutPredicate.class)
+  public boolean existsByRole(Role role) {
+<span class="nc" id="L50">    return dsl.selectOne()</span>
+<span class="nc" id="L51">        .from(USERS)</span>
+<span class="nc" id="L52">        .where(USERS.ROLE.eq(UserRole.valueOf(role.name())))</span>
+<span class="nc" id="L53">        .fetchOptional()</span>
+<span class="nc" id="L54">        .isPresent();</span>
+  }
+
+  @Override
+  @Retry
+  @ExponentialBackoff
+  @RetryWhen(exception = DatabaseTimeoutPredicate.class)
   public boolean add(User user) {
-<span class="fc" id="L50">    return dsl.insertInto(USERS)</span>
-<span class="fc" id="L51">            .set(USERS.ID, user.id())</span>
-<span class="fc" id="L52">            .set(USERS.EMAIL, user.email())</span>
-<span class="fc" id="L53">            .set(USERS.PASSWORD_HASH, user.passwordHash())</span>
-<span class="fc" id="L54">            .set(USERS.ROLE, UserRole.valueOf(user.role().name()))</span>
-<span class="fc" id="L55">            .onConflict(USERS.EMAIL)</span>
-<span class="fc" id="L56">            .doNothing()</span>
-<span class="fc" id="L57">            .queryTimeout(config.queryTimeoutSeconds())</span>
-<span class="fc bfc" id="L58" title="All 2 branches covered.">            .execute()</span>
+<span class="fc" id="L62">    return dsl.insertInto(USERS)</span>
+<span class="fc" id="L63">            .set(USERS.ID, user.id())</span>
+<span class="fc" id="L64">            .set(USERS.EMAIL, user.email())</span>
+<span class="fc" id="L65">            .set(USERS.PASSWORD_HASH, user.passwordHash())</span>
+<span class="fc" id="L66">            .set(USERS.ROLE, UserRole.valueOf(user.role().name()))</span>
+<span class="fc" id="L67">            .onConflict(USERS.EMAIL)</span>
+<span class="fc" id="L68">            .doNothing()</span>
+<span class="fc" id="L69">            .queryTimeout(config.queryTimeoutSeconds())</span>
+<span class="fc bfc" id="L70" title="All 2 branches covered.">            .execute()</span>
         == 1;
   }
 
   private static User toUser(UsersRecord record) {
-<span class="fc" id="L63">    return new User(</span>
-<span class="fc" id="L64">        record.getId(),</span>
-<span class="fc" id="L65">        record.getEmail(),</span>
-<span class="fc" id="L66">        record.getPasswordHash(),</span>
-<span class="fc" id="L67">        Role.valueOf(record.getRole().getLiteral()));</span>
+<span class="fc" id="L75">    return new User(</span>
+<span class="fc" id="L76">        record.getId(),</span>
+<span class="fc" id="L77">        record.getEmail(),</span>
+<span class="fc" id="L78">        record.getPasswordHash(),</span>
+<span class="fc" id="L79">        Role.valueOf(record.getRole().getLiteral()));</span>
   }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

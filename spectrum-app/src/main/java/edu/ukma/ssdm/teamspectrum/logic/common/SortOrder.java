@@ -2,6 +2,6 @@
 package edu.ukma.ssdm.teamspectrum.logic.common;
 
 public enum SortOrder {
-  Asc,
-  Desc
+  ASC,
+  DESC
 }
