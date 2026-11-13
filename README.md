@@ -77,6 +77,12 @@ Roles are described in the [Team charter](TeamCharter.md); the task process is d
 - [Reliability report](docs/reliability/reliability-report.md)
 - [Scavenger hunt](docs/reliability/scavenger-hunt.md)
 
+### CI/CD metrics:
+
+- [DORA summary](docs/ci-cd/dora-summary.md)
+- [Raw run data](docs/ci-cd/metrics-raw.md)
+- [Evidence](docs/ci-cd/evidence/)
+
 
 ### How to run locally:
 
