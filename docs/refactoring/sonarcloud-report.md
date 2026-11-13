@@ -122,7 +122,12 @@ e.g. [HotelServiceImpl at line 15](../../spectrum-app/src/main/java/edu/ukma/ssd
 
 ### Regression testing:
 
-All tests passed successfully.
+All tests passed successfully. Command (the same one the CI job `checks` runs, from
+`spectrum-app`, with PostgreSQL from `compose.yaml` and `DB_PASSWORD` set):
+
+```shell
+./mvnw -B spotless:check verify spotbugs:check
+```
 
 ```terminaloutput
 [INFO] Results:
@@ -146,6 +151,127 @@ See [screenshot from analysis panel](measures_after_9d88f0d.png)
 | Congnitive complexity         | 68    |
 | ___*Security Rating___        | A     |
 
+### Refactoring for `v0.2.1`
+
+Second round, done by @VeronikaGovorischeva in PR #106.
+
+#### Before: report for `80ec284` (analysis of 07.11.2026, version `0.2.0`)
+
+| Measure                      | Project | `EnumParamConverterProvider` | `RoomFactory` |
+|------------------------------|---------|------------------------------|---------------|
+| ___*Code Smells___           | 0       | 0                            | 0             |
+| ___*Cognitive complexity___  | 96      | 5                            | 8             |
+| ___*Cyclomatic complexity___ | —       | 11                           | 20            |
+| Maintainability Rating       | A       |                              |               |
+| Reliability Rating           | A       |                              |               |
+| Duplicated Lines             | 0%      |                              |               |
+| Security Rating              | A       |                              |               |
+
+SonarQube still reports no code smells, so the refactorings were chosen by reading the
+code of the API layer, which the first round did not touch.
+
+#### Refactorings
+
+1. [EnumParamConverterProvider](../../spectrum-app/src/main/java/edu/ukma/ssdm/teamspectrum/api/common/param/EnumParamConverterProvider.java)
+   `getConverter` chose the converter with an `if`/`else if` chain on the parameter type
+   and created a new converter on every call. Every new enum query parameter would add one
+   more branch (code smell: _Switch Statements_, a conditional on type).
+    - ___Fix:___ `Substitute Algorithm` (`Replace Conditional with Lookup Table`): a
+      `Map` from the supported enum class to its converter.
+    - __Unchanged:__ `SortOrder` and `RoomSortBy` are parsed from their wire values (`ASC`,
+      `ROOM_NUMBER`), any other value gives `400` with the list of allowed values, `null`
+      stays `null`, and other types still get no converter.
+    - __Changes in structure:__ one converter per enum is created once; `getConverter` is a
+      single lookup, and adding an enum means adding one map entry.
+    - __Test:__ characterization tests in
+      [EnumParamConverterProviderTest](../../spectrum-app/src/test/java/edu/ukma/ssdm/teamspectrum/api/common/param/EnumParamConverterProviderTest.java)
+      (committed before the refactoring, see [Bonuses](#bonuses)) and the `sortBy` and
+      `sortOrder` cases of `RoomControllerTest`.
+2. [RoomFactory](../../spectrum-app/src/main/java/edu/ukma/ssdm/teamspectrum/api/room/RoomFactory.java)
+   `toLogic(CreateRoom)` repeated the type, price and status conversions inline, although
+   the class already has converter methods for them (code smell: _Duplicated Code_).
+   `toLogic(UpdateRoom)` started with a five-part `&&` condition and five almost equal
+   `FieldError` lines (code smells: _Long Method_, _Duplicated Code_).
+    - ___Fix:___ `Replace Inline Code with Function Call` for the conversions;
+      `Decompose Conditional` into `hasNoFields`; `Extract Method` `noFieldsError`, which
+      builds the errors from one list of field names.
+    - __Unchanged:__ the created and updated commands, and the `400` response with one
+      error per field when an update has no fields. The converters return `null` for
+      `null`, but `CreateRoom` fields are `@NotNull`, so a valid request is mapped exactly
+      as before.
+    - __Changes in structure:__ each conversion exists once; the field names of the update
+      error are in one list.
+    - __Test:__ `mapsCreateRoomToLogicCommand`, `mapsUpdateRoomToLogicCommand` and
+      `rejectsUpdateRoomWithNoFields` in
+      [RoomFactoryTest](../../spectrum-app/src/test/java/edu/ukma/ssdm/teamspectrum/api/room/RoomFactoryTest.java),
+      and the create and update cases of `RoomControllerTest`.
+
+#### Regression testing
+
+Same command as above. All tests passed, including the 11 new characterization tests:
+
+```terminaloutput
+Tests run: 226, Failures: 0, Errors: 0, Skipped: 0
+[INFO] BugInstance size is 0
+[INFO] All coverage checks have been met.
+[INFO] BUILD SUCCESS
+```
+
+#### After
+
+SonarQube Cloud analysis of PR #106 (it measures the changed files; Quality Gate: passed):
+
+| Measure                      | Project       | `EnumParamConverterProvider` | `RoomFactory` |
+|------------------------------|---------------|------------------------------|---------------|
+| ___*Code Smells___           | 0             | 0                            | 0             |
+| ___*Cognitive complexity___  | 93 (96 − 3)   | 2 (was 5)                    | 8 (was 8)     |
+| ___*Cyclomatic complexity___ | —             | 9 (was 11)                   | 23 (was 20)   |
+| Maintainability Rating       | A             |                              |               |
+| Reliability Rating           | A             |                              |               |
+| Duplicated Lines             | 0%            |                              |               |
+| Security Rating              | A             |                              |               |
+
+The project value 93 is the analysis of `80ec284` minus the change in the two files; the
+analysis of `main` after the merge confirms it.
+
+- **Improved:** `EnumParamConverterProvider` cognitive complexity 5 → 2, because the
+  `if`/`else if` chain is gone.
+- **Not improved by the metric:** `RoomFactory` cognitive complexity stays 8, and its
+  cyclomatic complexity grows 20 → 23, because SonarQube counts every method as +1 and two
+  methods were extracted. The gain there is removed duplication (each conversion and each
+  field name exists once) and a shorter `toLogic(UpdateRoom)`, which these metrics do not
+  show.
+- **Security Rating:** A before and after; the changes touch no security-relevant code.
+
+#### AI usage:
+
+##### First round (`v0.1.1`)
+
+- **Performed by the agent:** all three refactorings in [Refactoring](#refactoring). The
+  agent generated the code changes: the new `toHotels` signature and the amenity query in
+  `search`; `HotelMutationResult` and the `switch` in `HotelController.create` in place of
+  `HotelAlreadyExistsExceptionMapper`; the `updateInTransaction`, `roomNumberInUse` and
+  `updateAmenities` helpers in `RoomRepositoryImpl`. After the initial analysis, the agent
+  was told what to change in each feature.
+- **Verified by:** review of every change in PR #94; the regression tests after each
+  finished change (174 tests, 0 failures); the metrics after the merge (Cognitive
+  Complexity 73 → 68, Security Rating C → A).
+- The descriptions of the code smells were drafted with an LLM.
+
+##### Second round (`v0.2.1`)
+
+- **Performed by the agent (Claude Code):** both refactorings, the characterization tests
+  and the descriptions in [Refactoring for `v0.2.1`](#refactoring-for-v021). The agent
+  proposed the candidates from the SonarQube Cloud metrics per file and generated the map
+  lookup in `EnumParamConverterProvider` and the `hasNoFields` and `noFieldsError` helpers
+  in `RoomFactory`.
+- **Verified by:** the characterization tests were run on the old code first (11 passed)
+  and committed before the refactoring; after each `[REFACTOR]` commit the related tests
+  were run, and after both the full build above (226 tests, SpotBugs 0); the `@NotNull`
+  constraints of `CreateRoom` were checked by hand to confirm that the `null`-safe
+  converters do not change the result for valid requests; the metrics of the PR analysis
+  are in the table above; review in PR #106.
+
 #### Bonuses:
 
 ##### Quality Gate:
@@ -161,13 +287,17 @@ because it produces dependencies. Was fixed by changing annotation for it to lis
 [Succeeded](https://github.com/ukma-fin-ssdm-2026/Spectrum-project/pull/104#issuecomment-6711283838)
 after [fix](https://github.com/ukma-fin-ssdm-2026/Spectrum-project/commit/9dc1754571e1be7ac96563603b9e15365a3d4a10)
 
-#### AI usage:
+##### Characterization tests before refactoring:
 
-#### Refactoring was performed with LLM.
-
-All [Refactoring](#refactoring) was performed with LLM. After initial analysis, LLM was
-instructed what to change in corresponding features. All changes were reviewed. Tests were
-run after each change, when it was finalized(e.g. when `toHotels` started taking amenities
-as argument).
-
-##### Descriptions for code smells were drafted with LLM.
+- **Module:** [EnumParamConverterProvider](../../spectrum-app/src/main/java/edu/ukma/ssdm/teamspectrum/api/common/param/EnumParamConverterProvider.java)
+  had no tests of its own.
+- **Tests:** [EnumParamConverterProviderTest](../../spectrum-app/src/test/java/edu/ukma/ssdm/teamspectrum/api/common/param/EnumParamConverterProviderTest.java),
+  11 cases. They record the current behavior, including the odd parts: the enum constant
+  name (`Asc`, `RoomNumber`) is rejected and only the wire value (`ASC`, `ROOM_NUMBER`) is
+  accepted; matching is case-sensitive and does not trim spaces; `HotelSortBy` gets no
+  converter from this provider; the error message lists the values in declaration order.
+- **Order:** the test commit `test: characterization tests for enum query parameter
+  converter` comes before the refactoring commit `refactor: look up enum query parameter
+  converters in a map [REFACTOR]` in PR #106.
+- **Before and after:** 11 of 11 pass on the old code (run before the test commit) and on
+  the refactored code (run after the `[REFACTOR]` commit and in CI of PR #106).

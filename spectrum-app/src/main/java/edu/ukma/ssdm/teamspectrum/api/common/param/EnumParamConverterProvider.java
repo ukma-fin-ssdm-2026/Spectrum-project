@@ -8,20 +8,24 @@ import jakarta.ws.rs.ext.ParamConverter;
 import jakarta.ws.rs.ext.ParamConverterProvider;
 import jakarta.ws.rs.ext.Provider;
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Type;
 import java.util.Arrays;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Provider
 public class EnumParamConverterProvider implements ParamConverterProvider {
+  /** Query parameter enums converted by their wire value; other types use the default. */
+  private static final Map<Class<?>, ParamConverter<?>> converters =
+      Map.of(
+          RoomSortBy.class, new EnumParamConverter<>(RoomSortBy.class),
+          SortOrder.class, new EnumParamConverter<>(SortOrder.class));
+
   @Override
   @SuppressWarnings("unchecked")
   public <T> ParamConverter<T> getConverter(
-      Class<T> rawType, java.lang.reflect.Type genericType, Annotation[] annotations) {
-    if (rawType == RoomSortBy.class) {
-      return (ParamConverter<T>) new EnumParamConverter<>(RoomSortBy.class);
-    } else if (rawType == SortOrder.class) {
-      return (ParamConverter<T>) new EnumParamConverter<>(SortOrder.class);
-    } else return null;
+      Class<T> rawType, Type genericType, Annotation[] annotations) {
+    return (ParamConverter<T>) converters.get(rawType);
   }
 
   private static final class EnumParamConverter<E extends Enum<E>> implements ParamConverter<E> {

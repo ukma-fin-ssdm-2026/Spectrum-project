@@ -15,34 +15,23 @@ import java.util.UUID;
 @ApplicationScoped
 public class RoomFactory {
   static final String allNullMessage = "at least one field must be provided";
+  private static final List<String> updatableFields =
+      List.of("roomNumber", "roomType", "pricePerNight", "roomStatus", "amenities");
 
   public CreateRoomCommand toLogic(CreateRoom request) {
     return new CreateRoomCommand(
         UUID.randomUUID(),
         request.roomNumber(),
-        edu.ukma.ssdm.teamspectrum.logic.room.RoomType.valueOf(request.roomType().name()),
-        org.javamoney.moneta.Money.of(
-            request.pricePerNight().amount(), request.pricePerNight().currency()),
-        edu.ukma.ssdm.teamspectrum.logic.room.RoomStatus.valueOf(request.roomStatus().name()),
+        toLogic(request.roomType()),
+        toLogic(request.pricePerNight()),
+        toLogic(request.roomStatus()),
         request.amenities());
   }
 
   public UpdateRoomCommand toLogic(UpdateRoom request) {
-    if (request.roomNumber() == null
-        && request.roomType() == null
-        && request.pricePerNight() == null
-        && request.roomStatus() == null
-        && request.amenities() == null) {
-      var error =
-          new ValidationError(
-              List.of(
-                  new ValidationError.FieldError("roomNumber", allNullMessage),
-                  new ValidationError.FieldError("roomType", allNullMessage),
-                  new ValidationError.FieldError("pricePerNight", allNullMessage),
-                  new ValidationError.FieldError("roomStatus", allNullMessage),
-                  new ValidationError.FieldError("amenities", allNullMessage)));
+    if (hasNoFields(request)) {
       throw new WebApplicationException(
-          Response.status(Response.Status.BAD_REQUEST).entity(error).build());
+          Response.status(Response.Status.BAD_REQUEST).entity(noFieldsError()).build());
     }
     return new UpdateRoomCommand(
         request.roomNumber(),
@@ -61,6 +50,21 @@ public class RoomFactory {
         toApi(room.pricePerNight()),
         toApi(room.roomStatus()),
         room.amenities());
+  }
+
+  private static boolean hasNoFields(UpdateRoom request) {
+    return request.roomNumber() == null
+        && request.roomType() == null
+        && request.pricePerNight() == null
+        && request.roomStatus() == null
+        && request.amenities() == null;
+  }
+
+  private static ValidationError noFieldsError() {
+    return new ValidationError(
+        updatableFields.stream()
+            .map(field -> new ValidationError.FieldError(field, allNullMessage))
+            .toList());
   }
 
   private org.javamoney.moneta.Money toLogic(edu.ukma.ssdm.teamspectrum.api.room.Money money) {
