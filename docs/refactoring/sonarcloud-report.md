@@ -153,7 +153,7 @@ See [screenshot from analysis panel](measures_after_9d88f0d.png)
 
 ### Refactoring for `v0.2.1`
 
-Second round, done by @VeronikaGovorischeva in PR #PRNUM.
+Second round, done by @VeronikaGovorischeva in PR #106.
 
 #### Before: report for `80ec284` (analysis of 07.11.2026, version `0.2.0`)
 
@@ -248,7 +248,7 @@ AFTER_TABLE
   were run, and after both the full build above (226 tests, SpotBugs 0); the `@NotNull`
   constraints of `CreateRoom` were checked by hand to confirm that the `null`-safe
   converters do not change the result for valid requests; the metrics after the merge are
-  in the table above; review in PR #PRNUM.
+  in the table above; review in PR #106.
 
 #### Bonuses:
 
@@ -276,6 +276,6 @@ after [fix](https://github.com/ukma-fin-ssdm-2026/Spectrum-project/commit/9dc175
   converter from this provider; the error message lists the values in declaration order.
 - **Order:** the test commit `test: characterization tests for enum query parameter
   converter` comes before the refactoring commit `refactor: look up enum query parameter
-  converters in a map [REFACTOR]` in PR #PRNUM.
+  converters in a map [REFACTOR]` in PR #106.
 - **Before and after:** 11 of 11 pass on the old code (run before the test commit) and on
-  the refactored code (run after the `[REFACTOR]` commit and in CI of PR #PRNUM).
+  the refactored code (run after the `[REFACTOR]` commit and in CI of PR #106).
