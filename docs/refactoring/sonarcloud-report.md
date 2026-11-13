@@ -219,7 +219,29 @@ Tests run: 226, Failures: 0, Errors: 0, Skipped: 0
 
 #### After
 
-AFTER_TABLE
+SonarQube Cloud analysis of PR #106 (it measures the changed files; Quality Gate: passed):
+
+| Measure                      | Project       | `EnumParamConverterProvider` | `RoomFactory` |
+|------------------------------|---------------|------------------------------|---------------|
+| ___*Code Smells___           | 0             | 0                            | 0             |
+| ___*Cognitive complexity___  | 93 (96 − 3)   | 2 (was 5)                    | 8 (was 8)     |
+| ___*Cyclomatic complexity___ | —             | 9 (was 11)                   | 23 (was 20)   |
+| Maintainability Rating       | A             |                              |               |
+| Reliability Rating           | A             |                              |               |
+| Duplicated Lines             | 0%            |                              |               |
+| Security Rating              | A             |                              |               |
+
+The project value 93 is the analysis of `80ec284` minus the change in the two files; the
+analysis of `main` after the merge confirms it.
+
+- **Improved:** `EnumParamConverterProvider` cognitive complexity 5 → 2, because the
+  `if`/`else if` chain is gone.
+- **Not improved by the metric:** `RoomFactory` cognitive complexity stays 8, and its
+  cyclomatic complexity grows 20 → 23, because SonarQube counts every method as +1 and two
+  methods were extracted. The gain there is removed duplication (each conversion and each
+  field name exists once) and a shorter `toLogic(UpdateRoom)`, which these metrics do not
+  show.
+- **Security Rating:** A before and after; the changes touch no security-relevant code.
 
 #### AI usage:
 
@@ -247,8 +269,8 @@ AFTER_TABLE
   and committed before the refactoring; after each `[REFACTOR]` commit the related tests
   were run, and after both the full build above (226 tests, SpotBugs 0); the `@NotNull`
   constraints of `CreateRoom` were checked by hand to confirm that the `null`-safe
-  converters do not change the result for valid requests; the metrics after the merge are
-  in the table above; review in PR #106.
+  converters do not change the result for valid requests; the metrics of the PR analysis
+  are in the table above; review in PR #106.
 
 #### Bonuses:
 
