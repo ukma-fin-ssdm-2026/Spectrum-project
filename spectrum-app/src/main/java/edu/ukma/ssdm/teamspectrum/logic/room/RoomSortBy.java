@@ -2,6 +2,6 @@
 package edu.ukma.ssdm.teamspectrum.logic.room;
 
 public enum RoomSortBy {
-  RoomNumber,
-  PricePerNight
+  ROOM_NUMBER,
+  PRICE_PER_NIGHT
 }
