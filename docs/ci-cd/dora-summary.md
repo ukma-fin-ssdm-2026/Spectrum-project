@@ -29,7 +29,7 @@ has no red run.
 | Recovery time | first red `main` run → next green `main` run | no incident in the period; last incident **43.5 h** (17.10 22:10 → 19.10 17:38) | 1 day to 1 week | 84.5% |
 
 The deployment frequency is 1 per day on average, but deployments come in bursts on 7 days
-(for example 9 on 24.10), so it is classed as "daily to weekly", not "hourly to daily".
+(for example 10 on 24.10), so it is classed as "daily to weekly", not "hourly to daily".
 
 **Lead time: queue and execution.** Of the summed lead time of the 21 deployments, the queue
 takes **0.01%** and the execution **0.03%**. The other **99.96%** is the time between the first
@@ -90,7 +90,7 @@ In a 4-person team the actions are proposals. Each row is based on the data in
 | Change lead time | PR #19 waited 35 days (829 h) | Organizational: open pull requests are not checked | Weekly triage of open pull requests in the issue tracker, closing or assigning stale ones | @FalsePromisee |
 | Deployment frequency | 1 deployment in the week from 07.11; PR #86, #99, #100 and #106 are open | Organizational: three of four members had no commits in the week (Lab 9 feedback) | Every member opens at least one small pull request per week; split larger work into smaller pull requests | @Roman19122006 |
 | Deployment frequency | Deployments in bursts on 7 of 21 days | Organizational: large, infrequent pull requests | Keep pull requests under ~300 changed lines so they can be reviewed the same day | @Demon4ort |
-| Change fail rate | 14 red runs in a row on `main` in October | Technical: CI depended on GitHub-hosted runners and the organization's billing | Keep the self-hosted runners as the default and document the fallback in `README.md` | @Demon4ort |
+| Change fail rate | 11 pull requests were merged while the last `main` run was red | Organizational: the author does not see the `main` status when merging | Add a pull request template with a checkbox "the last run on `main` is green" | @Roman19122006 |
 | Change fail rate | Merges continued into a red `main` | Organizational: no rule for a red `main` | Charter rule: while `main` is red, only the fix is merged | @VeronikaGovorischeva |
 | Recovery time | `main` red for 43.5 h, benchmark 60 min | Organizational: no owner of the pipeline health, no notification | Name a pipeline owner for each week and turn on GitHub notifications for failed workflow runs on `main` | @Demon4ort |
 | Recovery time | The cause was found only by reading the run log | Technical: the run fails in 3 s with no message in the summary | Add the "red `main`" checklist (read annotations, check runner, notify team) to `docs/process/task-workflow.md` | @VeronikaGovorischeva |
