@@ -1,16 +1,33 @@
 # Changelog
 
 ## [0.1.1] - <2026-10-31>
+
 ### Refactoring
-- Moved hotel amenity retrieval out of `toHotels` and passed the data into the mapper (`Separating Data Retrieval from Transformation`, `Add Parameter`). (see [HotelRepositoryImp](spectrum-app/src/main/java/edu/ukma/ssdm/teamspectrum/logic/hotel/HotelRepositoryImpl.java))
-- Replaced `HotelAlreadyExistsException` handling with a sealed result and handled the response in the controller (`Inline Class`, `Exception to Sealed Result`). (see [HotelController](spectrum-app/src/main/java/edu/ukma/ssdm/teamspectrum/api/hotel/HotelController.java))
-- From `RoomRepositoryImpl.update` extracted transaction, room number check, and amenity handling helpers (`Extract Method`, `Decompose Conditional`, `Replace Nested Conditional`). (see [RoomRepositoryImpl](spectrum-app/src/main/java/edu/ukma/ssdm/teamspectrum/logic/room/RoomRepositoryImpl.java))
+
+- Moved hotel amenity retrieval out of `toHotels` and passed the data into the mapper (
+  `Separating Data Retrieval from Transformation`, `Add Parameter`). (
+  see [HotelRepositoryImp](spectrum-app/src/main/java/edu/ukma/ssdm/teamspectrum/logic/hotel/HotelRepositoryImpl.java))
+- Replaced `HotelAlreadyExistsException` handling with a sealed result and handled the
+  response in the controller (`Inline Class`, `Exception to Sealed Result`). (
+  see [HotelController](spectrum-app/src/main/java/edu/ukma/ssdm/teamspectrum/api/hotel/HotelController.java))
+- From `RoomRepositoryImpl.update` extracted transaction, room number check, and amenity
+  handling helpers (`Extract Method`, `Decompose Conditional`,
+  `Replace Nested Conditional`). (
+  see [RoomRepositoryImpl](spectrum-app/src/main/java/edu/ukma/ssdm/teamspectrum/logic/room/RoomRepositoryImpl.java))
 - Provide db password through env for build (`Externalizing Configuration`)
 
 ## [0.2.0] - <2026-11-07>
 
 ### Feature
+
 - Query and transaction timeouts to db calls
 - Retries with backoff for timeout exceptions
 - Timeouts and retry are provided through config
 - Config is passed as type safe dependency and is initialized at application start
+
+## [0.3.0] - <2026-11-15>
+
+### Feature
+- Admin bootstrap
+- Worker invitation and registration
+- generated jooq sources committed

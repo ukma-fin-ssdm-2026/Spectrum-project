@@ -13,6 +13,7 @@ import jakarta.inject.Inject;
 import java.util.Optional;
 import java.util.UUID;
 import org.jooq.DSLContext;
+import org.jooq.impl.DSL;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
@@ -29,6 +30,28 @@ class UserRepositoryImplTest {
   @AfterEach
   void cleanUp() {
     dsl.deleteFrom(USERS).execute();
+  }
+
+  @Test
+  void writesToIsolatedTestSchema() {
+    User user = mkUser("hash", Role.CLIENT);
+    assertTrue(repository.add(user));
+
+    Long tableOid =
+        dsl.select(DSL.field("tableoid", Long.class))
+            .from(USERS)
+            .where(USERS.ID.eq(user.id()))
+            .fetchOne(0, Long.class);
+    String actualSchema =
+        dsl.fetchOne(
+                "select n.nspname from pg_class c join pg_namespace n on n.oid = c.relnamespace"
+                    + " where c.oid = ?",
+                tableOid)
+            .get(0, String.class);
+    String currentSchema = dsl.fetchOne("select current_schema()").get(0, String.class);
+
+    assertTrue(currentSchema.startsWith("repository_test_"));
+    assertEquals(currentSchema, actualSchema);
   }
 
   @Test

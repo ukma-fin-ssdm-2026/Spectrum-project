@@ -4,16 +4,27 @@ package edu.ukma.ssdm.teamspectrum.db;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Produces;
 import javax.sql.DataSource;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jooq.DSLContext;
 import org.jooq.SQLDialect;
+import org.jooq.conf.MappedSchema;
+import org.jooq.conf.RenderMapping;
+import org.jooq.conf.Settings;
 import org.jooq.impl.DSL;
 
 @ApplicationScoped
-<span class="fc" id="L12">public class JooqProducer {</span>
+<span class="fc" id="L16">public class JooqProducer {</span>
   @Produces
   @ApplicationScoped
-  DSLContext dslContext(DataSource dataSource) {
-<span class="fc" id="L16">    return DSL.using(dataSource, SQLDialect.POSTGRES);</span>
+  DSLContext dslContext(
+      DataSource dataSource,
+      @ConfigProperty(name = &quot;app.jooq.schema&quot;, defaultValue = &quot;public&quot;) String schema) {
+<span class="fc" id="L22">    Settings settings =</span>
+        new Settings()
+<span class="fc" id="L24">            .withRenderMapping(</span>
+                new RenderMapping()
+<span class="fc" id="L26">                    .withSchemata(new MappedSchema().withInput(&quot;public&quot;).withOutput(schema)));</span>
+<span class="fc" id="L27">    return DSL.using(dataSource, SQLDialect.POSTGRES, settings);</span>
   }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>
